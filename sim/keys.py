@@ -26,4 +26,8 @@ A_Mor = 3
 A_NotiPub = 4
 A_NotiPri = 5
 
-N_Aux = 6
+A_YieldATB = 6
+A_YieldLTBI = 7
+A_YieldOT = 8
+
+N_Aux = 9

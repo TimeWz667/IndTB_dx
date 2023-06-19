@@ -81,9 +81,14 @@ class ModelPlain(AbsModelODE):
         y = y.reshape((I.N_States, self.NDim))
         n = y.sum()
 
-        mea = dict(Year=t, N=n, PrevUt=(y[I.Asym] + y[I.Sym] + y[I.ExCS]).sum() / n, PrevA=y[I.Asym].sum() / n,
-                   PrevS=y[I.Sym].sum() / n, PrevC=y[I.ExCS].sum() / n, PrevTxPub=y[I.TxPub].sum() / n,
-                   PrevTxPri=y[I.TxPri].sum() / n, LTBI=(y[I.LTBI].sum()) / n)
+        mea = dict(Year=t, N=n,
+                   PrevUt=(y[I.Asym] + y[I.Sym] + y[I.ExCS]).sum() / n,
+                   PrevA=y[I.Asym].sum() / n,
+                   PrevS=y[I.Sym].sum() / n,
+                   PrevC=y[I.ExCS].sum() / n,
+                   PrevTxPub=y[I.TxPub].sum() / n,
+                   PrevTxPri=y[I.TxPri].sum() / n,
+                   LTBI=(y[I.LTBI].sum()) / n)
 
         mea['PrA'] = mea['PrevA'] / mea['PrevUt']
         mea['PrS'] = mea['PrevS'] / mea['PrevUt']
@@ -96,6 +101,16 @@ class ModelPlain(AbsModelODE):
         mea['CumNotiPub'] = aux[I.A_NotiPub]
         mea['CumNotiPri'] = aux[I.A_NotiPri]
         mea['CumNoti'] = mea['CumNotiPub'] + mea['CumNotiPri']
+        mea['CumYieldATB'] = aux[I.A_YieldATB]
+        mea['CumYieldLTBI'] = aux[I.A_YieldLTBI]
+        mea['CumYieldOT'] = aux[I.A_YieldOT]
+
+        # calc = dict()
+        # self.ProcDx.calculate_calc(t, y, pars, calc, intv=intv)
+        #
+        # mea['YieldATB'] = calc['acf_a'].sum() + calc['acf_s'].sum() + calc['acf_c'].sum()
+        # mea['YieldLTBI'] = calc['acf_l'].sum() + calc['acf_td'].sum()
+        # mea['YieldOT'] = calc['acf_ot'].sum()
 
         return mea
 
