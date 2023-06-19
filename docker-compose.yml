@@ -1,0 +1,15 @@
+version:                "1"
+services:
+  sim_indtb:
+    image: timewz667/sims-pars:v2.6.1
+    volumes:
+      - ./notebooks:/home/jovyan/work
+      - ./data:/home/jovyan/work/data
+      - ./pars:/home/jovyan/work/pars
+      - ./out:/home/jovyan/work/out
+      - ./sim:/home/jovyan/work/sim
+    ports:
+      - 8888:8888
+    environment:
+      - JUPYTER_TOKEN=hi
+    container_name: sim_indtb

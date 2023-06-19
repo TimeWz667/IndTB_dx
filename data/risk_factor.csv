@@ -1,0 +1,9 @@
+age_group,sex,risk_factor,prob
+all,a,hiv,0.0017
+all,a,und,0.14
+15plus,f,alc,0.005
+15plus,f,smk,0.014
+15plus,m,alc,0.091
+15plus,m,smk,0.22
+18plus,f,dia,0.083
+18plus,m,dia,0.091
