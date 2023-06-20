@@ -41,10 +41,12 @@ class Dx(Process):
         calc['acf_a'] = r_acf_a * y[I.Asym]
         calc['acf_s'] = r_acf_s * y[I.Sym]
         calc['acf_c'] = r_acf_s * y[I.ExCS]
-        calc['acf_l'] = r_acf_l * y[I.FLat]
+        calc['acf_fl'] = r_acf_l * y[I.FLat]
         calc['acf_td'] = r_acf_l * y[I.RHigh]
 
-        calc['acf_ot'] = r_acf_ot * (y[I.U] + y[I.SLat] + y[I.RLow] + y[I.RSt])
+        calc['acf_u'] = r_acf_ot * y[I.U]
+        calc['acf_sl'] = r_acf_ot * y[I.SLat]
+        calc['acf_tc'] = r_acf_ot * (y[I.RLow] + y[I.RSt])
 
         return calc
 
@@ -64,14 +66,14 @@ class Dx(Process):
         dy[I.TxPri] += txi[1]
 
         acf_a, acf_s, acf_c = calc['acf_a'], calc['acf_s'], calc['acf_c']
-        dy[I.Asym] += - acf_a
-        dy[I.Sym] += - acf_s
-        dy[I.ExCS] += - acf_c
+        dy[I.Asym] -= acf_a
+        dy[I.Sym] -= acf_s
+        dy[I.ExCS] -= acf_c
         dy[I.TxPub] += acf_a + acf_s + acf_c
 
-        acf_l, acf_td = calc['acf_l'], calc['acf_td']
-        dy[I.FLat] -= acf_l
-        dy[I.SLat] += acf_l
+        acf_fl, acf_td = calc['acf_fl'], calc['acf_td']
+        dy[I.FLat] -= acf_fl
+        dy[I.SLat] += acf_fl
         dy[I.RHigh] -= acf_td
         dy[I.RLow] += acf_td
 
@@ -80,10 +82,10 @@ class Dx(Process):
         da[I.A_NotiPub] += (tp0[0] + tp1[0] + fp[0]).sum()
         da[I.A_NotiPri] += (tp0[1] + tp1[1] + fp[1]).sum()
 
-        acf_ot = calc['acf_ot']
-        da[I.A_YieldATB] += acf_a + acf_s + acf_c
-        da[I.A_YieldLTBI] += acf_l + acf_td
-        da[I.A_YieldOT] += acf_ot
+        acf_u, acf_sl, acf_tc = calc['acf_u'], calc['acf_sl'], calc['acf_tc']
+        da[I.A_YieldATB] += (acf_a + acf_s + acf_c).sum()
+        da[I.A_YieldLTBI] += (acf_fl + acf_sl + acf_td).sum()
+        da[I.A_YieldOT] += (acf_u + acf_tc).sum()
 
         return dy, da
 

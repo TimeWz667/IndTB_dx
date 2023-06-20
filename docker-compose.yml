@@ -12,4 +12,4 @@ services:
       - 8888:8888
     environment:
       - JUPYTER_TOKEN=hi
-    container_name: sim_indtb
+    container_name: sim_indtb_dx

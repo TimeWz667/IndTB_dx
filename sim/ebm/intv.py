@@ -34,13 +34,13 @@ class Intervention(BaseModel):
                 eli = np.ones(4)
                 if acf.Target == '10%':
                     eli[:3] = 0
-                    r_acf0 = r_acf0 * eli / 0.9
+                    r_acf0 = r_acf0 * eli / 0.1
                 elif acf.Target == '20%':
                     eli[:2] = 0
-                    r_acf0 = r_acf0 * eli / 0.8
+                    r_acf0 = r_acf0 * eli / 0.2
                 elif acf.Target == '30%':
                     eli[:1] = 0
-                    r_acf0 = r_acf0 * eli / 0.7
+                    r_acf0 = r_acf0 * eli / 0.3
 
             return r_acf0 * acf.Sens_A, r_acf0 * acf.Sens_S, r_acf0 * acf.Sens_L, r_acf0 * (1 - acf.Spec)
         else:

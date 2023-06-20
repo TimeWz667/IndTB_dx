@@ -3,7 +3,7 @@ import sim.keys as I
 from sim.ebm.util import AbsModelODE
 from sim.components import Demography, ActiveTB, LatentTB, Dx
 from sim.inputs import load_inputs
-__all__ = ['ModelPlain', 'ModelBaseline', 'load_obj_baseline']
+__all__ = ['ModelPlain', 'ModelBaseline']
 
 
 class ModelPlain(AbsModelODE):

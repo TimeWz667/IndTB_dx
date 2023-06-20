@@ -1,9 +1,10 @@
 from sim.ebm.dy import ModelBaseline
+from sim.ebm.dy_risk import ModelRisk
 from sim.inputs import load_inputs
 from sim.ebm.intv import Intervention
 
 __author__ = 'Chu-Chang Ku'
-__all__ = ['load_model_baseline']
+__all__ = ['load_model_baseline', 'load_model_powerlaw']
 
 
 def load_model_baseline(root):
@@ -13,15 +14,22 @@ def load_model_baseline(root):
     return ModelBaseline(inp)
 
 
+def load_model_powerlaw(root):
+    inp = load_inputs(root)
+    inp.Demography.HasMigration = False
+    inp.Demography.set_year0(2000)
+    return ModelRisk(inp)
+
+
 if __name__ == '__main__':
     import pandas as pd
     import numpy as np
     import matplotlib.pylab as plt
 
-    model = load_model_baseline('../data')
+    model = load_model_powerlaw('../data')
     print(model)
 
-    post = pd.read_csv('../pars/baseline/Post.csv').iloc[:, 1:]
+    post = pd.read_csv('../pars/powerlaw/Post.csv').iloc[:, 1:]
     post = [dict(row) for _, row in post.iterrows()]
     post = [model.Inputs.Cascade.prepare_pars(p) for p in post]
     print(post[0])
@@ -33,15 +41,16 @@ if __name__ == '__main__':
 
     intv1 = Intervention.parse_obj({
         'MassACF': {
+            'Target': '20%',
             'Coverage': 0.2,
+            'Sens_L': 0,
         }
     })
 
     intv2 = Intervention.parse_obj({
         'MassACF': {
+            'Target': '20%',
             'Coverage': 0.2,
-            'Sens_A': 0,
-            'Sens_L': 0,
         }
     })
 
