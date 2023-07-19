@@ -1,2 +1,2 @@
 # IndTB_dx
-Diagnostic/ treatment technology assessment for TB iin India
+Diagnostic/ treatment technology assessment for TB in India
