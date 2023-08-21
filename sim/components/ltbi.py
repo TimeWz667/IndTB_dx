@@ -48,6 +48,7 @@ class LatentTB(Process):
 
         da[I.A_IncRecent] = sum(calc['inc_act'])
         da[I.A_IncRemote] = sum(calc['inc_react'] + calc['inc_rel_st'] + calc['inc_rel_rl'] + calc['inc_rel_rh'])
+        da[I.A_IncRetreat] = sum(calc['inc_rel_st'] + calc['inc_rel_rl'] + calc['inc_rel_rh'])
         da[I.A_Inc] = da[I.A_IncRecent] + da[I.A_IncRemote]
 
         return dy, da

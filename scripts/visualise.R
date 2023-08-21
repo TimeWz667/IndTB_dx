@@ -166,8 +166,8 @@ g_fp
 #### LTBI -----
 
 ltbi0 <- mss0 %>% 
-  mutate(Recent = IncRecentR / IncR) %>% 
-  select(Year, LTBI, Recent) %>% 
+  mutate(Recent = IncRecentR / IncR, Retreated = IncRetreatR / IncR) %>% 
+  select(Year, LTBI, Recent, Retreated) %>% 
   pivot_longer(-Year, names_to = "Index") %>% 
   group_by(Year, Index) %>% 
   summarise(
@@ -178,8 +178,8 @@ ltbi0 <- mss0 %>%
 
 
 ltbi1 <- mss1 %>% 
-  mutate(Recent = IncRecentR / IncR) %>% 
-  select(Year, Scenario, LTBI, Recent) %>% 
+  mutate(Recent = IncRecentR / IncR, Retreated = IncRetreatR / IncR) %>% 
+  select(Year, Scenario, LTBI, Recent, Retreated) %>% 
   pivot_longer(-c(Year, Scenario), names_to = "Index") %>% 
   group_by(Year, Index, Scenario) %>% 
   summarise(
@@ -194,10 +194,10 @@ ltbi <- bind_rows(
     filter(Year >= 2016) %>% 
     mutate(Scenario = "Baseline") %>% 
     ungroup(),
-  ltbi1  %>% 
-    filter(Year > 2022)%>% 
-    filter(Year <= 2030)%>% 
-    ungroup() 
+  # ltbi1  %>% 
+  #   filter(Year > 2022)%>% 
+  #   filter(Year <= 2030)%>% 
+  #   ungroup() 
 ) %>% 
   ungroup() %>% 
   mutate(
@@ -214,9 +214,10 @@ g_ltbi <- ltbi %>%
   scale_x_continuous(breaks = c(2016, 2020, 2023, 2025, 2030)) +
   scale_y_continuous("percent", labels = scales::percent) + 
   facet_wrap(.~Index, scale = "free_y", labeller = labeller(Index=c(LTBI="Latent TB infection", 
-                                                                    Recent = "Incidence from \nrecent infection"))) +
+                                                                    Recent = "Incident TB \n from recent infection",
+                                                                    Retreated = "Incident TB \nwith treatment history"))) +
   expand_limits(y = 0:1) +
-  geom_vline(xintercept = 2023, linetype = 2) +
+  #geom_vline(xintercept = 2023, linetype = 2) +
   theme(legend.position = "bottom")
 
 g_ltbi
@@ -234,3 +235,38 @@ ggsave(g_ltbi, filename=here::here("docs", "figs", "g_bs_ltbi.png"), width = 8, 
 
 
 
+
+mss1 %>% 
+  select(Year, Key, Scenario, NotiR, IncR, YieldATBR) %>% 
+  group_by(Scenario) %>% 
+  mutate(YieldATBR / NotiR)
+
+mss1 %>% 
+  select(Year, Key, Scenario, NotiR, IncR, YieldATBR) %>% 
+  left_join(mss1 %>% filter(Scenario == "Baseline") %>% select(Year, Key, NotiR0 = NotiR)) %>% 
+  mutate(PrIncre = YieldATBR / NotiR0, Add = (YieldATBR + NotiR) / NotiR0) %>% 
+  group_by(Year, Scenario) %>% 
+  summarise(
+    Pi_M = median(PrIncre), 
+    Pi_L = quantile(PrIncre, 0.025),
+    Pi_U = quantile(PrIncre, 0.975),
+    Add_M = median(Add), 
+    Add_L = quantile(Add, 0.025),
+    Add_U = quantile(Add, 0.975)
+  ) %>%  
+  filter(Year == 2030)
+
+
+mss1 %>% 
+  mutate(
+    Dur = PrevUt / IncR
+  ) %>% 
+  select(Year, Key, Scenario, Dur) %>% 
+  group_by(Year, Scenario) %>% 
+  summarise(
+    Dur_M = median(Dur), 
+    Dur_L = quantile(Dur, 0.025),
+    Dur_U = quantile(Dur, 0.975)
+  ) %>% 
+  arrange(Scenario) %>% 
+  data.frame()

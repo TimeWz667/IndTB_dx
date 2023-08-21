@@ -42,15 +42,15 @@ class CasRepo:
         txis = np.array([pp[f'txi_{sec}'] for sec in ['pub', 'eng', 'pri']])
         txi = txis.sum()
 
-        p_txi = np.array([exo[f'p_txi_{sec}'] for sec in ['pub', 'eng', 'pri']])
+        p_txi = np.array([pp[f'p_txi_{sec}'] for sec in ['pub', 'eng', 'pri']])
 
         det = txis / p_txi
         ppm = det[1] / det[1:].sum()
-        p_ent_pub = exo['p_ent_pub']
+        p_ent_pub = pp['ent_pub']
         p_ent = np.array([p_ent_pub, (1 - p_ent_pub) * ppm, (1 - p_ent_pub) * (1 - ppm)])
 
         p_dx = det / p_ent
-        p_dx *= exo['p_dx_pub'] / p_dx[0]
+        p_dx *= pp['pdx_pub'] / p_dx[0]
 
         p_dx_all = (p_txi * p_dx * p_ent).sum()
 
@@ -92,7 +92,6 @@ class CasRepo:
             'inc': inc,
             'prev_ut': prev['PrevUt'],
             'prev_asc': (p_a, p_s, p_c)
-
         }
         ps.update(exo)
 
@@ -130,7 +129,7 @@ if __name__ == '__main__':
     with open('../../data/prior.txt', 'r') as f:
         prior = bayes_net_from_script(f.read())
 
-    cr = CasRepo.load('../../data/pars_tx_india.json')
+    cr = CasRepo.load('../../data/pars_cs_all.json')
 
     exo = sample(prior)
     ps = cr.prepare_pars(exo=exo)

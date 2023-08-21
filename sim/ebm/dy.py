@@ -96,6 +96,7 @@ class ModelPlain(AbsModelODE):
 
         mea['CumIncRecent'] = aux[I.A_IncRecent]
         mea['CumIncRemote'] = aux[I.A_IncRemote]
+        mea['CumIncRetreat'] = aux[I.A_IncRetreat]
         mea['CumInc'] = aux[I.A_Inc]
         mea['CumMor'] = aux[I.A_Mor]
         mea['CumNotiPub'] = aux[I.A_NotiPub]

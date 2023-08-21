@@ -22,12 +22,13 @@ LTBI = [FLat, SLat, RLow, RHigh, RSt]
 A_Inc = 0
 A_IncRecent = 1
 A_IncRemote = 2
-A_Mor = 3
-A_NotiPub = 4
-A_NotiPri = 5
+A_IncRetreat = 3
+A_Mor = 4
+A_NotiPub = 5
+A_NotiPri = 6
 
-A_YieldATB = 6
-A_YieldLTBI = 7
-A_YieldOT = 8
+A_YieldATB = 7
+A_YieldLTBI = 8
+A_YieldOT = 9
 
-N_Aux = 9
+N_Aux = 10

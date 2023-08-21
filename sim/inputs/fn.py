@@ -16,6 +16,6 @@ def load_inputs(root):
 
     demo = Demography(src)
 
-    cr = CasRepo.load(f'{root}/pars_tx.json')
+    cr = CasRepo.load(f'{root}/pars_cs_all.json')
 
     return Inputs(demo, cr)
