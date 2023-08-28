@@ -1,16 +1,15 @@
 import numpy as np
-import sim.keys as I
+import sim.ebm.keys as I
 from sim.ebm.util import AbsModelODE
-from sim.components import Demography, ActiveTB, LatentTB, Dx
-from sim.inputs import load_inputs
+from sim.ebm.components import Demography, ActiveTB, LatentTB, Dx
+
 __all__ = ['ModelPlain', 'ModelBaseline']
 
 
 class ModelPlain(AbsModelODE):
     def __init__(self, n_dim, inputs):
-        AbsModelODE.__init__(self, n_dim, inputs, 2022, 2030, dt=1, t_warmup=300, dfe=None)
+        AbsModelODE.__init__(self, n_dim, inputs, 2022, 2035, dt=1, t_warmup=300, dfe=None)
         self.Year0 = inputs.Demography.Year0
-
         self.YearBaseline = 2022
         self.ProcDemo = Demography(I, inputs.Demography)
         self.ProcATB = ActiveTB(I)
@@ -36,7 +35,7 @@ class ModelPlain(AbsModelODE):
 
     def get_y0(self, pars):
         y0 = np.zeros((I.N_States, self.NDim))
-        y0[I.Asym], y0[I.Sym], y0[I.ExCS] = pars['prev_asc']
+        y0[I.Asym], y0[I.Sym], y0[I.ExCS] = 0.0004, 0.001, 0.0001
         y0[I.SLat] = 0.5
         y0[I.U] = 1 - y0.sum(0)
         y0 *= self.Inputs.Demography.N0 / self.NDim
@@ -81,14 +80,9 @@ class ModelPlain(AbsModelODE):
         y = y.reshape((I.N_States, self.NDim))
         n = y.sum()
 
-        mea = dict(Year=t, N=n,
-                   PrevUt=(y[I.Asym] + y[I.Sym] + y[I.ExCS]).sum() / n,
-                   PrevA=y[I.Asym].sum() / n,
-                   PrevS=y[I.Sym].sum() / n,
-                   PrevC=y[I.ExCS].sum() / n,
-                   PrevTxPub=y[I.TxPub].sum() / n,
-                   PrevTxPri=y[I.TxPri].sum() / n,
-                   LTBI=(y[I.LTBI].sum()) / n)
+        mea = dict(Year=t, N=n, PrevUt=(y[I.Asym] + y[I.Sym] + y[I.ExCS]).sum() / n, PrevA=y[I.Asym].sum() / n,
+                   PrevS=y[I.Sym].sum() / n, PrevC=y[I.ExCS].sum() / n, PrevTxPub=y[I.TxPub].sum() / n,
+                   PrevTxPri=y[I.TxPri].sum() / n, LTBI=(y[I.LTBI].sum()) / n)
 
         mea['PrA'] = mea['PrevA'] / mea['PrevUt']
         mea['PrS'] = mea['PrevS'] / mea['PrevUt']
@@ -96,22 +90,12 @@ class ModelPlain(AbsModelODE):
 
         mea['CumIncRecent'] = aux[I.A_IncRecent]
         mea['CumIncRemote'] = aux[I.A_IncRemote]
-        mea['CumIncRetreat'] = aux[I.A_IncRetreat]
         mea['CumInc'] = aux[I.A_Inc]
         mea['CumMor'] = aux[I.A_Mor]
         mea['CumNotiPub'] = aux[I.A_NotiPub]
         mea['CumNotiPri'] = aux[I.A_NotiPri]
         mea['CumNoti'] = mea['CumNotiPub'] + mea['CumNotiPri']
-        mea['CumYieldATB'] = aux[I.A_YieldATB]
-        mea['CumYieldLTBI'] = aux[I.A_YieldLTBI]
-        mea['CumYieldOT'] = aux[I.A_YieldOT]
-
-        # calc = dict()
-        # self.ProcDx.calculate_calc(t, y, pars, calc, intv=intv)
-        #
-        # mea['YieldATB'] = calc['acf_a'].sum() + calc['acf_s'].sum() + calc['acf_c'].sum()
-        # mea['YieldLTBI'] = calc['acf_l'].sum() + calc['acf_td'].sum()
-        # mea['YieldOT'] = calc['acf_ot'].sum()
+        mea['CumACF'] = aux[I.A_ACF]
 
         return mea
 
@@ -124,12 +108,10 @@ class ModelBaseline(ModelPlain):
 if __name__ == '__main__':
     import matplotlib.pylab as plt
     import numpy.random as rd
+    from sim.inputs import load_inputs
     from sims_pars import bayes_net_from_script, sample
 
     rd.seed(1167)
-
-    with open('../../data/prior.txt', 'r') as f:
-        prior = bayes_net_from_script(f.read())
 
     exo0 = {
         'beta': 25,
@@ -137,12 +119,17 @@ if __name__ == '__main__':
         'drt_trans': 0.02
     }
 
-    inp = load_inputs('../../data')
+    with open('../../db_src/prior.txt', 'r') as f:
+        scr = f.read()
+    bn = bayes_net_from_script(scr)
+
+    inp = load_inputs('../../db_src/India')
     inp.Demography.HasMigration = False
     inp.Demography.set_year0(2000)
     model0 = ModelBaseline(inp)
+
     cr = model0.Inputs.Cascade
-    ps = sample(prior, exo0)
+    ps = sample(bn, cond=exo0)
     ps = cr.prepare_pars(ps)
 
     _, ms0, _ = model0.simulate_to_fit(ps, np.linspace(2000, 2030, 31))

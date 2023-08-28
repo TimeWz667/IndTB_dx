@@ -1,4 +1,4 @@
-from sim.components.proc import Process
+from sim.ebm.components.proc import Process
 import numpy as np
 
 __author__ = 'Chu-Chang Ku'
@@ -16,11 +16,16 @@ class Demography(Process):
 
         dr_tb = np.zeros_like(y)
 
+        r_die_tx_pub, r_die_tx_pri = pars['r_txd']
+
+        if 'intv' in kwargs and kwargs['intv'] is not None:
+            r_die_tx_pub = kwargs['intv'].modify_td(t, r_die_tx_pub)
+
         dr_tb[I.Asym] = pars['r_die_asym']
         dr_tb[I.Sym] = pars['r_die_sym']
         dr_tb[I.ExCS] = pars['r_die_sym']
-        dr_tb[I.TxPub] = pars['r_txd'][0]
-        dr_tb[I.TxPri] = pars['r_txd'][1]
+        dr_tb[I.TxPub] = r_die_tx_pub
+        dr_tb[I.TxPri] = r_die_tx_pri
 
         calc['die_tb'] = die_tb = dr_tb * y
 

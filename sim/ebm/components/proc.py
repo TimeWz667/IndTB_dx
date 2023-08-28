@@ -15,12 +15,12 @@ class Process(metaclass=ABCMeta):
         return self.compose_dya(ya, calc), calc
 
     @abstractmethod
+    def calculate_calc(self, t, y, pars, calc, **kwargs):
+        pass
+
+    @abstractmethod
     def compose_dya(self, ya, calc: dict):
         pass
 
     def measure(self, mea: dict, t, ya, pars, calc: dict, **kwargs):
-        pass
-
-    @abstractmethod
-    def calculate_calc(self, t, y, pars, calc, **kwargs):
         pass

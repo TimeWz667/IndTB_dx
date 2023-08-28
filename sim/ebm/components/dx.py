@@ -1,4 +1,4 @@
-from sim.components.proc import Process
+from sim.ebm.components.proc import Process
 import numpy as np
 
 __author__ = 'Chu-Chang Ku'
@@ -19,8 +19,16 @@ class Dx(Process):
         r_recsi *= k
 
         p_ent, p_txi = pars['p_ent'], pars['p_txi']
-        pdx0 = p_ent * pars['p_dx0'] * p_txi
-        pdx1 = p_ent * pars['p_dx1'] * p_txi
+
+        p_pdx0 = p_pdx1 = pars['p_dx'] #, pars['p_dx1']
+
+        if 'intv' in kwargs and kwargs['intv'] is not None:
+            r_csi, r_recsi = kwargs['intv'].modify_cs(t, r_csi, r_recsi)
+            p_ent = kwargs['intv'].modify_access(t, p_ent)
+            p_pdx0, p_pdx1 = kwargs['intv'].modify_dx(t, p_pdx0, p_pdx1)
+
+        pdx0 = p_ent * p_pdx0 * p_txi
+        pdx1 = p_ent * p_pdx1 * p_txi
 
         calc['tp0'] = tp0 = r_csi * pdx0.reshape((-1, 1)) * y[I.Sym].reshape((1, -1))
         calc['fn0'] = r_csi * (p_ent - pdx0).reshape((-1, 1)) * y[I.Sym].reshape((1, -1))
@@ -32,21 +40,6 @@ class Dx(Process):
 
         ppv = pars['ppv'].reshape((-1, 1))
         calc['fp'] = (tp0 + tp1) * (1 - ppv) / ppv
-
-        if 'intv' in kwargs and kwargs['intv'] is not None:
-            r_acf_a, r_acf_s, r_acf_l, r_acf_ot = kwargs['intv'].modify_acf(t, n_dim=y.shape[1])
-        else:
-            r_acf_a, r_acf_s, r_acf_l, r_acf_ot = 0, 0, 0, 0
-
-        calc['acf_a'] = r_acf_a * y[I.Asym]
-        calc['acf_s'] = r_acf_s * y[I.Sym]
-        calc['acf_c'] = r_acf_s * y[I.ExCS]
-        calc['acf_fl'] = r_acf_l * y[I.FLat]
-        calc['acf_td'] = r_acf_l * y[I.RHigh]
-
-        calc['acf_u'] = r_acf_ot * y[I.U]
-        calc['acf_sl'] = r_acf_ot * y[I.SLat]
-        calc['acf_tc'] = r_acf_ot * (y[I.RLow] + y[I.RSt])
 
         return calc
 
@@ -65,27 +58,10 @@ class Dx(Process):
         dy[I.TxPub] += txi[0]
         dy[I.TxPri] += txi[1]
 
-        acf_a, acf_s, acf_c = calc['acf_a'], calc['acf_s'], calc['acf_c']
-        dy[I.Asym] -= acf_a
-        dy[I.Sym] -= acf_s
-        dy[I.ExCS] -= acf_c
-        dy[I.TxPub] += acf_a + acf_s + acf_c
-
-        acf_fl, acf_td = calc['acf_fl'], calc['acf_td']
-        dy[I.FLat] -= acf_fl
-        dy[I.SLat] += acf_fl
-        dy[I.RHigh] -= acf_td
-        dy[I.RLow] += acf_td
-
         fp = calc['fp']
 
         da[I.A_NotiPub] += (tp0[0] + tp1[0] + fp[0]).sum()
         da[I.A_NotiPri] += (tp0[1] + tp1[1] + fp[1]).sum()
-
-        acf_u, acf_sl, acf_tc = calc['acf_u'], calc['acf_sl'], calc['acf_tc']
-        da[I.A_YieldATB] += (acf_a + acf_s + acf_c).sum()
-        da[I.A_YieldLTBI] += (acf_fl + acf_sl + acf_td).sum()
-        da[I.A_YieldOT] += (acf_u + acf_tc).sum()
 
         return dy, da
 

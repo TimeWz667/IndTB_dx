@@ -73,12 +73,12 @@ class AbsModelODE(metaclass=ABCMeta):
         return ys, None, msg
 
     def simulate_onward(self, y0, pars, intv=None):
-        t0, t1 = self.T0, self.T1 + self.DT
+        t0, t1 = self.T0, self.T1
 
         pars = self.reform_parameters(pars)
 
         ys, msg = self._simulate(t0, t1, y0=y0, pars=pars, intv=intv, dense_output=True)
-        t_eval = np.linspace(t0, t1, int((t1 - t0) / self.DT + 1))
+        t_eval = np.linspace(t0, t1, int((t1 - t0) / self.DT) + 1)
 
         if msg['succ']:
             t_eval0, t_eval1 = t_eval, t_eval + self.DT

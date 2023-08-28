@@ -7,15 +7,13 @@ __author__ = 'Chu-Chang Ku'
 __all__ = ['load_inputs']
 
 
-Inputs = namedtuple("Inputs", ('Demography', 'Cascade'))
+Inputs = namedtuple("Inputs", ('Demography', 'Cascade', 'Targets'))
 
 
 def load_inputs(root):
-    with open(f'{root}/pars_pop.json', 'r') as f:
-        src = json.load(f)
+    with open(f'{root}/pars_demo.json', 'r') as f:
+        demo = Demography(json.load(f))
+    cr = CasRepo.load(f'{root}/pars_cs.json')
+    tar = cr.Targets
 
-    demo = Demography(src)
-
-    cr = CasRepo.load(f'{root}/pars_cs_all.json')
-
-    return Inputs(demo, cr)
+    return Inputs(demo, cr, tar)

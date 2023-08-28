@@ -10,25 +10,23 @@ SLat = 8
 RLow = 9
 RHigh = 10
 RSt = 11
+FLatVac = 12
+SLatVac = 13
 
-N_States = 12
+N_States = 14
 
 Infectious = [Asym, Sym, ExCS]
 PTB = [Asym, Sym, ExCS, TxPub, TxPri]
 UtTB = [Asym, Sym, ExCS]
-LTBI = [FLat, SLat, RLow, RHigh, RSt]
+LTBI = [FLat, SLat, RLow, RHigh, RSt, FLatVac, SLatVac]
 
 
 A_Inc = 0
 A_IncRecent = 1
 A_IncRemote = 2
-A_IncRetreat = 3
-A_Mor = 4
-A_NotiPub = 5
-A_NotiPri = 6
+A_Mor = 3
+A_NotiPub = 4
+A_NotiPri = 5
+A_ACF = 6
 
-A_YieldATB = 7
-A_YieldLTBI = 8
-A_YieldOT = 9
-
-N_Aux = 10
+N_Aux = 7
