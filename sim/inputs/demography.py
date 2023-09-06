@@ -1,58 +1,74 @@
 from scipy.interpolate import interp1d
-from functools import lru_cache
-import json
+import numpy as np
+
 
 __author__ = 'Chu-Chang Ku'
 __all__ = ['Demography']
 
 
+def interp_cont(years, v):
+    return interp1d(years, v, axis=0, kind='linear', bounds_error=False, fill_value=(v[0], v[-1]))
+
+
 class Demography:
-    def __init__(self, src, year0=2000):
-        self.Source = src
-        self.Years = src['Year']
-        self.Year0 = year0
+    def __init__(self, src):
+        self.DimNames = src['dimnames']
+        self.Source = dict(src)
+        self.Years = years = src['Year']
+        self.YearSpan = min(years), max(years)
+        self.Year0 = self.YearSpan[0] + 0.5
 
-        self.YearRange = [min(self.Years), max(self.Years)]
+        fn = interp_cont
 
-        self.RateDeath = interp1d(self.Years, src['RateDeath'])
-        self.RateBirth = interp1d(self.Years, src['RateBirth'])
-        self.RateMigration = interp1d(self.Years, src['RateMig'])
-        self.N = interp1d(self.Years, src['N'])
-        self.N0 = self.N(year0)
+        self.N = fn(years, src['N'])
+        self.RateBirth = fn(years, src['RateBirth'])
+        self.RateDeath = fn(years, src['RateDeath'])
+        self.RateAgeing = fn(years, src['RateAgeing'])
+        self.RateMig = fn(years, src['RateMig']) if 'RateMig' in src else None
+
+        self.N0 = self.N(self.Year0)
 
     def set_year0(self, year0):
-        assert self.YearRange[0] < year0 < self.YearRange[1]
+        assert self.YearSpan[0] < year0 < self.YearSpan[1]
         self.Year0 = year0
         self.N0 = self.N(year0)
 
-    @lru_cache(maxsize=1024)
-    def __call__(self, time):
-        if time < self.YearRange[0]:
-            time = self.YearRange[0]
-        elif time > self.YearRange[1]:
-            time = self.YearRange[1]
+    def calc_mig(self, t, y):
+        n = self.N(t)
+        return 50 * (n - y) / n
 
-        br, dr, mr = float(self.RateBirth(time)), float(self.RateDeath(time)), float(self.RateMigration(time))
-
-        return {
-            'Year': time,
-            'r_birth': br,
-            'r_die': dr,
-            'r_mig': mr
+    def __call__(self, t, y=None):
+        pars = {
+            'N': self.N(t),
+            'r_birth': self.RateBirth(t),
+            'r_ageing': self.RateAgeing(t),
+            'r_death': self.RateDeath(t)
         }
+        if self.RateMig is not None:
+            pars['r_mig'] = self.RateMig(t)
+        elif y is not None:
+            pars['r_mig'] = self.calc_mig(t, y)
+        else:
+            pars['r_mig'] = np.zeros_like(pars['r_death'])
 
-    @staticmethod
-    def load(file, year0=2000):
-        with open(file, 'r') as f:
-            js = json.load(f)
-        return Demography(js, year0=year0)
+        return pars
 
 
 if __name__ == '__main__':
-    demo = Demography.load('../../db_src/Delhi/pars_demo.json', year0=1990)
+    import pickle as pkl
 
-    print('Year: 1990')
-    print(demo(1990))
+    with open('../../data/ind_who_70to35.pkl', 'rb') as f:
+        src = pkl.load(f)
 
-    print('Year: 2030')
-    print(demo(2030))
+    demo = Demography(src)
+    for k, v in demo(2020).items():
+        print(k, v)
+
+    print('----------------------------------------------------')
+    with open('../../data/ind_all_70to35.pkl', 'rb') as f:
+        src = pkl.load(f)
+
+    demo = Demography(src)
+    for k, v in demo(2020).items():
+        print(k, v)
+

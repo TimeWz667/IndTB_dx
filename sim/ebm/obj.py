@@ -62,8 +62,28 @@ class Obj(DataModel):
         return Particle(pars, ext)
 
 
-def load_obj_baseline(folder_input, file_prior, year0=2000, exo=None):
-    inp = load_inputs(folder_input)
+def load_obj_baseline(folder_input, file_prior, year0=2000, exo=None, suffix='free'):
+    inp = load_inputs(folder_input, suffix=suffix)
     inp.Demography.set_year0(year0)
     model = ModelBaseline(inp)
     return Obj(model, file_prior, tars=inp.Targets, exo=exo)
+
+
+if __name__ == '__main__':
+    exo = {
+        'drt_act': 0
+    }
+
+    obj = load_obj_baseline(
+        folder_input=f'../data',
+        file_prior='../data/prior.txt',
+        year0=2000,
+        exo=exo
+    )
+
+    # Test Objectives
+    p1 = obj.sample_prior()
+    p1['beta'] = 15
+    tofit = obj.simulate(p1)
+    print(tofit.Sims)
+    print(obj.calc_distance(tofit))

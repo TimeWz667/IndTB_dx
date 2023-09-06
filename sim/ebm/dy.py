@@ -8,7 +8,7 @@ __all__ = ['ModelPlain', 'ModelBaseline']
 
 class ModelPlain(AbsModelODE):
     def __init__(self, n_dim, inputs):
-        AbsModelODE.__init__(self, n_dim, inputs, 2022, 2035, dt=1, t_warmup=300, dfe=None)
+        AbsModelODE.__init__(self, n_dim, inputs, 2023, 2036, dt=1, t_warmup=300, dfe=None)
         self.Year0 = inputs.Demography.Year0
         self.YearBaseline = 2022
         self.ProcDemo = Demography(I, inputs.Demography)
@@ -21,9 +21,12 @@ class ModelPlain(AbsModelODE):
         p['sus'] = sus = np.zeros((I.N_States, self.NDim))
         sus[I.U] = 1
         sus[I.SLat] = p['rr_sus_slat']
-        sus[I.RLow] = p['rr_sus_slat']
-        sus[I.RHigh] = p['rr_sus_slat']
-        sus[I.RSt] = p['rr_sus_slat']
+        sus[I.RLowPub] = p['rr_sus_slat']
+        sus[I.RHighPub] = p['rr_sus_slat']
+        sus[I.RStPub] = p['rr_sus_slat']
+        sus[I.RLowPri] = p['rr_sus_slat']
+        sus[I.RHighPri] = p['rr_sus_slat']
+        sus[I.RStPri] = p['rr_sus_slat']
 
         p['trans'] = trans = np.zeros((I.N_States, self.NDim))
         trans[I.Asym] = p['rr_inf_asym']
@@ -56,6 +59,8 @@ class ModelPlain(AbsModelODE):
 
     def __call__(self, t, ya, pars, intv=None):
         t = max(t, self.Year0)
+        if intv is not None:
+            intv = None if t < intv.T0_Intv else intv
 
         y, aux = ya[:-I.N_Aux], ya[-I.N_Aux:]
         y = y.reshape((I.N_States, self.NDim))
@@ -119,11 +124,11 @@ if __name__ == '__main__':
         'drt_trans': 0.02
     }
 
-    with open('../../db_src/prior.txt', 'r') as f:
+    with open('../../data/prior.txt', 'r') as f:
         scr = f.read()
     bn = bayes_net_from_script(scr)
 
-    inp = load_inputs('../../db_src/India')
+    inp = load_inputs('../../data', 'exclusive')
     inp.Demography.HasMigration = False
     inp.Demography.set_year0(2000)
     model0 = ModelBaseline(inp)
@@ -144,7 +149,7 @@ if __name__ == '__main__':
     ms0.PrevS.plot(ax=axes[0, 1])
     ms0.PrevC.plot(ax=axes[0, 1])
     axes[0, 1].set_title('Prevalence')
-    ms0.NotiR.plot(ax=axes[0, 2])
+    # ms0.NotiR.plot(ax=axes[0, 2])
     ms0.NotiPubR.plot(ax=axes[0, 2])
     ms0.NotiPriR.plot(ax=axes[0, 2])
     axes[0, 2].set_title('CNR')

@@ -3,17 +3,19 @@ import numpy as np
 import numpy.random as rd
 
 __author__ = 'Chu-Chang Ku'
-__all__ = ['get_system']
+__all__ = ['get_system', 'get_system_ts']
 
 
 class Sector:
     def __init__(self, p_ent, alg):
         self.Entry = p_ent
+        self.EntryMask = None
         self.Algorithms = alg
 
     def seek_care(self, n_tb, n_nontb):
         res = Results()
-        for i, p in enumerate(self.Entry):
+        ent = self.Entry if self.EntryMask is None else self.EntryMask
+        for i, p in enumerate(ent):
             res += self.Algorithms[i].dx(n_tb * p, n_nontb * p)
         return res
 
@@ -92,6 +94,47 @@ def get_system(p, has_cdx=True):
     return System(ent, public, engaged, private)
 
 
+def get_system_ts(p, has_cdx=True):
+    sputum = Specimen('Sputum', p['p_loss_sputum'])
+    swab = Specimen('Swab', p['p_loss_swab'])
+    ssm = Test('SSM', p['sens_ssm'], p['spec_ssm'], sputum)
+    xpert = Test('Xpert', p['sens_xpert'], p['spec_xpert'], swab)
+    xpert_ssm = Test('Xpert_ss-', p['sens_xpert_ss-'], p['spec_xpert'], swab)
+    if has_cdx:
+        cdx = Test('CDx', p['sens_cdx'], p['spec_cdx'])
+    else:
+        cdx = None
+
+    alg1 = Algorithm('SSM > Xpert > CDx', ssm=ssm, xpert=xpert_ssm, cdx=cdx)
+    alg2 = Algorithm('SSM > CDx', ssm=ssm, cdx=cdx)
+    alg3 = Algorithm('Xpert > CDx', xpert=xpert, cdx=cdx)
+    alg4 = Algorithm('CDx', cdx=cdx)
+
+    ent_pub = np.array([
+        p['p_ava_ssm_pub'] * p['p_ava_xpert_pub'],
+        p['p_ava_ssm_pub'] * (1 - p['p_ava_xpert_pub']),
+        (1 - p['p_ava_ssm_pub']) * p['p_ava_xpert_pub'],
+        (1 - p['p_ava_ssm_pub']) * (1 - p['p_ava_xpert_pub'])
+    ])
+
+    ent_eng = np.array([
+        p['p_ava_xpert_eng'],
+        (1 - p['p_ava_xpert_eng'])
+    ])
+
+    ent = np.array([
+        p['p_csi_pub'],
+        (1 - p['p_csi_pub']) * p['p_csi_ppm'],
+        (1 - p['p_csi_pub']) * (1 - p['p_csi_ppm'])
+    ])
+
+    public = Sector(ent_pub, [alg1, alg2, alg3, alg4])
+    engaged = Sector(ent_eng, [alg3, alg4])
+    private = Sector(np.array([1]), [alg4])
+
+    return System(ent, public, engaged, private)
+
+
 if __name__ == '__main__':
     p0 = {
         'sens_ssm': 0.64,
@@ -103,6 +146,7 @@ if __name__ == '__main__':
         'p_ava_ssm_pub': 0.8,
         'p_ava_xpert_eng': 0.3,
         'p_loss_sputum': 0.15,
+        'p_loss_swab': 0.02,
         'sens_cdx': 0.7,
         'spec_cdx': 0.95,
         'p_csi_pub': 0.483,
@@ -147,3 +191,10 @@ if __name__ == '__main__':
         print('-- FP_Bac: ', res1.FalsePos / 1000)
         print('-- F_SSM: ', res1['N_test_SSM'] / 1000)
         print('-- F_Xpert: ', (res1['N_test_Xpert_ss-'] + res1['N_test_Xpert']) / 1000)
+
+
+    print('---------------------------------------------')
+    system = get_system(p0)
+
+    system.Public.seek_care(1e4, 1e5).print()
+    system.Public.seek_care_sto(1e4, 1e5).print()

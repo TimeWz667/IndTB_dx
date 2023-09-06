@@ -13,3 +13,14 @@ services:
     environment:
       - JUPYTER_TOKEN=hi
     container_name: sim_indtb_dx
+
+  stan_port:
+    image: kosugitti/rstan-env:latest
+    volumes:
+      - ./:/home/rstudio
+    ports:
+      - 8787:8787
+    environment:
+      - PASSWORD=Lunar
+    container_name: stan_port
+

@@ -20,12 +20,15 @@ class Dx(Process):
 
         p_ent, p_txi = pars['p_ent'], pars['p_txi']
 
-        p_pdx0 = p_pdx1 = pars['p_dx'] #, pars['p_dx1']
+        p_pdx0 = p_pdx1 = pars['p_dx']
 
         if 'intv' in kwargs and kwargs['intv'] is not None:
             r_csi, r_recsi = kwargs['intv'].modify_cs(t, r_csi, r_recsi)
             p_ent = kwargs['intv'].modify_access(t, p_ent)
-            p_pdx0, p_pdx1 = kwargs['intv'].modify_dx(t, p_pdx0, p_pdx1)
+            if 'sys_ts' in pars:
+                p_pdx0, p_pdx1 = kwargs['intv'].modify_dx(t, p_pdx0, p_pdx1, pars['sys_ts'])
+
+            p_txi = kwargs['intv'].modify_txi(t, p_txi)
 
         pdx0 = p_ent * p_pdx0 * p_txi
         pdx1 = p_ent * p_pdx1 * p_txi

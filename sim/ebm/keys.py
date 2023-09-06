@@ -7,19 +7,21 @@ TxPri = 5
 
 FLat = 7
 SLat = 8
-RLow = 9
-RHigh = 10
-RSt = 11
-FLatVac = 12
-SLatVac = 13
+RLowPub = 9
+RHighPub = 10
+RStPub = 11
+RLowPri = 12
+RHighPri = 13
+RStPri = 14
+FLatVac = 15
+SLatVac = 16
 
-N_States = 14
+N_States = 17
 
 Infectious = [Asym, Sym, ExCS]
 PTB = [Asym, Sym, ExCS, TxPub, TxPri]
 UtTB = [Asym, Sym, ExCS]
-LTBI = [FLat, SLat, RLow, RHigh, RSt, FLatVac, SLatVac]
-
+LTBI = [FLat, SLat, RLowPub, RHighPub, RStPub,  RLowPri, RHighPri, RStPri, FLatVac, SLatVac]
 
 A_Inc = 0
 A_IncRecent = 1

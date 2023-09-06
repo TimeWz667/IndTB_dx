@@ -23,15 +23,15 @@ class ActiveTB(Process):
         if 'intv' in kwargs and kwargs['intv'] is not None:
             n_asym, n_sym = y[I.Asym], y[I.Sym] + y[I.ExCS]
             n = y.sum(0)
-            r_acf_a, r_acf_s = kwargs['intv'].modify_acf(t, n_asym, n_sym, n)
+            r_acf = kwargs['intv'].modify_acf(t, n_asym, n_sym, n)
 
             r_txs, r_txl = kwargs['intv'].modify_com(t, r_txs, r_txl)
         else:
-            r_acf_a, r_acf_s = 0, 0
+            r_acf = 0
 
-        calc['acf_a'] = r_acf_a * y[I.Asym]
-        calc['acf_s'] = r_acf_s * y[I.Sym]
-        calc['acf_c'] = r_acf_s * y[I.ExCS]
+        calc['acf_a'] = r_acf * y[I.Asym]
+        calc['acf_s'] = r_acf * y[I.Sym]
+        calc['acf_c'] = r_acf * y[I.ExCS]
 
         calc['txs'] = y[[I.TxPub, I.TxPri]] * r_txs.reshape((-1, 1))
         calc['txl'] = y[[I.TxPub, I.TxPri]] * r_txl.reshape((-1, 1))
@@ -63,8 +63,10 @@ class ActiveTB(Process):
 
         dy[I.TxPub] += acf_a + acf_s + acf_c
 
-        dy[I.RLow] += txs.sum(0)
-        dy[I.RHigh] += txl.sum(0)
+        dy[I.RLowPub] += txs[0]
+        dy[I.RLowPri] += txs[1]
+        dy[I.RHighPub] += txl[0]
+        dy[I.RHighPri] += txl[1]
 
         dy[I.SLat] += sc_a + sc_s + sc_c
 

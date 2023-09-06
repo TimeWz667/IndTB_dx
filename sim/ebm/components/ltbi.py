@@ -19,7 +19,7 @@ class LatentTB(Process):
 
         if 'intv' in kwargs and kwargs['intv'] is not None:
             intv = kwargs['intv']
-            r_rel = intv.modify_rel(t, r_rel)
+            r_rel, r_rel_tc, r_rel_td = intv.modify_rel(t, r_rel, r_rel_tc, r_rel_td, pars['r_txs'], pars['r_txl'])
 
             cov0 = (y[I.FLatVac] + y[I.SLatVac]).sum()
             cov0 = cov0 / (cov0 + (y[I.FLat] + y[I.SLat]).sum())
@@ -39,18 +39,24 @@ class LatentTB(Process):
         calc['inc_act_v'] = irr * r_act_vac * y[I.FLatVac]
         calc['inc_react'] = irr * r_react * y[I.SLat]
         calc['inc_react_v'] = irr * r_react * y[I.SLatVac]
-        calc['inc_rel_rl'] = irr * r_rel_tc * y[I.RLow]
-        calc['inc_rel_rh'] = irr * r_rel_td * y[I.RHigh]
-        calc['inc_rel_st'] = irr * r_rel * y[I.RSt]
+        calc['inc_rel_rlu'] = irr * r_rel_tc * y[I.RLowPub]
+        calc['inc_rel_rhu'] = irr * r_rel_td * y[I.RHighPub]
+        calc['inc_rel_stu'] = irr * r_rel * y[I.RStPub]
+        calc['inc_rel_rli'] = irr * r_rel_tc * y[I.RLowPri]
+        calc['inc_rel_rhi'] = irr * r_rel_td * y[I.RHighPri]
+        calc['inc_rel_sti'] = irr * r_rel * y[I.RStPri]
 
         calc['clear_sl'] = r_clear * y[I.SLat]
         calc['clear_slv'] = r_clear * y[I.SLatVac]
-        calc['clear_rst'] = r_clear * y[I.RSt]
+        calc['clear_rstu'] = r_clear * y[I.RStPub]
+        calc['clear_rsti'] = r_clear * y[I.RStPri]
 
         calc['stab_fl'] = r_lat * y[I.FLat]
         calc['stab_flv'] = r_lat * y[I.FLatVac]
-        calc['stab_rl'] = r_lat * y[I.RLow]
-        calc['stab_rh'] = r_lat * y[I.RHigh]
+        calc['stab_rlu'] = r_lat * y[I.RLowPub]
+        calc['stab_rhu'] = r_lat * y[I.RHighPub]
+        calc['stab_rli'] = r_lat * y[I.RLowPri]
+        calc['stab_rhi'] = r_lat * y[I.RHighPri]
 
         calc['vac_fl'] = r_vac * y[I.FLat]
         calc['vac_sl'] = r_vac * y[I.SLat]
@@ -63,7 +69,8 @@ class LatentTB(Process):
 
         inc_recent = calc['inc_act'] + calc['inc_act_v']
         inc_remote = calc['inc_react'] + calc['inc_react_v']
-        inc_remote += calc['inc_rel_st'] + calc['inc_rel_rl'] + calc['inc_rel_rh']
+        inc_remote += calc['inc_rel_stu'] + calc['inc_rel_rlu'] + calc['inc_rel_rhu']
+        inc_remote += calc['inc_rel_sti'] + calc['inc_rel_rli'] + calc['inc_rel_rhi']
 
         dy[I.FLat] = - calc['inc_act'] - calc['stab_fl'] - calc['vac_fl']
         dy[I.SLat] = calc['stab_fl'] - calc['inc_react'] - calc['clear_sl'] - calc['vac_sl']
@@ -71,11 +78,14 @@ class LatentTB(Process):
         dy[I.FLatVac] = calc['vac_fl'] - calc['inc_act_v'] - calc['stab_flv']
         dy[I.SLatVac] = calc['vac_sl'] + calc['stab_flv'] - calc['inc_react_v'] - calc['clear_slv']
 
-        dy[I.RLow] = - calc['inc_rel_rl'] - calc['stab_rl']
-        dy[I.RHigh] = - calc['inc_rel_rh'] - calc['stab_rh']
-        dy[I.RSt] = calc['stab_rl'] + calc['stab_rh'] - calc['inc_rel_st'] - calc['clear_rst']
+        dy[I.RLowPub] = - calc['inc_rel_rlu'] - calc['stab_rlu']
+        dy[I.RHighPub] = - calc['inc_rel_rhu'] - calc['stab_rhu']
+        dy[I.RStPub] = calc['stab_rlu'] + calc['stab_rhu'] - calc['inc_rel_stu'] - calc['clear_rstu']
+        dy[I.RLowPri] = - calc['inc_rel_rli'] - calc['stab_rli']
+        dy[I.RHighPri] = - calc['inc_rel_rhi'] - calc['stab_rhi']
+        dy[I.RStPri] = calc['stab_rli'] + calc['stab_rhi'] - calc['inc_rel_sti'] - calc['clear_rsti']
         dy[I.Asym] = inc_recent + inc_remote
-        dy[I.U] = calc['clear_sl'] + calc['clear_slv'] + calc['clear_rst']
+        dy[I.U] = calc['clear_sl'] + calc['clear_slv'] + calc['clear_rstu'] + calc['clear_rsti']
 
         da[I.A_IncRecent] = inc_recent.sum()
         da[I.A_IncRemote] = inc_remote.sum()

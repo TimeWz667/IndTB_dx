@@ -73,7 +73,7 @@ class AbsModelODE(metaclass=ABCMeta):
         return ys, None, msg
 
     def simulate_onward(self, y0, pars, intv=None):
-        t0, t1 = self.T0, self.T1
+        t0, t1 = self.T0, self.T1 + 1
 
         pars = self.reform_parameters(pars)
 

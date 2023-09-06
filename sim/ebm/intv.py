@@ -1,51 +1,35 @@
 from pydantic import BaseModel
-from pydantic.types import confloat, conint
-import numpy as np
+from pydantic.types import confloat
 from scipy.optimize import brentq
+import numpy as np
 
 __author__ = 'Chu-Chang Ku'
 __all__ = ['Intervention']
 
 
-class PPM(BaseModel):
-    Scale: confloat(ge=0, le=1) = 0
-
-
-class ImpDx(BaseModel):
-    Dx: confloat(ge=0, le=1) = 0
-
-
 class ACF(BaseModel):
-    Yield: confloat(ge=0, le=40) = 0
-    Asym: bool = False
-    Target: str = 'All'  # All, 30%, 20%, 10%
-
-
-class CS(BaseModel):
-    Scale: confloat(ge=0.1, le=1) = 0
+    Coverage: confloat(ge=0, le=40) = 0
+    Sens: confloat(ge=0, le=1) = 0.9
 
 
 class DeRel(BaseModel):
-    Scale: confloat(ge=0, le=1) = 0
-
-
-class TPT(BaseModel):
-    Scale: conint(ge=0, le=50) = 0
+    Target: confloat(ge=0, le=1) = 0
 
 
 class Vac(BaseModel):
     Efficacy: confloat(ge=0, le=1) = 0
     Coverage: confloat(ge=0, le=0.9) = 0
-    Year0: float = 2023
+    Year0: float = 2025
     Preflight: confloat(ge=0) = 2
 
 
-class TxDie(BaseModel):
-    Scale: confloat(ge=0, le=1) = 0
+class Swab(BaseModel):
+    Uptake: confloat(ge=0, le=1) = 0
+    XpertAccess: confloat(ge=0, le=1) = 0
 
 
-class TxCom(BaseModel):
-    Scale: confloat(ge=0, le=1) = 0
+class TxIni(BaseModel):
+    Target: confloat(ge=0, le=1) = 0
 
 
 def find_rate(cov, r_lat, r_act, r_react, r_act_v, r_react_v, dr):
@@ -61,111 +45,126 @@ def find_rate(cov, r_lat, r_act, r_react, r_act_v, r_react_v, dr):
 
 
 class Intervention(BaseModel):
-    PPM: PPM = PPM()
-    ImpDx: ImpDx = ImpDx()
     ACF: ACF = ACF()
-    CS: CS = CS()
-    TPT: TPT = TPT()
     DeRel: DeRel = DeRel()
     Vac: Vac = Vac()
-    TxDie: TxDie = TxDie()
-    TxCom: TxCom = TxCom()
-    # PrDx: PrDx = PrDx()
+    Swab: Swab = Swab()
+    TxIni: TxIni = TxIni()
 
     # Timeline for scaling up
-    T0_Intv: float = 2023
-    T1_Intv: float = 2025
+    T0_Intv: float = 2025
+    T1_Intv: float = 2027
 
     def get_wt(self, t):
         if t > self.T1_Intv:
             return 1
-        elif t <= self.T0_Intv:
+        elif t < self.T0_Intv:
             return 0
         else:
             return (t - self.T0_Intv) / (self.T1_Intv - self.T0_Intv)
 
     def modify_access(self, t, p_ent):
-        if t > self.T0_Intv and self.PPM.Scale > 0:
-            wt = self.get_wt(t)
-            p_ent1 = p_ent.copy()
-
-            temp = p_ent[2] * self.PPM.Scale
-            p_ent1[1] += temp
-            p_ent1[2] -= temp
-
-            p_ent = p_ent + wt * (p_ent1 - p_ent)
         return p_ent
 
-    def modify_dx(self, t, p_dx0, p_dx1):
-        if t > self.T0_Intv and self.ImpDx.Dx > 0:
-            wt = np.zeros(3)
-            wt[:2] = self.get_wt(t)
+    def modify_dx(self, t, p_dx0, p_dx1, sys_ts):
+        if t > self.T0_Intv and self.Swab.Uptake > 0:
+            if self.Swab.XpertAccess > 0:
+                resid = self.Swab.XpertAccess * self.get_wt(t)
+                ent = sys_ts.Public.Entry
 
-            p_dx0 = p_dx0 + (1 - p_dx0) * wt * self.ImpDx.Dx
-            p_dx1 = p_dx1 + (1 - p_dx1) * wt * self.ImpDx.Dx
+                resid -= ent[0] + ent[2]
+                if resid > 0:
+                    ent1 = ent.copy()
+
+                    if resid > ent[3]:
+                        ent1[3] = 0
+                        ent1[2] += ent[3]
+                        ent1[1] -= (resid - ent[3])
+                        ent1[0] += (resid - ent[3])
+                    else:
+                        ent1[3] -= resid
+                        ent1[2] += resid
+                    sys_ts.Public.EntryMask = ent1
+
+                ent = sys_ts.Engaged.Entry
+
+                self.Swab.XpertAccess * self.get_wt(t)
+
+                if resid > ent[1]:
+                    resid -= ent[1]
+                    ent1 = ent.copy()
+
+                    ent1[1] -= resid
+                    ent1[0] += resid
+                    sys_ts.Engaged.EntryMask = ent1
+
+            cs = sys_ts.seek_care(1, 0)
+            p_dx_ts = np.array([cs['Public'].TruePos, cs['Engaged'].TruePos, cs['Private'].TruePos])
+
+            wt = self.get_wt(t) * self.Swab.Uptake
+
+            p_dx0 = p_dx0 * (1 - wt) + p_dx_ts * wt
+            p_dx1 = p_dx1 * (1 - wt) + p_dx_ts * wt
 
         return p_dx0, p_dx1
 
     def modify_acf(self, t, n_asym, n_sym, n):
-        if t > self.T0_Intv and self.ACF.Yield > 0:
+        if t > self.T0_Intv and self.ACF.Coverage > 0:
 
-            n_tar = self.ACF.Yield * n.sum() * 1e-5
-
-            if self.ACF.Asym:
-                eli_a = np.ones(4)
-                eli_s = np.ones(4)
-            else:
-                eli_a = np.zeros(4)
-                eli_s = np.ones(4)
-
-            if self.ACF.Target == '10%':
-                eli_a[:3] = eli_s[:3] = 0
-            elif self.ACF.Target == '20%':
-                eli_a[:2] = eli_s[:2] = 0
-            elif self.ACF.Target == '30%':
-                eli_a[:1] = eli_s[:1] = 0
-
-            r_acf = n_tar / (eli_a * n_asym + eli_s * n_sym).sum()
-            r_acf = min(20, r_acf)
-
-            return r_acf * eli_a, r_acf * eli_s
+            r_acf = self.ACF.Coverage * self.ACF.Sens
+            return r_acf
 
         else:
-            return np.zeros_like(n_asym), np.zeros_like(n_sym)
+            return 0
 
     def modify_cs(self, t, r_cs, r_rcs):
-        if t > self.T0_Intv and self.CS.Scale > 0:
-            wt = self.get_wt(t)
-
-            r_cs1 = r_cs / max(1 - self.CS.Scale, 0.05)
-            r_rcs1 = r_rcs / max(1 - self.CS.Scale, 0.05)
-
-            r_cs = r_cs + (r_cs1 - r_cs) * wt
-            r_rcs = r_rcs + (r_rcs1 - r_rcs) * wt
+        # if t > self.T0_Intv and self.CS.Scale > 0:
+        #     wt = self.get_wt(t)
+        #
+        #     r_cs1 = r_cs / max(1 - self.CS.Scale, 0.05)
+        #     r_rcs1 = r_rcs / max(1 - self.CS.Scale, 0.05)
+        #
+        #     r_cs = r_cs + (r_cs1 - r_cs) * wt
+        #     r_rcs = r_rcs + (r_rcs1 - r_rcs) * wt
         return r_cs, r_rcs
 
     def modify_td(self, t, r_evt):
-        if t > self.T0_Intv and self.TxDie.Scale > 0:
-            wt = self.get_wt(t)
-            r_evt1 = r_evt * (1 - self.TxDie.Scale)
-            r_evt = r_evt + (r_evt1 - r_evt) * wt
+        # if t > self.T0_Intv and self.TxDie.Scale > 0:
+        #     wt = self.get_wt(t)
+        #     r_evt1 = r_evt * (1 - self.TxDie.Scale)
+        #     r_evt = r_evt + (r_evt1 - r_evt) * wt
         return r_evt
 
+    def modify_txi(self, t, p_txi):
+        if t > self.T0_Intv and self.TxIni.Target > 0:
+            p = self.TxIni.Target
+            p_txi1 = p_txi.copy()
+            p_txi1[0] = max(p, p_txi[0])
+            p_txi1[1] = max(p, p_txi[1])
+            p_txi = p_txi + (p_txi1 - p_txi) * self.get_wt(t)
+        return p_txi
+
     def modify_com(self, t, r_succ, r_ltfu):
-        if t > self.T0_Intv and self.TxCom.Scale > 0:
-            wt = np.zeros_like(r_succ)
-            wt[:2] = self.get_wt(t) * self.TxCom.Scale
-            dif = r_ltfu * wt
-            r_ltfu = r_ltfu - dif
-            r_succ = r_succ + dif
+        # if t > self.T0_Intv and self.TxCom.Scale > 0:
+        #     wt = np.zeros_like(r_succ)
+        #     wt[:2] = self.get_wt(t) * self.TxCom.Scale
+        #     dif = r_ltfu * wt
+        #     r_ltfu = r_ltfu - dif
+        #     r_succ = r_succ + dif
         return r_succ, r_ltfu
 
-    def modify_rel(self, t, r_rel):
-        if t > self.T0_Intv and self.DeRel.Scale > 0:
+    def modify_rel(self, t, r_rel, r_rel_tc, r_rel_tl, r_txs, r_txl):
+        if t > self.T0_Intv and self.DeRel.Target > 0:
+            r0 = (r_txs.sum() * r_rel_tc + r_txl.sum() * r_rel_tl) * 1.5 / (r_txs.sum() + r_txl.sum())
+
             wt = self.get_wt(t)
-            r_rel1 = (1 - self.DeRel.Scale) * r_rel
-            r_rel = r_rel + (r_rel1 - r_rel) * wt
-        return r_rel
+
+            rat = self.DeRel.Target / r0
+            r_rel_tc1 = r_rel_tc * rat
+            r_rel_tl1 = r_rel_tl * rat
+            r_rel_tc = r_rel_tc + (r_rel_tc1 - r_rel_tc1) * wt
+            r_rel_tl = r_rel_tl + (r_rel_tl1 - r_rel_tl) * wt
+        return r_rel, r_rel_tc, r_rel_tl
 
     def modify_vac_act0(self, t, r_lat, r_act, r_react, cov0):
         if t > self.T0_Intv and self.Vac.Coverage > 0:
@@ -209,25 +208,25 @@ class Intervention(BaseModel):
     #     return r_vac * 20, r_act_v, r_react_v
 
     def modify_tpt(self, t, r_act, r_act_vac, fl, sl, notif):
-        if t > self.T0_Intv and self.TPT.Scale > 0:
-            if t > self.T1_Intv + 2:
-                apx_notified = (t - self.T1_Intv) * notif
-            elif t < self.T1_Intv:
-                apx_notified = (t - self.T0_Intv) * notif / 2
-            else:
-                apx_notified = ((t - self.T1_Intv) + (self.T1_Intv - self.T0_Intv) / 2) * notif
-                apx_notified -= (t - 2 - self.T0_Intv) * notif / 2
-
-            contacts = apx_notified * 8 * 0.7 # 8 people household and 0.7 LTBI among contacts
-            ipt = apx_notified * self.TPT.Scale * 0.7 * fl / (fl + sl)
-            ipt = min(ipt, contacts)
-
-            k = r_act * fl / (fl + 7 * contacts)
-            act0 = k * (fl - contacts) + 8 * k * (contacts - ipt) + 8 * k * (1 - 0.8) * ipt
-            red = (act0 / fl) / r_act
-            red = max(red, 0)
-            r_act = r_act * red
-            r_act_vac = r_act_vac * red
+        # if t > self.T0_Intv and self.TPT.Scale > 0:
+        #     if t > self.T1_Intv + 2:
+        #         apx_notified = (t - self.T1_Intv) * notif
+        #     elif t < self.T1_Intv:
+        #         apx_notified = (t - self.T0_Intv) * notif / 2
+        #     else:
+        #         apx_notified = ((t - self.T1_Intv) + (self.T1_Intv - self.T0_Intv) / 2) * notif
+        #         apx_notified -= (t - 2 - self.T0_Intv) * notif / 2
+        #
+        #     contacts = apx_notified * 8 * 0.7 # 8 people household and 0.7 LTBI among contacts
+        #     ipt = apx_notified * self.TPT.Scale * 0.7 * fl / (fl + sl)
+        #     ipt = min(ipt, contacts)
+        #
+        #     k = r_act * fl / (fl + 7 * contacts)
+        #     act0 = k * (fl - contacts) + 8 * k * (contacts - ipt) + 8 * k * (1 - 0.8) * ipt
+        #     red = (act0 / fl) / r_act
+        #     red = max(red, 0)
+        #     r_act = r_act * red
+        #     r_act_vac = r_act_vac * red
 
         return r_act, r_act_vac
 

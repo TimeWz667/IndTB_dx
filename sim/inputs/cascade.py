@@ -1,7 +1,7 @@
 import numpy as np
 import numpy.random as rd
 import json
-from sim.healthcare.system import get_system
+from sim.healthcare.system import get_system, get_system_ts
 
 __author__ = 'Chu-Chang Ku'
 __all__ = ['CasRepo']
@@ -15,6 +15,7 @@ EXO = {
     'spec_xpert': 0.98,
     'dur_pub': 0.5,
     'p_loss_sputum': 0.15,
+    'p_loss_swab': 0.02
 }
 
 
@@ -54,11 +55,16 @@ class CasRepo:
         if pp is None:
             pp = rd.choice(self.Pars, 1)[0]
 
+        p0 = dict(exo)
+        p0.update(pp)
+        pp = p0
+        # pp = dict(pp)
+
         prev = self.Prev
         p_a, p_s, p_c = prev['PrevAsym'], prev['PrevSym'], prev['PrevExCS']
 
-        mu_a = exo['r_die_asym'] + exo['r_sc']
-        mu_s = mu_c = exo['r_die_sym'] + exo['r_sc']
+        mu_a = pp['r_die_asym'] + pp['r_sc']
+        mu_s = mu_c = pp['r_die_sym'] + pp['r_sc']
 
         txis = np.array([pp[f'r_txi_{sec}'] for sec in ['pub', 'eng', 'pri']])
         txi = txis.sum()
@@ -119,6 +125,10 @@ class CasRepo:
         }
         ps.update(exo)
 
+        if 'sys_ts' in pp:
+            ps['sys_ts'] = pp['sys_ts']
+            cs = sys.seek_care(1, 0)
+
         return ps
 
     # def reform(self, ps, rat_01=1):
@@ -158,6 +168,10 @@ class CasRepo:
             p['p_csi_pub'] = p0['p_csi_pub']
 
             p['sys'] = get_system(p)
+
+            if 'p_loss_swab' in p:
+                p['sys_ts'] = get_system_ts(p)
+
             p.update(p0)
             ps.append(p)
 
