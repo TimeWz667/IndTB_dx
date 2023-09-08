@@ -1,4 +1,3 @@
-import json
 from collections import namedtuple
 from sim.inputs.cascade import *
 from sim.inputs.demography import *
