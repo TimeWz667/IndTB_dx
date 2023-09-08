@@ -28,3 +28,6 @@ wheels/
 .Rproj.user
 /.Rhistory
 out/
+
+.local/
+.config/
