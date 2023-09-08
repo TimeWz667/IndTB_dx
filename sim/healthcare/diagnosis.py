@@ -98,11 +98,12 @@ class Test:
 
 
 class Algorithm:
-    def __init__(self, key, ssm: Test = None, xpert: Test = None, cdx: Test = None):
+    def __init__(self, key, ssm: Test = None, xpert: Test = None, cdx: Test = None, mis_bac=0.046):
         self.Key = key
         self.SSM = ssm
         self.Xpert = xpert
         self.CDx = cdx
+        self.MisBac = mis_bac
 
     def dx(self, n_tb=0, n_nontb=0):
         res = Results()
@@ -157,6 +158,15 @@ class Algorithm:
 
         res.count('N_SampleFailed', fnl)
         res.count('N_SampleFailed', tnl)
+
+        if self.MisBac > 0 and (self.Xpert is not None or self.SSM is not None):
+            fn, mis_bac = fn * (1 - self.MisBac), fn * self.MisBac
+            res.count('N_PreDxLTFU', mis_bac)
+            res.count('N_MisBacLTFU', mis_bac)
+
+            tn, mis_bac = tn * (1 - self.MisBac), tn * self.MisBac
+            res.count('N_PreDxLTFU', mis_bac)
+            res.count('N_MisBacLTFU', mis_bac)
 
         if self.CDx is not None:
             (tp1, fn), stats = self.CDx.test_tb(fn)
@@ -234,6 +244,17 @@ class Algorithm:
             res.count(stats[0], stats[1])
             res.count('N_Det_Xpert', tp1 + fp1)
 
+        if self.MisBac > 0 and (self.Xpert is not None or self.SSM is not None):
+            mis_bac = rd.binomial(fn, self.MisBac)
+            fn -= mis_bac
+            res.count('N_PreDxLTFU', mis_bac)
+            res.count('N_MisBacLTFU', mis_bac)
+
+            mis_bac = rd.binomial(tn, self.MisBac)
+            tn -= mis_bac
+            res.count('N_PreDxLTFU', mis_bac)
+            res.count('N_MisBacLTFU', mis_bac)
+
         if self.CDx is not None:
             (tp1, fn), stats = self.CDx.test_tb_sto(fn)
             tp += tp1
@@ -280,9 +301,14 @@ if __name__ == '__main__':
     cdx = Test('CDx', 0.7, 0.95)
 
     alg1 = Algorithm('SSM > Xpert > CDx', ssm=ssm, xpert=xpert, cdx=cdx)
+    alg1_2 = Algorithm('SSM > Xpert > CDx', ssm=ssm, xpert=xpert, cdx=cdx, mis_bac=0)
     alg2 = Algorithm('SSM > CDx', ssm=ssm, cdx=cdx)
     alg3 = Algorithm('Xpert > CDx', xpert=xpert, cdx=cdx)
     alg4 = Algorithm('CDx', cdx=cdx)
+
+    print('Mis bac or not -------')
+    alg1.dx(1000, 1000).print(True)
+    alg1_2.dx(1000, 1000).print(True)
 
     res = Results()
     for alg in [alg1, alg2, alg3, alg4]:
