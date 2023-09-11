@@ -5,20 +5,15 @@ options(mc.cores = 4)
 rstan_options(auto_write = TRUE)
 
 
+## Exogenous variables
+
+exo <- jsonlite::read_json(here::here("data", "pre_cdx.json"), simplifyVector=T)
+
+
 ## Data loading
 
 targets <- read_csv(here::here("data", "targets.csv"))
 
-
-targets %>% 
-  filter(Year == 2019) %>% data.frame()
-
-
-drug <- targets %>% filter(Index == "DrugTime") %>% 
-  filter(Year == 2019)
-
-tx <- targets %>% filter(Index == "PrTxiPub") %>% 
-  mutate(X = round(M * N))
 
 det <- targets %>% 
   filter(Year == 2019) %>% 
@@ -30,53 +25,94 @@ det <- targets %>%
 
 
 ds <- local({
-  N_Test_SSM = 13914911
-  N_Test_Xpert = 4120552 
-  N_Det_Pub = 1688427
-  N_Det_Eng = 733694
-  N_DetBac = 513050 + 548981
-  N_DetCDx = 835930 + 1037210
-  N_Txi_Pub = 1527464
-  N_Txi_Eng = 554980
-  N_Pop = 1425775850
+  n_pop <- targets %>% 
+    filter(Index == "CNR" & Tag == "All") %>% 
+    filter(Year %in% c(2021, 2022)) %>% pull(N)
   
-  PropXpert_Eng = (215594 + 262160) / (3483130 + 2365739)
-  # BacPerXpert_Eng = 68556 / (215594 + 262160)
+  tx <- targets %>% filter(Index == "PrTxiPub") %>% 
+    mutate(X = round(M * N))
   
-  N_Test_Xpert_Eng = round(N_Test_Xpert * PropXpert_Eng)
-  # N_DetBac_Eng = round(N_Test_Xpert_Eng * BacPerXpert_Eng)
   
-  list(
+  drug <- targets %>% filter(Index == "DrugTime") %>% 
+    filter(Year == 2019)
+  
+  res <- list(
+    Year0 = 2020,
+    Years = c(2021, 2022),
+    Pop = n_pop,
+    Tx = tx$N,
+    Tx_Pub = tx$X,
+    Drug = drug$M,
+    Drug_Std = drug$Error,
+    p_csi_pub = 0.483,
+    dur_upper = 2
+  )
+  
+  
+  det <- local({
+    temp <- targets %>% 
+      filter(Index == "CNR") %>% 
+      filter(Year %in% c(2021, 2022)) %>% 
+      filter(Tag != "All") %>% 
+      mutate(
+        Key = paste0("N_Det_", Tag),
+        X = round(N * M)
+      ) %>% 
+      select(Key, Year, X) %>% 
+      arrange(Year)
+    
+    temp
+    
+    ks <- unique(temp$Key)
+    ks
+    
+    lapply(set_names(ks, ks), function(k) temp %>% filter(Key == k) %>% pull(X))
+  })
+  
+  
+  res <- c(res, det)
+  
+  
+  tests <- local({
+    temp <- targets %>% 
+      filter(Index == "TestR") %>% 
+      filter(Year %in% c(2021, 2022)) %>% 
+      filter(Tag != "All") %>% 
+      mutate(
+        Key = paste0("N_Test_", Tag),
+        X = round(N * M)
+      ) %>% 
+      select(Key, Year, X) %>% 
+      arrange(Year)
+    
+    temp
+    
+    ks <- unique(temp$Key)
+    ks
+    
+    lapply(set_names(ks, ks), function(k) temp %>% filter(Key == k) %>% pull(X))
+  })
+  
+  
+  ds <- list(
     N_Det_Pub = N_Det_Pub,
     N_Det_Eng = N_Det_Eng,
     N_DetBac = N_DetBac,
     # N_DetBac_Pub = N_DetBac - N_DetBac_Eng,
     # N_DetBac_Eng = N_DetBac_Eng,
     N_Test_SSM_Pub = N_Test_SSM,
-    N_Test_NAAT_Pub = N_Test_Xpert - N_Test_Xpert_Eng,
-    N_Test_NAAT_Eng = N_Test_Xpert_Eng,
+    N_Test_Xpert_Pub = N_Test_Xpert - N_Test_Xpert_Eng,
+    N_Test_Xpert_Eng = N_Test_Xpert_Eng,
     N_DetCDx = N_Det_Pub + N_Det_Eng - N_DetBac,
     # N_DetCDx_Pub = N_Det_Pub - (N_DetBac - N_DetBac_Eng),
     # N_DetCDx_Eng = N_Det_Eng - N_DetBac_Eng,
     N_Txi_Pub = N_Txi_Pub,
     N_Txi_Eng = N_Txi_Eng,
     
-    Pop = N_Pop,
-    
-    tp_bac = c(0.73984, 0.544, 0.7225, 0),
-    fp_bac = c(0.0336, 0.017, 0.017, 0),
-    test_tb_ssm = c(0.85, 0.85, 0, 0),
-    test_tb_naat = c(0.306, 0, 0.85, 0),
-    test_nontb_ssm = c(0.85, 0.85, 0, 0),
-    test_nontb_naat = c(0.833, 0, 0.85, 0),
-    
-    Tx = tx$N,
-    Tx_Pub = tx$X,
-    Drug = drug$M,
-    Drug_Std = drug$Error,
-    
-    p_csi_pub = 0.483,
-    dur_upper = 2
+
   )
+  
+  res <- c(res, exo)
+  res
 })
 

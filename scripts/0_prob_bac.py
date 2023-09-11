@@ -32,12 +32,10 @@ if __name__ == '__main__':
     tp_bac = list()
     test_tb_ssm = list()
     test_tb_xpert = list()
-    mb_tb = list()
 
     fp_bac = list()
     test_nontb_ssm = list()
     test_nontb_xpert = list()
-    mb_nontb = list()
 
     print('---------------------------------------------')
     for alg in system.Public.Algorithms:
@@ -47,19 +45,10 @@ if __name__ == '__main__':
         tp_bac.append(res0.TruePos)
         test_tb_ssm.append(res0['N_test_SSM'])
         test_tb_xpert.append((res0['N_test_Xpert_ss-'] + res0['N_test_Xpert']))
-        mb_tb.append(res0['N_MisBacLTFU'])
 
         fp_bac.append(res1.FalsePos)
         test_nontb_ssm.append(res1['N_test_SSM'])
         test_nontb_xpert.append((res1['N_test_Xpert_ss-'] + res1['N_test_Xpert']))
-        mb_nontb.append(res1['N_MisBacLTFU'])
-
-    print(tp_bac)
-    print(fp_bac)
-    print(test_tb_ssm)
-    print(test_nontb_ssm)
-    print(mb_tb)
-    print(mb_nontb)
 
     js = dict(
         tp_bac=tp_bac,
@@ -67,14 +56,14 @@ if __name__ == '__main__':
         test_tb_ssm=test_tb_ssm,
         test_tb_xpert=test_tb_xpert,
         test_nontb_ssm=test_nontb_ssm,
-        test_nontb_xpert=test_nontb_xpert,
-        mb_tb=mb_tb,
-        mb_nontb=mb_nontb
+        test_nontb_xpert=test_nontb_xpert
     )
+
+    for k, v in js.items():
+        print(k, ': ', v)
 
     with open('../data/pre_cdx.json', 'w') as f:
         json.dump(js, f)
-
 
     # tp_bac = c(0.73984, 0.544, 0.7225, 0),
     # fp_bac = c(0.0336, 0.017, 0.017, 0),
@@ -82,4 +71,3 @@ if __name__ == '__main__':
     # test_tb_naat = c(0.306, 0, 0.85, 0),
     # test_nontb_ssm = c(0.85, 0.85, 0, 0),
     # test_nontb_naat = c(0.833, 0, 0.85, 0),
-
