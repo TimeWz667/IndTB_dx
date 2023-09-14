@@ -112,5 +112,14 @@ for (folder in c("bac_cdx_sector_2021", "bac_cdx_sector_2022")) {
   
   write_csv(reformed, file = here::here("out", folder, "post_filled.csv"))
   write_csv(tab, file = here::here("out", folder, "summary_filled.csv"))
+  
+  js_re <- list(
+    pars = reformed,
+    prev = js$prev,
+    txo = js$txo
+  )
+  
+  jsonlite::write_json(js_re, here::here("pars", "pars_" + glue::as_glue(folder) + "_re.json"), digits = 8, auto_unbox = T)
+  
 }
 
