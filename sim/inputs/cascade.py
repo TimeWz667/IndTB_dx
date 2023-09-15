@@ -72,40 +72,36 @@ class CasRepo:
         p_txi = np.array([pp[f'p_txi_{sec}'] for sec in ['pub', 'eng', 'pri']])
 
         det = txis / p_txi
-        ppm = det[1] / det[1:].sum()
+        ppm = pp['p_csi_ppm']
         p_ent_pub = pp['p_csi_pub']
         p_ent = np.array([p_ent_pub, (1 - p_ent_pub) * ppm, (1 - p_ent_pub) * (1 - ppm)])
+
+        p_itt0 = np.array([pp[f'p_itt0_{sector}'] for sector in ['pub', 'eng', 'pri']])
+        p_itt1 = np.array([pp[f'p_itt1_{sector}'] for sector in ['pub', 'eng', 'pri']])
 
         sys = pp['sys']
         cs = sys.seek_care(1, 0)
         p_dx = np.array([cs['Public'].TruePos, cs['Engaged'].TruePos, cs['Private'].TruePos])
 
-        p_dx_all = (p_txi * p_dx * p_ent).sum()
+        r_onset = pp['r_onset']
+        r_csi = pp['r_csi']
+        r_recsi = pp['r_recsi']
 
-        r_det = txi / p_c
-        r_csi = p_c * (r_det + mu_c) / p_s
-        r_onset = p_s * (r_csi + mu_s) / p_a
-
-        txi0 = p_s * r_csi * p_dx_all
-
-        assert txi > txi0
-        txi1 = txi - txi0
-
-        r_recsi = txi1 / p_c / p_dx_all
-
-        p_dx0 = p_dx1 = p_dx
-
-        alo = np.array([[1, 0], [pp['p_pri_on_pub'], 1 - pp['p_pri_on_pub']], [0, 1]])
+        alo = np.array([
+            [1, 0, 0],
+            [0, pp['p_pri_on_pub'], 1 - pp['p_pri_on_pub']],
+            [0, 0, 1]
+        ])
 
         inc = (mu_a + r_onset) * p_a
-        dur = np.array([0.5, pp['dur_pri']])
+        dur = np.array([0.5, 0.5, pp['dur_pri']])
 
         ps = {
             'p_txi': p_txi,
             'p_dx': p_dx,
-            'p_dx0': p_dx0,
-            'p_dx1': p_dx1,
             'p_ent': p_ent,
+            'p_itt0': p_itt0,
+            'p_itt1': p_itt1,
             'r_onset': r_onset,
             'r_csi': r_csi,
             'r_recsi': r_recsi,
@@ -114,14 +110,13 @@ class CasRepo:
             'mu_c': mu_c,
             'tx_alo': alo,
             'tx_dur': dur,
-            'r_txs': self.TxO['Succ'] / dur,
-            'r_txd': self.TxO['Die'] / dur,
-            'r_txl': self.TxO['LTFU'] / dur,
+            'r_txs': self.TxO['Succ'].repeat([2, 1]) / dur,
+            'r_txd': self.TxO['Die'].repeat([2, 1]) / dur,
+            'r_txl': self.TxO['LTFU'].repeat([2, 1]) / dur,
             'ppv': np.array([pp[f'ppv_{sec}'] for sec in ['pub', 'eng', 'pri']]),
             'inc': inc,
             'prev_ut': prev['PrevUt'],
             'prev_asc': (p_a, p_s, p_c)
-
         }
         ps.update(exo)
 
@@ -162,8 +157,8 @@ class CasRepo:
             p['sens_cdx'] = p0['sens_cdx']
             p['spec_cdx'] = p0['spec_cdx']
             p['p_ava_ssm_pub'] = p0['p_ava_ssm_pub']
-            p['p_ava_xpert_pub'] = p0['p_ava_naat_pub']
-            p['p_ava_xpert_eng'] = p0['p_ava_naat_eng']
+            p['p_ava_xpert_pub'] = p0['p_ava_xpert_pub']
+            p['p_ava_xpert_eng'] = p0['p_ava_xpert_eng']
             p['p_csi_ppm'] = p0['p_csi_ppm']
             p['p_csi_pub'] = p0['p_csi_pub']
 
@@ -180,7 +175,7 @@ class CasRepo:
 
 if __name__ == '__main__':
     cr = CasRepo.load(
-        '../../data/pars_cs_independent.json'
+        '../../pars/pars_bac_cdx_sector_2022_re.json'
     )
 
     ps = cr.prepare_pars({

@@ -20,18 +20,19 @@ class Dx(Process):
 
         p_ent, p_txi = pars['p_ent'], pars['p_txi']
 
-        p_pdx0 = p_pdx1 = pars['p_dx']
+        p_pdx = pars['p_dx']
+        p_itt0, p_itt1 = pars['p_itt0'], pars['p_itt1']
 
         if 'intv' in kwargs and kwargs['intv'] is not None:
             r_csi, r_recsi = kwargs['intv'].modify_cs(t, r_csi, r_recsi)
             p_ent = kwargs['intv'].modify_access(t, p_ent)
             if 'sys_ts' in pars:
-                p_pdx0, p_pdx1 = kwargs['intv'].modify_dx(t, p_pdx0, p_pdx1, pars['sys_ts'])
+                p_pdx = kwargs['intv'].modify_dx(t, p_pdx, pars['sys_ts'])
 
             p_txi = kwargs['intv'].modify_txi(t, p_txi)
 
-        pdx0 = p_ent * p_pdx0 * p_txi
-        pdx1 = p_ent * p_pdx1 * p_txi
+        pdx0 = p_ent * p_itt0 * p_pdx * p_txi
+        pdx1 = p_ent * p_itt1 * p_pdx * p_txi
 
         calc['tp0'] = tp0 = r_csi * pdx0.reshape((-1, 1)) * y[I.Sym].reshape((1, -1))
         calc['fn0'] = r_csi * (p_ent - pdx0).reshape((-1, 1)) * y[I.Sym].reshape((1, -1))
@@ -59,7 +60,8 @@ class Dx(Process):
         dy[I.Sym] += - tp0.sum(0) - fn0.sum(0)
         dy[I.ExCS] += fn0.sum(0) - tp1.sum(0)
         dy[I.TxPub] += txi[0]
-        dy[I.TxPri] += txi[1]
+        dy[I.TxPriOnPub] += txi[1]
+        dy[I.TxPriOnPri] += txi[2]
 
         fp = calc['fp']
 
@@ -82,3 +84,12 @@ class Dx(Process):
         mea['CNR_Pub'] = (mea['Tp_pub'] + mea['Fp_pub']) / n
         mea['CNR_Pri'] = (mea['Tp_eng'] + mea['Fp_eng']) / n
         mea['CNR'] = mea['CNR_Pub'] + mea['CNR_Pri']
+
+
+if __name__ == '__main__':
+    from sim.inputs import load_inputs
+
+    inp = load_inputs('../../../pars', cs_suffix='bac_cdx_sector_2022')
+
+    print(inp)
+

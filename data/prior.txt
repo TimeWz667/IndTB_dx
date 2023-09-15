@@ -23,6 +23,7 @@ PCore dy {
         r_relapse = 0.002  # relapse after stabilisation
         r_relapse_td = 0.14  # relapse after treatment default
         r_relapse_tc = 0.032  # relapse after treatment completion
+        rr_relapse_pub ~ unif(1.7, 2.3)
 
         // incidence rate ratio
         irr_10 ~ unif(1, 2)

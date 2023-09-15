@@ -34,17 +34,19 @@ class LatentTB(Process):
             r_vac, r_act_vac, r_react_vac = 0, r_act, r_react
 
         irr = pars['irr'] * np.exp(- pars['drt_act'] * max(t - pars['t0_decline'], 0))
+        rr_rel_pub = pars['rr_relapse_pub'] / (0.3 + 0.7 * pars['rr_relapse_pub'])
+        rr_rel_pri = 1 / (0.3 + 0.7 * pars['rr_relapse_pub'])
 
         calc['inc_act'] = irr * r_act * y[I.FLat]
         calc['inc_act_v'] = irr * r_act_vac * y[I.FLatVac]
         calc['inc_react'] = irr * r_react * y[I.SLat]
         calc['inc_react_v'] = irr * r_react * y[I.SLatVac]
-        calc['inc_rel_rlu'] = irr * r_rel_tc * y[I.RLowPub]
-        calc['inc_rel_rhu'] = irr * r_rel_td * y[I.RHighPub]
-        calc['inc_rel_stu'] = irr * r_rel * y[I.RStPub]
-        calc['inc_rel_rli'] = irr * r_rel_tc * y[I.RLowPri]
-        calc['inc_rel_rhi'] = irr * r_rel_td * y[I.RHighPri]
-        calc['inc_rel_sti'] = irr * r_rel * y[I.RStPri]
+        calc['inc_rel_rlu'] = irr * r_rel_tc * rr_rel_pub * y[I.RLowPub]
+        calc['inc_rel_rhu'] = irr * r_rel_td * rr_rel_pub * y[I.RHighPub]
+        calc['inc_rel_stu'] = irr * r_rel * rr_rel_pub * y[I.RStPub]
+        calc['inc_rel_rli'] = irr * r_rel_tc * rr_rel_pri * y[I.RLowPri]
+        calc['inc_rel_rhi'] = irr * r_rel_td * rr_rel_pri * y[I.RHighPri]
+        calc['inc_rel_sti'] = irr * r_rel * rr_rel_pri * y[I.RStPri]
 
         calc['clear_sl'] = r_clear * y[I.SLat]
         calc['clear_slv'] = r_clear * y[I.SLatVac]
@@ -69,8 +71,9 @@ class LatentTB(Process):
 
         inc_recent = calc['inc_act'] + calc['inc_act_v']
         inc_remote = calc['inc_react'] + calc['inc_react_v']
-        inc_remote += calc['inc_rel_stu'] + calc['inc_rel_rlu'] + calc['inc_rel_rhu']
-        inc_remote += calc['inc_rel_sti'] + calc['inc_rel_rli'] + calc['inc_rel_rhi']
+        inc_retreated_u = calc['inc_rel_stu'] + calc['inc_rel_rlu'] + calc['inc_rel_rhu']
+        inc_retreated_i = calc['inc_rel_sti'] + calc['inc_rel_rli'] + calc['inc_rel_rhi']
+        inc_remote += inc_retreated_u + inc_retreated_i
 
         dy[I.FLat] = - calc['inc_act'] - calc['stab_fl'] - calc['vac_fl']
         dy[I.SLat] = calc['stab_fl'] - calc['inc_react'] - calc['clear_sl'] - calc['vac_sl']
@@ -90,4 +93,6 @@ class LatentTB(Process):
         da[I.A_IncRecent] = inc_recent.sum()
         da[I.A_IncRemote] = inc_remote.sum()
         da[I.A_Inc] = da[I.A_IncRecent] + da[I.A_IncRemote]
+        da[I.A_IncTreated] = (inc_retreated_u + inc_retreated_i).sum()
+        da[I.A_IncTreatedPub] = inc_retreated_u.sum()
         return dy, da

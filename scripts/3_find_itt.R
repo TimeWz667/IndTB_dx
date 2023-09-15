@@ -53,7 +53,7 @@ for (folder in c("bac_cdx_sector_2021", "bac_cdx_sector_2022")) {
       r_txi_pri = r_tb_pri * p_dx_pri * p_txi_pri,
       r_txi = r_txi_pub + r_txi_eng + r_txi_pri
     ) %>% 
-    select(starts_with(c("p_ent", "p_itt", "p_txi", "p_dx", "r_txi", "alg")), r_tb) %>% 
+    #select(starts_with(c("p_ent", "p_itt", "p_txi", "p_dx", "r_txi", "alg")), r_tb, sens_cdx, spec_cdx) %>% 
     mutate(
       cas_itt = p_ent_pub * p_itt_pub + p_ent_eng * p_itt_eng + p_ent_pri * p_itt_pri,
       cas_dx = p_ent_pub * p_itt_pub * p_dx_pub + p_ent_eng * p_itt_eng * p_dx_eng + p_ent_pri * p_itt_pri * p_dx_pri,

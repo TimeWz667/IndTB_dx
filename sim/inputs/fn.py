@@ -8,7 +8,7 @@ __author__ = 'Chu-Chang Ku'
 __all__ = ['load_inputs']
 
 
-Inputs = namedtuple("Inputs", ('Demography', 'Cascade', 'Targets'))
+Inputs = namedtuple("Inputs", ('Demography', 'Cascade'))
 
 
 def load_inputs(root, agp=False, cs_suffix='free'):
@@ -20,7 +20,6 @@ def load_inputs(root, agp=False, cs_suffix='free'):
             src = pkl.load(f)
     demo = Demography(src)
 
-    cr = CasRepo.load(f'{root}/pars_cs_{cs_suffix}.json')
-    tar = pd.read_csv(f'{root}/targets.csv')
+    cr = CasRepo.load(f'{root}/pars_{cs_suffix}.json')
 
-    return Inputs(demo, cr, tar)
+    return Inputs(demo, cr)

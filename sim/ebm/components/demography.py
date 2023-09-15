@@ -16,7 +16,7 @@ class Demography(Process):
 
         dr_tb = np.zeros_like(y)
 
-        r_die_tx_pub, r_die_tx_pri = pars['r_txd']
+        r_die_tx_pub, r_die_tx_pri_u, r_die_tx_pri_i = pars['r_txd']
 
         if 'intv' in kwargs and kwargs['intv'] is not None:
             r_die_tx_pub = kwargs['intv'].modify_td(t, r_die_tx_pub)
@@ -25,13 +25,14 @@ class Demography(Process):
         dr_tb[I.Sym] = pars['r_die_sym']
         dr_tb[I.ExCS] = pars['r_die_sym']
         dr_tb[I.TxPub] = r_die_tx_pub
-        dr_tb[I.TxPri] = r_die_tx_pri
+        dr_tb[I.TxPriOnPub] = r_die_tx_pri_u
+        dr_tb[I.TxPriOnPri] = r_die_tx_pri_i
 
         calc['die_tb'] = die_tb = dr_tb * y
 
         rates = self.Inputs(max(t, self.Year0))
 
-        mu = rates['r_die'] - die_tb.sum(0) / y.sum(0)
+        mu = rates['r_death'] - die_tb.sum(0) / y.sum(0)
 
         calc['die'] = mu * y
         calc['mig'] = rates['r_mig'] * y

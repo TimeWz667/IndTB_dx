@@ -87,7 +87,7 @@ class ModelPlain(AbsModelODE):
 
         mea = dict(Year=t, N=n, PrevUt=(y[I.Asym] + y[I.Sym] + y[I.ExCS]).sum() / n, PrevA=y[I.Asym].sum() / n,
                    PrevS=y[I.Sym].sum() / n, PrevC=y[I.ExCS].sum() / n, PrevTxPub=y[I.TxPub].sum() / n,
-                   PrevTxPri=y[I.TxPri].sum() / n, LTBI=(y[I.LTBI].sum()) / n)
+                   PrevTxPri=(y[I.TxPriOnPub].sum() + y[I.TxPriOnPri].sum()) / n, LTBI=(y[I.LTBI].sum()) / n)
 
         mea['PrA'] = mea['PrevA'] / mea['PrevUt']
         mea['PrS'] = mea['PrevS'] / mea['PrevUt']
@@ -95,6 +95,9 @@ class ModelPlain(AbsModelODE):
 
         mea['CumIncRecent'] = aux[I.A_IncRecent]
         mea['CumIncRemote'] = aux[I.A_IncRemote]
+        mea['CumIncTreated'] = aux[I.A_IncTreated]
+        mea['CumIncTreatedPub'] = aux[I.A_IncTreatedPub]
+
         mea['CumInc'] = aux[I.A_Inc]
         mea['CumMor'] = aux[I.A_Mor]
         mea['CumNotiPub'] = aux[I.A_NotiPub]
@@ -116,19 +119,20 @@ if __name__ == '__main__':
     from sim.inputs import load_inputs
     from sims_pars import bayes_net_from_script, sample
 
-    rd.seed(1167)
+    rd.seed(1166)
 
     exo0 = {
         'beta': 25,
         'rr_inf_asym': 0.8,
-        'drt_trans': 0.02
+        'drt_trans': 0.02,
+        'rr_relapse_pub': 1.9
     }
 
     with open('../../data/prior.txt', 'r') as f:
         scr = f.read()
     bn = bayes_net_from_script(scr)
 
-    inp = load_inputs('../../data', 'exclusive')
+    inp = load_inputs('../../pars', cs_suffix='bac_cdx_sector_2022_re')
     inp.Demography.HasMigration = False
     inp.Demography.set_year0(2000)
     model0 = ModelBaseline(inp)
@@ -138,6 +142,8 @@ if __name__ == '__main__':
     ps = cr.prepare_pars(ps)
 
     _, ms0, _ = model0.simulate_to_fit(ps, np.linspace(2000, 2030, 31))
+
+    print(ms0.IncTreatedPubR / ms0.IncTreatedR)
 
     fig, axes = plt.subplots(2, 3)
 

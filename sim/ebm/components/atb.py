@@ -33,8 +33,8 @@ class ActiveTB(Process):
         calc['acf_s'] = r_acf * y[I.Sym]
         calc['acf_c'] = r_acf * y[I.ExCS]
 
-        calc['txs'] = y[[I.TxPub, I.TxPri]] * r_txs.reshape((-1, 1))
-        calc['txl'] = y[[I.TxPub, I.TxPri]] * r_txl.reshape((-1, 1))
+        calc['txs'] = y[[I.TxPub, I.TxPriOnPub, I.TxPriOnPri]] * r_txs.reshape((-1, 1))
+        calc['txl'] = y[[I.TxPub, I.TxPriOnPub, I.TxPriOnPri]] * r_txl.reshape((-1, 1))
 
         return calc
 
@@ -54,7 +54,8 @@ class ActiveTB(Process):
         dy[I.ExCS] += - sc_c
 
         dy[I.TxPub] += - txs[0] - txl[0]
-        dy[I.TxPri] += - txs[1] - txl[1]
+        dy[I.TxPriOnPub] += - txs[1] - txl[1]
+        dy[I.TxPriOnPri] += - txs[2] - txl[2]
 
         acf_a, acf_s, acf_c = calc['acf_a'], calc['acf_s'], calc['acf_c']
         dy[I.Asym] += - acf_a
@@ -64,9 +65,9 @@ class ActiveTB(Process):
         dy[I.TxPub] += acf_a + acf_s + acf_c
 
         dy[I.RLowPub] += txs[0]
-        dy[I.RLowPri] += txs[1]
+        dy[I.RLowPri] += txs[1] + txs[2]
         dy[I.RHighPub] += txl[0]
-        dy[I.RHighPri] += txl[1]
+        dy[I.RHighPri] += txl[1] + txl[2]
 
         dy[I.SLat] += sc_a + sc_s + sc_c
 
