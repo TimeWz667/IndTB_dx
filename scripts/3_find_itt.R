@@ -81,7 +81,8 @@ for (folder in c("bac_cdx_sector_2021", "bac_cdx_sector_2022")) {
     mutate(
       max_rat0 = r_txi / (prev_s * r_csi * cas_txi),
       rat0 = pmin(max_rat0, 1),
-      k_itt = rbinom(n(), prob = 0.74, size = 88) / 88,
+      k_itt = rbinom(n(), prob = 0.21, size = 250) / 250 / rp_ent,
+      # k_itt = rbinom(n(), prob = 0.74, size = 88) / 88,
       p_itt0_pub = p_itt_pub * rat0 * k_itt,
       p_itt0_eng = p_itt_eng * rat0 * k_itt,
       p_itt0_pri = p_itt_pri * rat0 * k_itt,

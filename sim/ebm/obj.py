@@ -1,3 +1,4 @@
+import pandas as pd
 from sims_pars import bayes_net_from_script
 from sims_pars.fit.targets import read_targets
 from sims_pars.fit.base import DataModel, Particle
@@ -24,8 +25,17 @@ class Obj(DataModel):
 
     @staticmethod
     def read_data(tars):
+        tar_inc = tars[tars.Index == 'IncR']
+        tar_inc = tar_inc[tar_inc.Tag == 'All']
+        tar_inc = tar_inc[tar_inc.Year >= 2015]
+        tar_prev = tars[tars.Index == 'PrevUt']
+        tars = pd.concat([tar_inc, tar_prev])
+        tars = {f'{row.Index}_All_{row.Year:d}': dict(row) for i, row in tars.iterrows()}
+
         for d in tars.values():
-            d['l'], d['u'] = binom.interval(0.95, n=np.round(d['n']), p=d['m'])
+            d['m'] = d['M']
+            d['n'] = d['N']
+            d['l'], d['u'] = binom.interval(0.95, n=np.round(d['n']), p=d['M'])
             d['l'] /= d['n']
             d['u'] /= d['n']
 
@@ -41,17 +51,15 @@ class Obj(DataModel):
     def map_sim_data(ms):
         ext = dict()
 
-        for t in range(2018, 2022):
-            ext[f'Det_Pub_{t:d}'] = ms.NotiPubR[t]
-            ext[f'Det_Eng_{t:d}'] = ms.NotiPriR[t]
+        for t in range(2015, 2022):
+            # ext[f'Det_Pub_{t:d}'] = ms.NotiPubR[t]
+            # ext[f'Det_Eng_{t:d}'] = ms.NotiPriR[t]
             # ext[f'CNR_All_{t:d}'] = ms.CNR[t]
-        ext['Prev_Ut_2020'] = ms.PrevUt[2020]
-        ext['Prev_Asym_2020'] = ms.PrevA[2020]
-        ext['Prev_Sym_2020'] = ms.PrevS[2020]
-        ext['Prev_ExCS_2020'] = ms.PrevC[2020]
-        # ext['PrA_All_2019'] = ms.PrA[2019]
-        # ext['PrS_All_2019'] = ms.PrS[2019]
-        # ext['PrC_All_2019'] = ms.PrC[2019]
+            ext[f'IncR_All_{t:d}'] = ms.IncR[t]
+        ext['PrevUt_All_2019'] = ms.PrevUt[2020]
+        # ext['Prev_Asym_2020'] = ms.PrevA[2020]
+        # ext['Prev_Sym_2020'] = ms.PrevS[2020]
+        # ext['Prev_ExCS_2020'] = ms.PrevC[2020]
 
         return ext
 
@@ -62,11 +70,12 @@ class Obj(DataModel):
         return Particle(pars, ext)
 
 
-def load_obj_baseline(folder_input, file_prior, year0=2000, exo=None, suffix='free'):
-    inp = load_inputs(folder_input, suffix=suffix)
+def load_obj_baseline(folder_input, file_prior, file_targets, year0=2000, exo=None, suffix='bac_cdx_sector_2022_re'):
+    inp = load_inputs(folder_input, cs_suffix=suffix)
     inp.Demography.set_year0(year0)
     model = ModelBaseline(inp)
-    return Obj(model, file_prior, tars=inp.Targets, exo=exo)
+    targets = pd.read_csv(file_targets)
+    return Obj(model, file_prior, tars=targets, exo=exo)
 
 
 if __name__ == '__main__':
@@ -75,8 +84,9 @@ if __name__ == '__main__':
     }
 
     obj = load_obj_baseline(
-        folder_input=f'../data',
-        file_prior='../data/prior.txt',
+        folder_input=f'../../pars',
+        file_prior='../../data/prior.txt',
+        file_targets='../../data/targets.csv',
         year0=2000,
         exo=exo
     )

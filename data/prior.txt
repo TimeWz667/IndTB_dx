@@ -1,7 +1,7 @@
 PCore dy {
         // mortality
         r_die_sym ~ triangle(0.127, 0.1, 0.3)
-        rr_die_asym ~ unif(0, 1)
+        rr_die_asym = 1
         r_die_asym = r_die_sym * rr_die_asym
 
         // transmission
@@ -37,12 +37,4 @@ PCore dy {
 
         t0_decline = 2005
 
-        // care-seeking
-
-        p_txi_pub = 0.97
-        p_txi_eng = 0.87
-        p_txi_pri ~ unif(0.5, p_txi_eng)
-
-        p_dx_pub = 0.65
-        p_ent_pub = 0.483
 }
