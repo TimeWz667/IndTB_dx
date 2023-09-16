@@ -19,17 +19,11 @@ class LatentTB(Process):
 
         if 'intv' in kwargs and kwargs['intv'] is not None:
             intv = kwargs['intv']
-            r_rel, r_rel_tc, r_rel_td = intv.modify_rel(t, r_rel, r_rel_tc, r_rel_td, pars['r_txs'], pars['r_txl'])
 
             cov0 = (y[I.FLatVac] + y[I.SLatVac]).sum()
             cov0 = cov0 / (cov0 + (y[I.FLat] + y[I.SLat]).sum())
 
             r_vac, r_act_vac, r_react_vac = intv.modify_vac_act0(t, r_lat, r_act, r_react, cov0)
-
-            fl = y[[I.FLat, I.FLatVac]].sum()
-            sl = y[[I.SLat, I.SLatVac]].sum()
-            notif = (calc['tp0'] + calc['tp1'] + calc['fp'])[:2].sum()
-            r_act, r_act_vac = intv.modify_tpt(t, r_act, r_act_vac, fl, sl, notif)
         else:
             r_vac, r_act_vac, r_react_vac = 0, r_act, r_react
 

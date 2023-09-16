@@ -18,8 +18,8 @@ class Demography(Process):
 
         r_die_tx_pub, r_die_tx_pri_u, r_die_tx_pri_i = pars['r_txd']
 
-        if 'intv' in kwargs and kwargs['intv'] is not None:
-            r_die_tx_pub = kwargs['intv'].modify_td(t, r_die_tx_pub)
+        # if 'intv' in kwargs and kwargs['intv'] is not None:
+        #     r_die_tx_pub = kwargs['intv'].modify_td(t, r_die_tx_pub)
 
         dr_tb[I.Asym] = pars['r_die_asym']
         dr_tb[I.Sym] = pars['r_die_sym']

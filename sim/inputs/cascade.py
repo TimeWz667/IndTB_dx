@@ -1,7 +1,7 @@
 import numpy as np
 import numpy.random as rd
 import json
-from sim.healthcare.system import get_system, get_system_ts
+from sim.healthcare.system import get_system
 
 __author__ = 'Chu-Chang Ku'
 __all__ = ['CasRepo']
@@ -126,24 +126,6 @@ class CasRepo:
 
         return ps
 
-    # def reform(self, ps, rat_01=1):
-    #     prev = self.Prev
-    #     p_s, p_c = prev['PrevSym'], prev['PrevExCS']
-    #
-    #     ps1 = dict(ps)
-    #
-    #     r_csi, r_recsi, p_ent, p_txi = ps['r_csi'], ps['r_recsi'], ps['p_ent'], ps['p_txi']
-    #
-    #     pdx = (p_ent * p_txi * ps['p_dx']).sum()
-    #
-    #     txi = p_s * r_csi * pdx + p_c * r_recsi * pdx
-    #
-    #     k = (p_s * r_csi * rat_01 + p_c * r_recsi * 1) / txi
-    #
-    #     ps1['p_dx0'] = ps['p_dx'] / pdx * rat_01 / k
-    #     ps1['p_dx1'] = ps['p_dx'] / pdx / k
-    #     return ps1
-
     @staticmethod
     def load(file):
         with open(file, 'r') as f:
@@ -163,9 +145,6 @@ class CasRepo:
             p['p_csi_pub'] = p0['p_csi_pub']
 
             p['sys'] = get_system(p)
-
-            if 'p_loss_swab' in p:
-                p['sys_ts'] = get_system_ts(p)
 
             p.update(p0)
             ps.append(p)

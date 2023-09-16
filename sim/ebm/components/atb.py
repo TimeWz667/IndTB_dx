@@ -21,11 +21,8 @@ class ActiveTB(Process):
         r_txs, r_txl = pars['r_txs'], pars['r_txl']
 
         if 'intv' in kwargs and kwargs['intv'] is not None:
-            n_asym, n_sym = y[I.Asym], y[I.Sym] + y[I.ExCS]
-            n = y.sum(0)
-            r_acf = kwargs['intv'].modify_acf(t, n_asym, n_sym, n)
+            r_acf = kwargs['intv'].modify_acf(t)
 
-            r_txs, r_txl = kwargs['intv'].modify_com(t, r_txs, r_txl)
         else:
             r_acf = 0
 
