@@ -134,7 +134,7 @@ if __name__ == '__main__':
         print(k)
         v.print()
 
-    system = get_system(p0, has_cdx=False)
+    system = get_system(p0, has_cdx=True)
     res = system.seek_care(1000, 1000)
 
     print('---------------------------------------------')

@@ -4,31 +4,9 @@ from sim.ebm.intv import Intervention
 __author__ = 'Chu-Chang Ku'
 
 
-# intvs = {
-#     'Baseline': {},
-#     'RedRel': {'DeRel': {'Target': 0.02}},
-#     'MassScreen': {'ACF': {'Coverage': 0.1053605, 'Sens': 0.86}},
-#     'Vac': {
-#         'Vac': {
-#             'Efficacy': 0.5,
-#             'Coverage': 0.5,
-#             'Year0': 2025
-#         }
-#     },
-#     'TSwab': {'Swab': {'Uptake': 1, 'XpertAccess': 0.9}},
-#     'Txi': {'TxIni': {'Target': 0.98}},
-#     'All': {
-#         'DeRel': {'Target': 0.02},
-#         'ACF': {'Coverage': 0.1053605, 'Sens': 0.86},
-#         'Vac': {
-#                     'Efficacy': 0.5,
-#                     'Coverage': 0.5,
-#                     'Year0': 2025
-#                 },
-#         'Swab': {'Uptake': 1, 'XpertAccess': 0.9},
-#         'TxIni': {'Target': 0.98}
-#     }
-# }
+seed = 1167
+year0 = 2000
+poc_txi = 0.95
 
 ss = {
     'Baseline': None,
@@ -36,12 +14,6 @@ ss = {
     'POC': lambda pp: get_intv_poc(pp, target=0.8, p_txi_poc=poc_txi),
     'POC_Hi': lambda pp: get_intv_poc(pp, target=0.95, p_txi_poc=None)
 }
-
-
-seed = 1167
-year0 = 2000
-poc_txi = 0.95
-p_loss_sputum = 0.05
 
 if __name__ == '__main__':
     from sim.healthcare import *
@@ -57,7 +29,7 @@ if __name__ == '__main__':
     )
 
     post = pd.read_csv('../out/post_dy/Post.csv')
-    post = [dict(row) for i, row in post.iterrows()]
+    post = [dict(row) for i, row in post.iterrows()][:50]
 
     mss = list()
 

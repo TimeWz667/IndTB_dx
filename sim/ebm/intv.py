@@ -73,16 +73,18 @@ class Intervention(BaseModel):
         else:
             return 0
 
-    def modify_dx(self, t, p_dx, p_txi, pars):
+    def modify_dx(self, t, p_ent, p_dx, p_txi, pars):
         if t > self.Dx.Year0 and self.Dx.System != 'None':
             wt = self.get_wt(t, self.Dx)
             sys = pars[self.Dx.System]['sys']
             test = sys.seek_care(1, 0)
-            p_dx1 = np.array([r.TruePos for r in test.values()])
+            p_ent1 = sys.Entry
+            p_dx1 = np.array([r.TruePos for r in test.values()]) / p_ent1
+            p_ent = p_ent * (1 - wt) + p_ent1 * wt
             p_dx = p_dx * (1 - wt) + p_dx1 * wt
             p_txi = p_txi * (1 - wt) + self.Dx.PrTxi * wt
 
-        return p_dx, p_txi
+        return p_ent, p_dx, p_txi
 
     def modify_tx(self, t, r_txs, r_txl, r_txd):
         return r_txs, r_txl, r_txd
