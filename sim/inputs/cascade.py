@@ -81,7 +81,7 @@ class CasRepo:
 
         sys = pp['sys']
         cs = sys.seek_care(1, 0)
-        p_dx = np.array([cs['Public'].TruePos, cs['Engaged'].TruePos, cs['Private'].TruePos]) / p_ent
+        p_dx = np.array([cs['Public'].TruePos, cs['Engaged'].TruePos, cs['Private'].TruePos]) / sys.Entry
 
         r_onset = pp['r_onset']
         r_csi = pp['r_csi']
