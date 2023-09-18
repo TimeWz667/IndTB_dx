@@ -24,7 +24,7 @@ class Dx(Process):
         p_itt0, p_itt1 = pars['p_itt0'], pars['p_itt1']
 
         if 'intv' in kwargs and kwargs['intv'] is not None:
-            p_pdx, p_txi = kwargs['intv'].modify_dx(t, p_pdx, p_txi)
+            p_pdx, p_txi = kwargs['intv'].modify_dx(t, p_pdx, p_txi, pars)
 
         pdx0 = p_ent * p_itt0 * p_pdx * p_txi
         pdx1 = p_ent * p_itt1 * p_pdx * p_txi

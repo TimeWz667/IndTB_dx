@@ -59,8 +59,6 @@ class ModelPlain(AbsModelODE):
 
     def __call__(self, t, ya, pars, intv=None):
         t = max(t, self.Year0)
-        if intv is not None:
-            intv = None if t < intv.T0_Intv else intv
 
         y, aux = ya[:-I.N_Aux], ya[-I.N_Aux:]
         y = y.reshape((I.N_States, self.NDim))

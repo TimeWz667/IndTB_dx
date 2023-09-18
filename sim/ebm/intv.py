@@ -1,6 +1,8 @@
 from pydantic import BaseModel
 from pydantic.types import confloat
+from typing import Union
 from scipy.optimize import brentq
+from sim.healthcare import System
 import numpy as np
 
 __author__ = 'Chu-Chang Ku'
@@ -27,10 +29,13 @@ class Vac(BaseModel):
 
 
 class Dx(BaseModel):
-    System = None
-    PrTxi = np.zeros(3)
+    System: str = "None"
+    PrTxi: np.ndarray = np.zeros(3)
     Year0: float = 2025
     Preflight: confloat(ge=0) = 2
+
+    class Config:
+        arbitrary_types_allowed = True
 
 
 def find_rate(cov, r_lat, r_act, r_react, r_act_v, r_react_v, dr):
@@ -68,11 +73,11 @@ class Intervention(BaseModel):
         else:
             return 0
 
-    def modify_dx(self, t, p_dx, p_txi):
-        if t > self.Dx.Year0 and self.Dx.System is not None:
+    def modify_dx(self, t, p_dx, p_txi, pars):
+        if t > self.Dx.Year0 and self.Dx.System != 'None':
             wt = self.get_wt(t, self.Dx)
-
-            test = self.Dx.System.seek_care(1, 0)
+            sys = pars[self.Dx.System]['sys']
+            test = sys.seek_care(1, 0)
             p_dx1 = np.array([r.TruePos for r in test.values()])
             p_dx = p_dx * (1 - wt) + p_dx1 * wt
             p_txi = p_txi * (1 - wt) + self.Dx.PrTxi * wt

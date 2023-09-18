@@ -8,19 +8,17 @@ theme_set(theme_bw())
 
 scs <- c(
   Baseline = "Baseline",
-  RedRel = "Reduce post-treatment relapse",
-  Txi = "Reduce pre-treatment LTFU",
-  TSwab = "Tongue swab with current Xpert",
-  MassScreen = "Mass screening",
-  Vac = "Post-exposure vaccination",
-  All = "All together"
+  TSwab = "Swab with current tests",
+  POC = "Swab with PoC test",
+  POC_Hi = "Swab with\nhigh-throughput CB-NAAT"
 )
 
 
 
-sim <- read_csv(here::here("out", "post_free", "Sim_Intv.csv")) %>% 
-  filter(Year <= 2035 & Year >= 2024)
+sim <- read_csv(here::here("out", "post_dy", "Sim_IntvDx.csv"))
+sim <- sim %>% filter(Year >= 2024 & Year <= 2035)
 
+head(sim)
 
 
 
@@ -90,7 +88,7 @@ g_avt <- avt %>%
   ggplot() +
   geom_ribbon(aes(x = Year, ymin=L, ymax=U, fill=Scenario), alpha = 0.1) +
   geom_line(aes(x = Year, y = M, colour = Scenario)) +
-  scale_x_continuous("Year", breaks = c(2024, seq(2025, 2035, 5))) + 
+  scale_x_continuous("Year", breaks = c(2024, seq(2025, 2040, 5))) + 
   scale_y_continuous("per cent", labels = scales::percent) +
   facet_wrap(.~name, labeller = labeller(name = c("AvtInc" = "Averted cases", "AvtMor" = "Averted deaths"))) +
   expand_limits(y = 0)
@@ -98,31 +96,7 @@ g_avt <- avt %>%
 g_avt
 
 
-sim %>% 
-  select(Year, IncRecentR, IncRemoteR, Scenario) %>% 
-  pivot_longer(c(IncRecentR, IncRemoteR)) %>% 
-  group_by(Year, Scenario, name) %>% 
-  summarise(
-    M = mean(value),
-    L = quantile(value, 0.25),
-    U = quantile(value, 0.75)
-  ) %>% 
-  mutate(
-    Scenario = scs[Scenario],
-    Scenario = factor(Scenario, scs)
-  ) %>% 
-  ggplot() +
-  geom_ribbon(aes(x = Year, ymin=L, ymax=U, fill=Scenario), alpha = 0.1) +
-  geom_line(aes(x = Year, y = M, colour = Scenario)) +
-  facet_wrap(.~name, scale = "free_y") +
-  scale_x_continuous("Year", breaks = c(2024, seq(2025, 2035, 5))) + 
-  scale_y_continuous("per 100k", labels = scales::number_format(scale = 1e5)) +
-  expand_limits(y = 0)
-
-
-g_avt
-
-ggsave(g_epi, filename = here::here("docs", "g_epi.png"), width = 10, height = 5)
-ggsave(g_avt, filename = here::here("docs", "g_avt.png"), width = 10, height = 5)
+ggsave(g_epi, filename = here::here("docs", "figs", "g_dx_epi.png"), width = 10, height = 5)
+ggsave(g_avt, filename = here::here("docs", "figs", "g_dx_avt.png"), width = 10, height = 5)
 
 

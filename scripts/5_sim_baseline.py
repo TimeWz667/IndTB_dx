@@ -13,8 +13,6 @@ if __name__ == '__main__':
     import numpy as np
     from tqdm import tqdm
 
-    suffix = 'free'
-
     obj = load_obj_baseline(
         folder_input=f'../pars',
         file_prior='../data/prior.txt',

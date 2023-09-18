@@ -4,7 +4,7 @@ import json
 from sim.healthcare.system import get_system
 
 __author__ = 'Chu-Chang Ku'
-__all__ = ['CasRepo']
+__all__ = ['CasRepo', 'EXO']
 
 
 EXO = {
@@ -51,7 +51,7 @@ class CasRepo:
                 i += 1
         raise AssertionError('No valid parameter set')
 
-    def prepare_pars(self, exo, pp=None):
+    def prepare_pars(self, exo, pp=None, extra_sys=None):
         if pp is None:
             pp = rd.choice(self.Pars, 1)[0]
 
@@ -120,9 +120,12 @@ class CasRepo:
         }
         ps.update(exo)
 
-        if 'sys_ts' in pp:
-            ps['sys_ts'] = pp['sys_ts']
-            cs = sys.seek_care(1, 0)
+        if extra_sys is not None:
+            for k, v in extra_sys.items():
+                if v is None:
+                    ps[f'sys_{k}'] = {'sys': pp['sys'], 'p_txi': p_txi}
+                else:
+                    ps[f'sys_{k}'] = v(pp)
 
         return ps
 
