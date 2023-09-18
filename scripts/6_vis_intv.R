@@ -21,6 +21,9 @@ sim <- sim %>% filter(Year >= 2024 & Year <= 2035)
 head(sim)
 
 
+cas <- read_csv(here::here("out", "post_dy", "Sim_IntvDx_Cas.csv"))
+
+
 
 avt <- sim %>% 
   select(Year, CumInc, CumMor, Scenario, Key) %>% 
@@ -99,4 +102,31 @@ g_avt
 ggsave(g_epi, filename = here::here("docs", "figs", "g_dx_epi.png"), width = 10, height = 5)
 ggsave(g_avt, filename = here::here("docs", "figs", "g_dx_avt.png"), width = 10, height = 5)
 
+
+
+g_gap <- cas %>% 
+  pivot_longer(starts_with(c("Cas", "Gap"))) %>% 
+  group_by(Scenario, name) %>% 
+  summarise(
+    m = median(value),
+    l = quantile(value, .25),
+    u = quantile(value, .75)
+  ) %>% 
+  ungroup() %>% 
+  extract(name, c("Type", "Stage"), "(Cas|Gap)(\\w+)") %>% 
+  mutate(
+    Stage = factor(Stage, c("ITT", "Dx", "Txi")),
+    Scenario = scs[Scenario],
+    Scenario = factor(Scenario, scs)
+  ) %>% 
+  filter(Type == "Gap") %>% 
+  ggplot(aes(x = Stage)) +
+  geom_histogram(aes(y = m, fill = Scenario), 
+                 stat = "identity", position = position_dodge(), alpha = 0.5) +
+  geom_linerange(aes(ymin = l, ymax = u, colour = Scenario), position = position_dodge(0.9)) +
+  scale_x_discrete("Stage", labels = c("ITT" = "Managed", "Dx" = "Diagnosed", "Txi" = "Treatment\nInitiated")) +
+  scale_y_continuous("Proportion, %", labels = scales::percent) +
+  labs(subtitle = "Gaps by stage per healthcare interaction")
+
+ggsave(g_gap, filename = here::here("docs", "figs", "g_dx_gap.png"), width = 6, height = 5)
 

@@ -29,7 +29,7 @@ if __name__ == '__main__':
     )
 
     post = pd.read_csv('../out/post_dy/Post.csv')
-    post = [dict(row) for i, row in post.iterrows()][:50]
+    post = [dict(row) for i, row in post.iterrows()][:100]
 
     mss = list()
 
