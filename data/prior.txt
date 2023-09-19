@@ -26,9 +26,11 @@ PCore dy {
         rr_relapse_pub ~ unif(1.7, 2.3)
 
         // incidence rate ratio
-        irr_10 ~ unif(1, 2)
-        irr_20 ~ unif(1, 2)
-        irr_30 ~ unif(1, 2)
+        irr_25 ~ unif(0.8, 1.2)
+        irr_35 ~ unif(0.8, 1.2)
+        irr_45 ~ unif(0.8, 1.2)
+        irr_55 ~ unif(0.8, 1.2)
+        irr_65 ~ unif(0.8, 1.2)
 
         // rts
         drt_trans ~ unif(0, 0.1)

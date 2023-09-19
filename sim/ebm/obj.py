@@ -3,20 +3,20 @@ from sims_pars import bayes_net_from_script
 from sims_pars.fit.targets import read_targets
 from sims_pars.fit.base import DataModel, Particle
 from sim.inputs import load_inputs
-from sim.ebm.dy import ModelBaseline
+from sim.ebm import ModelBaseline, ModelAgeGrp
 import numpy as np
 from scipy.stats import binom
 
-__all__ = ['load_obj_baseline']
+__all__ = ['load_obj_baseline', 'load_obj_age']
 
 
 class Obj(DataModel):
-    def __init__(self, model, file_prior, tars, exo=None):
+    def __init__(self, model, file_prior, tars, exo=None, agp=False):
         with open(file_prior, 'r') as f:
             scr = f.read()
         bn = bayes_net_from_script(scr)
 
-        dat = self.read_data(tars)
+        dat = self.read_data(tars, agp=agp)
 
         DataModel.__init__(self, dat, bn, exo=exo)
 
@@ -24,13 +24,21 @@ class Obj(DataModel):
         self.Cas = self.Model.Inputs.Cascade
 
     @staticmethod
-    def read_data(tars):
+    def read_data(tars, agp):
         tar_inc = tars[tars.Index == 'IncR']
         tar_inc = tar_inc[tar_inc.Tag == 'All']
         tar_inc = tar_inc[tar_inc.Year >= 2015]
+
         tar_prev = tars[tars.Index == 'PrevUt']
-        tars = pd.concat([tar_inc, tar_prev])
-        tars = {f'{row.Index}_All_{row.Year:d}': dict(row) for i, row in tars.iterrows()}
+
+        if agp:
+            tar_inc_age = tars[tars.Index == 'IncR']
+            tar_inc_age = tar_inc_age[tar_inc_age.Tag in ['15-24', '25-34', '35-44', '45-54', '55-64', '65+']]
+            tars = pd.concat([tar_inc, tar_prev, tar_inc_age])
+        else:
+            tars = pd.concat([tar_inc, tar_prev])
+
+        tars = {f'{row.Index}_{row.Tag}_{row.Year:d}': dict(row) for i, row in tars.iterrows()}
 
         for d in tars.values():
             d['m'] = d['M']
@@ -57,6 +65,11 @@ class Obj(DataModel):
             # ext[f'CNR_All_{t:d}'] = ms.CNR[t]
             ext[f'IncR_All_{t:d}'] = ms.IncR[t]
         ext['PrevUt_All_2019'] = ms.PrevUt[2020]
+
+        if 'IncR_25-34' in ms:
+            for k in ['15-24', '25-34', '35-44', '45-54', '55-64', '65+']:
+                ext[f'IncR_{k}_2021'] = ms[f'IncR_{k}'][2021]
+
         # ext['Prev_Asym_2020'] = ms.PrevA[2020]
         # ext['Prev_Sym_2020'] = ms.PrevS[2020]
         # ext['Prev_ExCS_2020'] = ms.PrevC[2020]
@@ -78,12 +91,38 @@ def load_obj_baseline(folder_input, file_prior, file_targets, year0=2000, exo=No
     return Obj(model, file_prior, tars=targets, exo=exo)
 
 
+def load_obj_age(folder_input, file_prior, file_targets, year0=2000, exo=None, suffix='bac_cdx_sector_2022_re'):
+    inp = load_inputs(folder_input, cs_suffix=suffix, agp='who')
+    inp.Demography.set_year0(year0)
+    model = ModelAgeGrp(inp)
+    targets = pd.read_csv(file_targets)
+    return Obj(model, file_prior, tars=targets, exo=exo)
+
+
 if __name__ == '__main__':
     exo = {
-        'drt_act': 0
+        'drt_act': 0,
+        'drt_trans': 0
     }
 
     obj = load_obj_baseline(
+        folder_input=f'../../pars',
+        file_prior='../../data/prior.txt',
+        file_targets='../../data/targets.csv',
+        year0=2000,
+        exo=exo
+    )
+
+    # Test Objectives
+    p1 = obj.sample_prior()
+    p1['beta'] = 15
+    tofit = obj.simulate(p1)
+    print(tofit.Sims)
+    print(obj.calc_distance(tofit))
+
+    print('---------' + 'Age Group' + '_' * 10)
+
+    obj = load_obj_age(
         folder_input=f'../../pars',
         file_prior='../../data/prior.txt',
         file_targets='../../data/targets.csv',

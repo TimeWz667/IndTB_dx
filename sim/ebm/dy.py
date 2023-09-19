@@ -41,7 +41,7 @@ class ModelPlain(AbsModelODE):
         y0[I.Asym], y0[I.Sym], y0[I.ExCS] = 0.0004, 0.001, 0.0001
         y0[I.SLat] = 0.5
         y0[I.U] = 1 - y0.sum(0)
-        y0 *= self.Inputs.Demography.N0 / self.NDim
+        y0 *= self.Inputs.Demography.N0
         a0 = np.zeros(I.N_Aux)
         return np.concatenate([y0.reshape(-1), a0])
 
@@ -75,7 +75,6 @@ class ModelPlain(AbsModelODE):
 
         if t <= self.Year0:
             dy -= dy.sum(0, keepdims=True) * y / y.sum(0, keepdims=True)
-
         return np.concatenate([dy.reshape(-1), da])
 
     def measure(self, t, ya, pars, intv=None):

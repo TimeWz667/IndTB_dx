@@ -8,12 +8,12 @@ exo = {
 year0 = 2000
 
 if __name__ == '__main__':
-    from sim.ebm.obj import load_obj_baseline
+    from sim.ebm.obj import load_obj_age
     import pandas as pd
     import numpy as np
     from tqdm import tqdm
 
-    obj = load_obj_baseline(
+    obj = load_obj_age(
         folder_input=f'../pars',
         file_prior='../data/prior.txt',
         file_targets='../data/targets.csv',
@@ -21,7 +21,7 @@ if __name__ == '__main__':
         exo=exo
     )
 
-    out_folder = '../out/post_dy'
+    out_folder = '../out/post_dyage'
 
     post = pd.read_csv(f'{out_folder}/Post.csv')
 

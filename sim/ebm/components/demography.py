@@ -36,7 +36,9 @@ class Demography(Process):
 
         calc['die'] = mu * y
         calc['mig'] = rates['r_mig'] * y
-        calc['bir'] = rates['r_birth'] * y.sum(0)
+        calc['bir'] = rates['r_birth'] * y.sum()
+        if y.shape[1] > 1:
+            calc['ageing'] = rates['r_ageing'] * y
 
     def compose_dya(self, ya, calc: dict):
         y, aux = ya
@@ -45,8 +47,12 @@ class Demography(Process):
         I = self.Keys
 
         dy -= calc['die_tb'] + calc['die'] + calc['mig']
-        dy[I.U] += calc['bir']
+        dy[I.U, 0] += calc['bir']
 
         da[I.A_Mor] += calc['die_tb'].sum()
+
+        if y.shape[1] > 1:
+            dy -= calc['ageing']
+            dy[:, 1:] += calc['ageing'][:, :-1]
 
         return dy, da
