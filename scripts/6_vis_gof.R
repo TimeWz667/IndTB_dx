@@ -161,25 +161,6 @@ ggsave(g_ltbi, filename = here::here("docs", "figs", "g_agp_ltbi.png"), width = 
 
 
 g_inc_age <- sims %>% 
-  select(Year, starts_with("IncR_")) %>%
-  pivot_longer(-Year) %>% 
-  group_by(Year, name) %>% 
-  summarise(value = mean(value)) %>% 
-  ungroup() %>% 
-  ggplot(aes(x = Year)) +
-  geom_line(aes(y = value, colour = name)) +
-  expand_limits(y = 0) +
-  scale_y_continuous("Incidence per 100k", labels = scales::number_format(scale = 1e5)) +
-  scale_colour_discrete("Source of cases", labels = c(
-    "IncR" = "All",
-    "IncRecentR" = "Infected < 2yr",
-    "IncRemoteR" = "Infected > 2yr",
-    "IncTreatedPubR" = "Treated in public hosp.",
-    "IncTreatedR" = "Treated"
-  )) 
-
-
-sims %>% 
   select(Year, starts_with("IncR_"), starts_with("LTBI_")) %>%
   pivot_longer(-Year) %>% 
   extract(name, c("Index", "AgeGrp"), "(IncR|LTBI)_(\\S+)") %>% 
@@ -202,6 +183,8 @@ sims %>%
   expand_limits(x = 0)
 
 
+
+ggsave(g_inc_age, filename = here::here("docs", "figs", "g_agp_inc_age.png"), width = 10, height = 5)
 
 
 
