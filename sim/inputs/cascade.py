@@ -51,14 +51,12 @@ class CasRepo:
                 i += 1
         raise AssertionError('No valid parameter set')
 
-    def prepare_pars(self, exo, pp=None, extra_sys=None):
+    def prepare_pars(self, exo, pp=None):
         if pp is None:
             pp = rd.choice(self.Pars, 1)[0]
 
-        p0 = dict(exo)
-        p0.update(pp)
-        pp = p0
-        # pp = dict(pp)
+        pp = dict(pp)
+        pp.update(exo)
 
         prev = self.Prev
         p_a, p_s, p_c = prev['PrevAsym'], prev['PrevSym'], prev['PrevExCS']
@@ -66,12 +64,8 @@ class CasRepo:
         mu_a = pp['r_die_asym'] + pp['r_sc']
         mu_s = mu_c = pp['r_die_sym'] + pp['r_sc']
 
-        txis = np.array([pp[f'r_txi_{sec}'] for sec in ['pub', 'eng', 'pri']])
-        txi = txis.sum()
-
         p_txi = np.array([pp[f'p_txi_{sec}'] for sec in ['pub', 'eng', 'pri']])
 
-        det = txis / p_txi
         ppm = pp['p_csi_ppm']
         p_ent_pub = pp['p_csi_pub']
         p_ent = np.array([p_ent_pub, (1 - p_ent_pub) * ppm, (1 - p_ent_pub) * (1 - ppm)])
@@ -116,18 +110,16 @@ class CasRepo:
             'ppv': np.array([pp[f'ppv_{sec}'] for sec in ['pub', 'eng', 'pri']]),
             'inc': inc,
             'prev_ut': prev['PrevUt'],
-            'prev_asc': (p_a, p_s, p_c)
+            'prev_asc': (p_a, p_s, p_c),
+            'src': pp
         }
         ps.update(exo)
 
-        if extra_sys is not None:
-            for k, v in extra_sys.items():
-                if v is None:
-                    ps[f'sys_{k}'] = {'sys': pp['sys'], 'p_txi': p_txi}
-                else:
-                    ps[f'sys_{k}'] = v(pp)
-
         return ps
+
+    @staticmethod
+    def make_system(constructor, ps):
+        return constructor(ps['src'])
 
     @staticmethod
     def load(file):

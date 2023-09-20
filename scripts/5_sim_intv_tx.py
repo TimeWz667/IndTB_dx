@@ -33,9 +33,8 @@ if __name__ == '__main__':
 
         intvs = {
             'Baseline': compose_intv(p),
-            'TSwab': compose_intv(p, dx='TSwab'),
-            'POC': compose_intv(p, dx='POC'),
-            'POC_Hi': compose_intv(p, dx='POC_Hi'),
+            'PAN-TB': compose_intv(p, tx='PAN-TB'),
+            'LA-INJ': compose_intv(p, tx='LA-INJ')
         }
 
         for intv_key, intv in intvs.items():
@@ -44,4 +43,4 @@ if __name__ == '__main__':
             mss.append(ms.assign(Key=i, Scenario=intv_key))
     mss = pd.concat(mss)
     print(mss)
-    mss.to_csv(f'../out/post_dy/Sim_IntvDx.csv')
+    mss.to_csv(f'../out/post_dy/Sim_IntvTx.csv')

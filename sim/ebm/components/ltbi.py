@@ -17,14 +17,15 @@ class LatentTB(Process):
         r_rel, r_rel_tc, r_rel_td = pars['r_relapse'], pars['r_relapse_tc'], pars['r_relapse_td']
         r_lat = pars['r_lat']
 
-        if 'intv' in kwargs and kwargs['intv'] is not None:
-            intv = kwargs['intv']
+        try:
+            intv_vac = kwargs['intv'].Vac
 
             cov0 = (y[I.FLatVac] + y[I.SLatVac]).sum()
             cov0 = cov0 / (cov0 + (y[I.FLat] + y[I.SLat]).sum())
 
-            r_vac, r_act_vac, r_react_vac = intv.modify_vac_act0(t, r_lat, r_act, r_react, cov0)
-        else:
+            r_vac, r_act_vac, r_react_vac = intv_vac.modify_vac_act0(t, r_lat, r_act, r_react, cov0)
+
+        except AttributeError or KeyError:
             r_vac, r_act_vac, r_react_vac = 0, r_act, r_react
 
         irr = pars['irr'] * np.exp(- pars['drt_act'] * max(t - pars['t0_decline'], 0))

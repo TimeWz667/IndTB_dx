@@ -20,10 +20,16 @@ class ActiveTB(Process):
 
         r_txs, r_txl = pars['r_txs'], pars['r_txl']
 
-        if 'intv' in kwargs and kwargs['intv'] is not None:
-            r_acf = kwargs['intv'].modify_acf(t)
+        try:
+            intv_tx = kwargs['intv'].Tx
+            r_txs, r_txl = intv_tx.modify_txo(t, r_txs, r_txl)
+        except AttributeError or KeyError:
+            pass
 
-        else:
+        try:
+            intv_acf = kwargs['intv'].ACF
+            r_acf = intv_acf.modify_acf(t)
+        except AttributeError or KeyError:
             r_acf = 0
 
         calc['acf_a'] = r_acf * y[I.Asym]

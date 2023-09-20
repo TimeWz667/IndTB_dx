@@ -1,8 +1,6 @@
 from pydantic import BaseModel
 from pydantic.types import confloat
-from typing import Union
 from scipy.optimize import brentq
-from sim.healthcare import System
 import numpy as np
 
 __author__ = 'Chu-Chang Ku'

@@ -1,6 +1,7 @@
 from sim.healthcare.diagnosis import *
 import numpy as np
 import numpy.random as rd
+from functools import lru_cache
 
 __author__ = 'Chu-Chang Ku'
 __all__ = ['Sector', 'System', 'get_system']
@@ -12,6 +13,7 @@ class Sector:
         self.EntryMask = None
         self.Algorithms = alg
 
+    @lru_cache
     def seek_care(self, n_tb, n_nontb):
         res = Results()
         ent = self.Entry if self.EntryMask is None else self.EntryMask
