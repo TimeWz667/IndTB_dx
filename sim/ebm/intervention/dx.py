@@ -2,7 +2,47 @@ import numpy as np
 from sim.healthcare.intv_dx import *
 
 __author__ = 'Chu-Chang Ku'
-__all__ = ['IntvDx', 'get_intv_dx']
+__all__ = ['IntvPPM', 'get_intv_ppm', 'IntvDx', 'get_intv_dx']
+
+
+class IntvPPM:
+    def __init__(self, pp, target, year0=2025, preflight=2, **kwargs):
+        self.Target = target
+        self.Year0 = year0
+        self.Preflight = preflight
+
+    def uptake(self, t):
+        t0 = self.Year0
+        t1 = t0 + self.Preflight
+
+        if t > t1:
+            return 1
+        elif t < t0:
+            return 0
+        else:
+            return (t - t0) / (t1 - t0)
+
+    def modify_ent(self, t, p_ent):
+        wt = self.uptake(t)
+
+        if wt <= 0:
+            return p_ent
+
+        p_ent1 = p_ent.copy()
+        ppm0 = p_ent1[1] / (p_ent1[1] + p_ent1[2])
+
+        if ppm0 > self.Target:
+            return p_ent
+
+        ppm1 = (1 - wt) * ppm0 + wt * self.Target
+        p_ent1[1], p_ent1[2] = ppm1 * (p_ent1[1] + p_ent1[2]), (1 - ppm1) * (p_ent1[1] + p_ent1[2])
+        return p_ent1
+
+
+def get_intv_ppm(p, target):
+    if target >= 0:
+        return IntvPPM(p, target)
+    return None
 
 
 class IntvDx:

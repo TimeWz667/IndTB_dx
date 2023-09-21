@@ -15,9 +15,16 @@ scs <- c(
 )
 
 
+scs <- c(
+  Baseline = "Baseline",
+  Dx_TSwab = "TSwab",
+  DxPPM_TSwab = "TSwab with PPM",
+  Mass_Xray_10 = "10% Xray",
+  Mass_NAAT_20 = "20% Xpert"
+)
 
-sim <- read_csv(here::here("out", "post_dyage", "Sim_IntvVac.csv"))
-sim <- sim %>% filter(Year >= 2024 & Year <= 2035)
+sim <- read_csv(here::here("out", "post_dyage", "Sim_IntvAll.csv"))
+sim <- sim %>% filter(Year >= 2024)
 
 head(sim)
 
@@ -86,6 +93,7 @@ g_avt <- avt %>%
     Scenario = scs[Scenario],
     Scenario = factor(Scenario, scs)
   ) %>% 
+  filter(!startsWith(Scenario, "Mass")) %>% 
   ggplot() +
   geom_ribbon(aes(x = Year, ymin=L, ymax=U, fill=Scenario), alpha = 0.1) +
   geom_line(aes(x = Year, y = M, colour = Scenario)) +

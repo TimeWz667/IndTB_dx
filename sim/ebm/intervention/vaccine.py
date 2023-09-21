@@ -7,6 +7,9 @@ __all__ = ['get_intv_vac']
 
 class IntvVac:
     def __init__(self, prot_inf, prot_prog, prot_rel, year0=2025, preflight=2):
+        assert prot_rel >= 0
+        assert prot_prog >= 0
+        assert prot_inf >= 0
         self.Year0 = year0
         self.Preflight = preflight
         self.ProtInf = prot_inf
@@ -26,7 +29,7 @@ class IntvVac:
 
     def modify_sus(self, t, sus):
         wt = self.uptake(t)
-        if wt <= 0 and self.ProtInf > 0:
+        if wt <= 0:
             return sus
 
         sus1 = sus.copy()
@@ -41,7 +44,7 @@ class IntvVac:
 
     def modify_prog(self, t, r_act, r_react):
         wt = self.uptake(t)
-        if wt <= 0 and self.ProtProg > 0:
+        if wt <= 0:
             return r_act, r_react
 
         k = np.ones(8)
@@ -51,7 +54,7 @@ class IntvVac:
 
     def modify_rel(self, t, r_rel, r_rel_tc, r_rel_td):
         wt = self.uptake(t)
-        if wt <= 0 and self.ProtRel > 0:
+        if wt <= 0:
             return r_rel, r_rel_tc, r_rel_td
 
         k = (1 - wt) + wt * (1 - self.ProtRel)

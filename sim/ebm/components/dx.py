@@ -30,6 +30,12 @@ class Dx(Process):
             pass
 
         try:
+            intv_ppm = kwargs['intv'].PPM
+            p_ent = intv_ppm.modify_ent(t, p_ent)
+        except AttributeError or KeyError:
+            pass
+
+        try:
             intv_tx = kwargs['intv'].Tx
             p_txi = intv_tx.modify_txi(t, p_txi)
         except AttributeError or KeyError:

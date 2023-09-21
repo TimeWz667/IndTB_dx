@@ -28,7 +28,7 @@ class ActiveTB(Process):
 
         try:
             intv_acf = kwargs['intv'].ACF
-            r_acf = intv_acf.modify_acf(t)
+            r_acf = intv_acf.modify_acf(t, 0)
         except AttributeError or KeyError:
             r_acf = 0
 
