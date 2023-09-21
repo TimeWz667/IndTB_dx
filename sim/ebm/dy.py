@@ -8,7 +8,7 @@ __all__ = ['ModelPlain', 'ModelBaseline']
 
 class ModelPlain(AbsModelODE):
     def __init__(self, n_dim, inputs):
-        AbsModelODE.__init__(self, n_dim, inputs, 2023, 2036, dt=1, t_warmup=300, dfe=None)
+        AbsModelODE.__init__(self, n_dim, inputs, 2023, 2041, dt=1, t_warmup=300, dfe=None)
         self.Year0 = inputs.Demography.Year0
         self.YearBaseline = 2022
         self.ProcDemo = Demography(I, inputs.Demography)
@@ -27,6 +27,9 @@ class ModelPlain(AbsModelODE):
         sus[I.RLowPri] = p['rr_sus_slat']
         sus[I.RHighPri] = p['rr_sus_slat']
         sus[I.RStPri] = p['rr_sus_slat']
+
+        # for st in [I.SLatM72, I.SLatBcg, I.SLatBoth]:
+        #     sus[st] = p['rr_sus_slat']
 
         p['trans'] = trans = np.zeros((I.N_States, self.NDim))
         trans[I.Asym] = p['rr_inf_asym']
@@ -52,7 +55,15 @@ class ModelPlain(AbsModelODE):
             dt = max(self.Year0, max(t, pars['t0_decline'])) - self.Year0
             foi *= np.exp(- pars['drt_trans'] * dt)
 
-        infection = pars['sus'] * foi * y
+        sus = pars['sus']
+        if intv is not None:
+            try:
+                intv_vac = intv.Vac
+                sus = intv_vac.modify_sus(t, sus)
+            except AttributeError or KeyError:
+                pass
+
+        infection = sus * foi * y
         dy = - infection
         dy[I.FLat] += infection.sum(0)
         return dy
@@ -65,7 +76,7 @@ class ModelPlain(AbsModelODE):
 
         dy, da = np.zeros_like(y), np.zeros_like(aux)
 
-        dy += self.calc_dy_transmission(t, y, pars, intv=None)
+        dy += self.calc_dy_transmission(t, y, pars, intv=intv)
 
         calc = dict()
         for proc in [self.ProcATB, self.ProcDx, self.ProcLTBI, self.ProcDemo]:

@@ -32,8 +32,8 @@ class ModelAgeGrp(ModelPlain):
         calc = dict()
         self.ProcLTBI.calculate_calc(t, y, pars, calc, intv=intv)
 
-        inc = calc['inc_act'] + calc['inc_act_v']
-        inc += calc['inc_react'] + calc['inc_react_v']
+        inc = calc['inc_act'] #+ calc['inc_act_v']
+        inc += calc['inc_react'] #+ calc['inc_react_v']
         inc += calc['inc_rel_stu'] + calc['inc_rel_rlu'] + calc['inc_rel_rhu']
         inc += calc['inc_rel_sti'] + calc['inc_rel_rli'] + calc['inc_rel_rhi']
 

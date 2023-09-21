@@ -6,7 +6,6 @@ __author__ = 'Chu-Chang Ku'
 seed = 1167
 year0 = 2000
 
-
 if __name__ == '__main__':
     from sim.ebm.obj import load_obj_age
     import pandas as pd
@@ -33,9 +32,10 @@ if __name__ == '__main__':
 
         intvs = {
             'Baseline': compose_intv(p),
-            'TSwab': compose_intv(p, dx='TSwab'),
-            'POC': compose_intv(p, dx='POC'),
-            'POC_Hi': compose_intv(p, dx='POC_Hi'),
+            'BCG': compose_intv(p, vac='BCG'),
+            'M72': compose_intv(p, vac='M72'),
+            'BCG-M72': compose_intv(p, vac='BCG-M72'),
+            'Recurrence': compose_intv(p, vac='Recurrence'),
         }
 
         for intv_key, intv in intvs.items():
@@ -44,4 +44,4 @@ if __name__ == '__main__':
             mss.append(ms.assign(Key=i, Scenario=intv_key))
     mss = pd.concat(mss)
     print(mss)
-    mss.to_csv(f'../out/post_dyage/Sim_IntvDx.csv')
+    mss.to_csv(f'../out/post_dyage/Sim_IntvVac.csv')

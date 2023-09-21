@@ -5,21 +5,21 @@ __author__ = 'Chu-Chang Ku'
 
 seed = 1167
 year0 = 2000
-poc_txi = 0.95
+
 
 if __name__ == '__main__':
-    from sim.ebm.obj import load_obj_baseline
+    from sim.ebm.obj import load_obj_age
     import pandas as pd
     from tqdm import tqdm
 
-    obj = load_obj_baseline(
+    obj = load_obj_age(
         folder_input=f'../pars',
         file_prior='../data/prior.txt',
         file_targets='../data/targets.csv',
         year0=year0
     )
 
-    post = pd.read_csv('../out/post_dy/Post.csv')
+    post = pd.read_csv('../out/post_dyage/Post.csv')
     post = [dict(row) for i, row in post.iterrows()]
 
     mss = list()
@@ -43,4 +43,4 @@ if __name__ == '__main__':
             mss.append(ms.assign(Key=i, Scenario=intv_key))
     mss = pd.concat(mss)
     print(mss)
-    mss.to_csv(f'../out/post_dy/Sim_IntvTx.csv')
+    mss.to_csv(f'../out/post_dyage/Sim_IntvTx.csv')
