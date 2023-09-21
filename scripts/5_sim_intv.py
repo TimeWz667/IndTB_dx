@@ -20,7 +20,7 @@ if __name__ == '__main__':
     )
 
     post = pd.read_csv('../out/post_dyage/Post.csv')
-    post = [dict(row) for i, row in post.iterrows()][:20]
+    post = [dict(row) for i, row in post.iterrows()]
 
     mss = list()
 
@@ -34,11 +34,25 @@ if __name__ == '__main__':
         intvs = {
             'Baseline': compose_intv(p),
             'Dx_TSwab': compose_intv(p, dx='TSwab'),
+            'Dx_POC': compose_intv(p, dx='POC'),
+            'Dx_POC_Hi': compose_intv(p, dx='POC_Hi'),
             'DxPPM_TSwab': compose_intv(p, dx='TSwab', ppm=0.9),
-            # 'Dx_POC': compose_intv(p, dx='POC'),
-            # 'Dx_POC_Hi': compose_intv(p, dx='POC_Hi'),
-            # 'Mass_Xray_10': compose_intv(p, acf='0.11_0.96'),
-            # 'Mass_NAAT_20': compose_intv(p, acf='0.22_0.86')
+            'DxPPM_POC': compose_intv(p, dx='POC', ppm=0.9),
+            'DxPPM_POC_Hi': compose_intv(p, dx='POC_Hi', ppm=0.9),
+            'Tx_PAN-TB': compose_intv(p, tx='PAN-TB'),
+            'Tx_LA-INJ': compose_intv(p, tx='LA-INJ'),
+            'TxPPM_PAN-TB': compose_intv(p, tx='PAN-TB', ppm=0.9),
+            'TxPPM_LA-INJ': compose_intv(p, tx='LA-INJ', ppm=0.9),
+            'Vac_BCG': compose_intv(p, vac='BCG'),
+            'Vac_M72': compose_intv(p, vac='M72'),
+            'Vac_BCG-M72': compose_intv(p, vac='BCG-M72'),
+            'Vac_Recurrence': compose_intv(p, vac='Recurrence'),
+            'Mass_Xray_10': compose_intv(p, acf='0.11_0.96'),
+            'Mass_NAAT_20': compose_intv(p, acf='0.22_0.86'),
+            'Combine_Lo': compose_intv(p, dx='TSwab', tx='BPaLM', acf='0.11_0.96', vac='BCG'),
+            'Combine_Hi': compose_intv(p, dx='TSwab', tx='LA-INJ', acf='0.22_0.86', vac='BCG-M72', ppm=0.9),
+            'CombinePPM_Lo': compose_intv(p, dx='TSwab', tx='BPaLM', acf='0.11_0.96', vac='BCG'),
+            'CombinePPM_Hi': compose_intv(p, dx='TSwab', tx='LA-INJ', acf='0.22_0.86', vac='BCG-M72', ppm=0.9),
         }
 
         for intv_key, intv in intvs.items():
