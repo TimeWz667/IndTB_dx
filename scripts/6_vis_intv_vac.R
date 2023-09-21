@@ -93,7 +93,6 @@ g_avt <- avt %>%
     Scenario = scs[Scenario],
     Scenario = factor(Scenario, scs)
   ) %>% 
-  filter(!startsWith(Scenario, "Mass")) %>% 
   ggplot() +
   geom_ribbon(aes(x = Year, ymin=L, ymax=U, fill=Scenario), alpha = 0.1) +
   geom_line(aes(x = Year, y = M, colour = Scenario)) +
