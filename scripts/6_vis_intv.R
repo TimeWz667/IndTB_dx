@@ -225,6 +225,7 @@ g_intv_summary <- tab_avt %>%
   ggplot() +
   geom_bar(aes(x = Scenario, y = M, fill = PPM), stat = "identity", position = "dodge") +
   scale_y_continuous("percent cases averted", labels = scales::percent) +
+  scale_fill_discrete("") +
   theme(axis.text.x.bottom = element_text(hjust = 0, angle = -30)) +
   facet_grid(name~.,labeller = labeller(name = c("AvtInc" = "Averted cases", "AvtMor" = "Averted deaths")))
 
