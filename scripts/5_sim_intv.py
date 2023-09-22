@@ -50,8 +50,8 @@ if __name__ == '__main__':
             'Mass_Xray_10': compose_intv(p, acf='0.11_0.96'),
             'Mass_NAAT_20': compose_intv(p, acf='0.22_0.86'),
             'Combine_Lo': compose_intv(p, dx='TSwab', tx='BPaLM', acf='0.11_0.96', vac='BCG'),
-            'Combine_Hi': compose_intv(p, dx='TSwab', tx='LA-INJ', acf='0.22_0.86', vac='BCG-M72', ppm=0.9),
-            'CombinePPM_Lo': compose_intv(p, dx='TSwab', tx='BPaLM', acf='0.11_0.96', vac='BCG'),
+            'Combine_Hi': compose_intv(p, dx='TSwab', tx='LA-INJ', acf='0.22_0.86', vac='BCG-M72'),
+            'CombinePPM_Lo': compose_intv(p, dx='TSwab', tx='BPaLM', acf='0.11_0.96', vac='BCG', ppm=0.9),
             'CombinePPM_Hi': compose_intv(p, dx='TSwab', tx='LA-INJ', acf='0.22_0.86', vac='BCG-M72', ppm=0.9),
         }
 
