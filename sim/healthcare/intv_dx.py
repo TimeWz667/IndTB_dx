@@ -3,7 +3,7 @@ from sim.healthcare.system import *
 import numpy as np
 
 __author__ = 'Chu-Chang Ku'
-__all__ = ['get_intv_tswab', 'get_intv_poc']
+__all__ = ['get_intv_tswab', 'get_intv_poc', 'get_perfect_dx', 'get_perfect_txi']
 
 
 def fillup(fr, to, tar):
@@ -121,4 +121,39 @@ def get_intv_poc(p, target=0.8, p_txi_poc=0.95):
     return {
         'sys': sys,
         'p_txi': txi
+    }
+
+
+def get_perfect_dx(p):
+    cdx = Test('CDx', 1, 1)
+
+    alg4 = Algorithm('CDx', cdx=cdx)
+
+    ent = np.array([
+        p['p_csi_pub'],
+        (1 - p['p_csi_pub']) * p['p_csi_ppm'],
+        (1 - p['p_csi_pub']) * (1 - p['p_csi_ppm'])
+    ])
+
+    public = Sector(np.array([1]), [alg4])
+    engaged = Sector(np.array([1]), [alg4])
+    private = Sector(np.array([1]), [alg4])
+
+    sys = System(ent, public, engaged, private)
+
+    p_txi_pub = p['p_txi_pub']
+    p_txi_eng = p['p_txi_eng']
+
+    txi = np.array([p_txi_pub, p_txi_eng, p['p_txi_pri']])
+
+    return {
+        'sys': sys,
+        'p_txi': txi
+    }
+
+
+def get_perfect_txi(p):
+    return {
+        'sys': get_system(p),
+        'p_txi': np.ones(3)
     }

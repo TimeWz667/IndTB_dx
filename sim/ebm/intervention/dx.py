@@ -84,5 +84,9 @@ def get_intv_dx(p, key, p_txi_poc=0.95):
         return IntvDx(p, get_intv_poc, target=0.8, p_txi_poc=p_txi_poc)
     elif key == 'POC_Hi':
         return IntvDx(p, get_intv_poc, target=0.95, p_txi_poc=None)
+    elif key == 'PerfectDx':
+        return IntvDx(p, get_perfect_dx)
+    elif key == 'PerfectTxi':
+        return IntvDx(p, get_perfect_txi)
 
     return None

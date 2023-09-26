@@ -24,31 +24,30 @@ class LatentTB(Process):
         except AttributeError or KeyError:
             pass
 
-        # try:
-        #     intv_vac = kwargs['intv'].Vac
-        #
-        #     cov0 = (y[I.FLatVac] + y[I.SLatVac]).sum()
-        #     cov0 = cov0 / (cov0 + (y[I.FLat] + y[I.SLat]).sum())
-        #
-        #     r_vac, r_act_vac, r_react_vac = intv_vac.modify_vac_act0(t, r_lat, r_act, r_react, cov0)
-        #
-        # except AttributeError or KeyError:
-        #     r_vac, r_act_vac, r_react_vac = 0, r_act, r_react
-
         irr = pars['irr'] * np.exp(- pars['drt_act'] * max(t - pars['t0_decline'], 0))
         rr_rel_pub = pars['rr_relapse_pub'] / (0.3 + 0.7 * pars['rr_relapse_pub'])
         rr_rel_pri = 1 / (0.3 + 0.7 * pars['rr_relapse_pub'])
+
+        r_rel_tcu, r_rel_tdu, r_rel_stu = r_rel_tc * rr_rel_pub, r_rel_td * rr_rel_pub, r_rel * rr_rel_pub
+        r_rel_tci, r_rel_tdi, r_rel_sti = r_rel_tc * rr_rel_pri, r_rel_td * rr_rel_pri, r_rel * rr_rel_pri
+
+        try:
+            intv_tx = kwargs['intv'].Tx
+            r_rel_tcu, r_rel_tdu, r_rel_stu = intv_tx.modify_relu(t, r_rel_tcu, r_rel_tdu, r_rel_stu)
+            r_rel_tci, r_rel_tdi, r_rel_sti = intv_tx.modify_reli(t, r_rel_tci, r_rel_tdi, r_rel_sti)
+        except AttributeError or KeyError:
+            pass
 
         calc['inc_act'] = irr * r_act * y[I.FLat]
         # calc['inc_act_v'] = irr * r_act_vac * y[I.FLatVac]
         calc['inc_react'] = irr * r_react * y[I.SLat]
         # calc['inc_react_v'] = irr * r_react * y[I.SLatVac]
-        calc['inc_rel_rlu'] = irr * r_rel_tc * rr_rel_pub * y[I.RLowPub]
-        calc['inc_rel_rhu'] = irr * r_rel_td * rr_rel_pub * y[I.RHighPub]
-        calc['inc_rel_stu'] = irr * r_rel * rr_rel_pub * y[I.RStPub]
-        calc['inc_rel_rli'] = irr * r_rel_tc * rr_rel_pri * y[I.RLowPri]
-        calc['inc_rel_rhi'] = irr * r_rel_td * rr_rel_pri * y[I.RHighPri]
-        calc['inc_rel_sti'] = irr * r_rel * rr_rel_pri * y[I.RStPri]
+        calc['inc_rel_rlu'] = irr * r_rel_tcu * y[I.RLowPub]
+        calc['inc_rel_rhu'] = irr * r_rel_tdu * y[I.RHighPub]
+        calc['inc_rel_stu'] = irr * r_rel_stu * y[I.RStPub]
+        calc['inc_rel_rli'] = irr * r_rel_tci * y[I.RLowPri]
+        calc['inc_rel_rhi'] = irr * r_rel_tdi * y[I.RHighPri]
+        calc['inc_rel_sti'] = irr * r_rel_tdi * y[I.RStPri]
 
         calc['clear_sl'] = r_clear * y[I.SLat]
         # calc['clear_slv'] = r_clear * y[I.SLatVac]
