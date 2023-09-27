@@ -230,3 +230,35 @@ g_intv_summary <- tab_avt %>%
   facet_grid(name~.,labeller = labeller(name = c("AvtInc" = "Averted cases", "AvtMor" = "Averted deaths")))
 
 ggsave(g_intv_summary, filename = here::here("docs", "figs", "g_intv_summary.png"), width = 12, height = 5)
+
+
+
+
+g_intv_summary5 <- tab_avt %>% 
+  group_by(Scenario) %>% 
+  mutate(
+   Year0 = min(Year[M > 0]),
+   dY = Year - Year0
+  ) %>% 
+  filter(is.finite(Year0)) %>% 
+  filter(dY == 5) %>% 
+  filter(!startsWith(Scenario, "Combine")) %>% 
+  mutate(
+    PPM = ifelse(str_detect(Scenario, "PPM"), "With PPM", "Without PPM"),
+    Scenario = gsub("PPM", "", Scenario)
+  ) %>% 
+  filter(Scenario %in% names(scs)) %>% 
+  mutate(
+    Scenario = scs[Scenario],
+    Scenario = factor(Scenario, scs)
+  ) %>% 
+  ggplot() +
+  geom_bar(aes(x = Scenario, y = M, fill = PPM), stat = "identity", position = "dodge") +
+  scale_y_continuous("percent cases averted", labels = scales::percent) +
+  scale_fill_discrete("") +
+  theme(axis.text.x.bottom = element_text(hjust = 0, angle = -30)) +
+  facet_grid(name~.,labeller = labeller(name = c("AvtInc" = "Averted cases", "AvtMor" = "Averted deaths")))
+
+
+ggsave(g_intv_summary5, filename = here::here("docs", "figs", "g_intv_summary5.png"), width = 12, height = 5)
+
