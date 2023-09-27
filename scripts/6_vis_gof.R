@@ -7,6 +7,10 @@ theme_set(theme_bw())
 
 sims <- read_csv(here::here("out", "post_dy", "Sim.csv"))
 
+
+post <- read_csv(here::here("out", "post_dy", "Post.csv"))
+post$r_relapse_te * post$k_relapse_adj
+
 targets <- read_csv(here::here("data", "targets.csv"))
 
 
@@ -23,11 +27,13 @@ g_inc <- sims %>%
   scale_y_continuous("Incidence per 100k", labels = scales::number_format(scale = 1e5)) +
   scale_fill_brewer() 
 
+g_inc
+
 ggsave(g_inc, filename = here::here("docs", "figs", "g_baseline_inc.png"), width = 7, height = 5)
 
 
 
-g_treated <- sims %>% 
+g_treated_pub <- sims %>% 
   mutate(PrPub = IncTreatedPubR / IncTreatedR) %>%
   ggplot(aes(x = Year, y = PrPub)) +
   stat_lineribbon(aes(y = PrPub), .width = c(.99, .95, .8, .5), color = "#08519C") +
@@ -36,7 +42,21 @@ g_treated <- sims %>%
   scale_y_continuous("Previously treated in public sectors / Cases with treatment history, Percent", labels = scales::percent) +
   scale_fill_brewer() 
 
+
+g_treated <- sims %>% 
+  mutate(PrPub = IncTreatedR / IncR) %>%
+  ggplot(aes(x = Year, y = PrPub)) +
+  stat_lineribbon(aes(y = PrPub), .width = c(.99, .95, .8, .5), color = "#08519C") +
+  geom_hline(yintercept = 0.18) +
+  expand_limits(y = 0:1) +
+  scale_y_continuous("Cases with treatment history / All Cases, Percent", labels = scales::percent) +
+  scale_fill_brewer() 
+
+g_treated
+g_treated_pub
+
 ggsave(g_treated, filename = here::here("docs", "figs", "g_baseline_treated.png"), width = 7, height = 5)
+ggsave(g_treated_pub, filename = here::here("docs", "figs", "g_baseline_treatedpub.png"), width = 7, height = 5)
 
 
 
@@ -58,7 +78,7 @@ g_inc_sub <- sims %>%
     "IncTreatedPubR" = "Treated in public hosp.",
     "IncTreatedR" = "Treated"
   )) 
-
+g_inc_sub
 
 ggsave(g_inc_sub, filename = here::here("docs", "figs", "g_baseline_inc_sub.png"), width = 7, height = 5)
 

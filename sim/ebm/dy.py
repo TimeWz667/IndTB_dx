@@ -21,10 +21,10 @@ class ModelPlain(AbsModelODE):
         p['sus'] = sus = np.zeros((I.N_States, self.NDim))
         sus[I.U] = 1
         sus[I.SLat] = p['rr_sus_slat']
-        sus[I.RLowPub] = p['rr_sus_slat']
+        # sus[I.RLowPub] = p['rr_sus_slat']
         sus[I.RHighPub] = p['rr_sus_slat']
         sus[I.RStPub] = p['rr_sus_slat']
-        sus[I.RLowPri] = p['rr_sus_slat']
+        # sus[I.RLowPri] = p['rr_sus_slat']
         sus[I.RHighPri] = p['rr_sus_slat']
         sus[I.RStPri] = p['rr_sus_slat']
 
@@ -133,7 +133,8 @@ if __name__ == '__main__':
         'beta': 25,
         'rr_inf_asym': 0.8,
         'drt_trans': 0.02,
-        'rr_relapse_pub': 1.9
+        'rr_relapse_pub': 3,
+        'k_relapse_adj': 6
     }
 
     with open('../../data/prior.txt', 'r') as f:
@@ -151,7 +152,8 @@ if __name__ == '__main__':
 
     _, ms0, _ = model0.simulate_to_fit(ps, np.linspace(2000, 2030, 31))
 
-    print(ms0.IncTreatedPubR / ms0.IncTreatedR)
+    print((ms0.IncTreatedPubR / ms0.IncTreatedR).tail(10))
+    print((ms0.IncTreatedR / ms0.IncR).tail(10))
 
     fig, axes = plt.subplots(2, 3)
 

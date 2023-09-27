@@ -20,10 +20,13 @@ PCore dy {
         r_sc ~  triangle(0.15, 0.2, 0.25)  # self-cure
 
         r_react ~ triangle(0.0005, 0.001, 0.0015) # Activation of Latent TB
-        r_relapse = 0.002  # relapse after stabilisation
-        r_relapse_td = 0.14  # relapse after treatment default
-        r_relapse_tc = 0.032  # relapse after treatment completion
-        rr_relapse_pub ~ unif(1.7, 2.3)
+        r_relapse ~ triangle(0.0005, 0.001, 0.0015)  # relapse after stabilisation
+        r_relapse_td = 0.1487  # relapse after treatment default
+        r_relapse_tc = 0.06  # relapse after treatment completion
+
+        r_relapse_te = r_relapse_td * (1 - 0.8) + r_relapse_tc * 0.8
+        k_relapse_adj = 1
+        rr_relapse_pub ~ unif(2, 3)
 
         // incidence rate ratio
         irr_25 ~ unif(0.8, 1.2)

@@ -1,8 +1,8 @@
 
 
-n_iter = 500
-n_round = 35
-n_collect = 500
+n_iter = 50
+n_round = 15
+n_collect = 50
 seed = 1167
 
 year0 = 2000

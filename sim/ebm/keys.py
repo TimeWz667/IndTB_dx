@@ -8,10 +8,10 @@ TxPriOnPri = 6
 
 FLat = 7
 SLat = 8
-RLowPub = 9
+# RLowPub = 9
 RHighPub = 10
 RStPub = 11
-RLowPri = 12
+# RLowPri = 12
 RHighPri = 13
 RStPri = 14
 # FLatM72 = 15
@@ -27,7 +27,7 @@ N_States = 15
 Infectious = [Asym, Sym, ExCS]
 PTB = [Asym, Sym, ExCS, TxPub, TxPriOnPub, TxPriOnPri]
 UtTB = [Asym, Sym, ExCS]
-LTBI = [FLat, SLat, RLowPub, RHighPub, RStPub,  RLowPri, RHighPri, RStPri]
+LTBI = [FLat, SLat, RHighPub, RStPub, RHighPri, RStPri]
 # LTBI += [FLatM72, SLatM72, FLatBcg, SLatBcg, FLatBoth, SLatBoth]
 
 A_Inc = 0
