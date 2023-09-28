@@ -1,15 +1,16 @@
 
 
-n_iter = 50
-n_round = 15
-n_collect = 50
+n_iter = 500
+n_round = 35
+n_collect = 500
 seed = 1167
 
 year0 = 2000
 
 exo = {
     'drt_act': 0,
-    'drt_trans': 0
+    'drt_trans': 0,
+    'k_relapse_adj': 1
 }
 
 

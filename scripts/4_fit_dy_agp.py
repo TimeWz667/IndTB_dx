@@ -9,7 +9,8 @@ year0 = 2000
 
 exo = {
     'drt_act': 0,
-    'drt_trans': 0
+    'drt_trans': 0,
+    'k_relapse_adj': 1
 }
 
 
@@ -18,9 +19,6 @@ if __name__ == '__main__':
     import numpy.random as rd
     import os
     from sim.ebm.obj import load_obj_age
-    from tqdm import tqdm
-    import numpy as np
-    import pandas as pd
 
     rd.seed(seed)
 
