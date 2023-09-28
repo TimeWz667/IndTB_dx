@@ -34,8 +34,10 @@ class ModelAgeGrp(ModelPlain):
 
         inc = calc['inc_act'] #+ calc['inc_act_v']
         inc += calc['inc_react'] #+ calc['inc_react_v']
-        inc += calc['inc_rel_stu'] + calc['inc_rel_rlu'] + calc['inc_rel_rhu']
-        inc += calc['inc_rel_sti'] + calc['inc_rel_rli'] + calc['inc_rel_rhi']
+        # inc += calc['inc_rel_stu'] + calc['inc_rel_rlu'] + calc['inc_rel_rhu']
+        # inc += calc['inc_rel_sti'] + calc['inc_rel_rli'] + calc['inc_rel_rhi']
+        inc += calc['inc_rel_stu'] + calc['inc_rel_rhu']
+        inc += calc['inc_rel_sti'] + calc['inc_rel_rhi']
 
         ltbi = y[I.LTBI].sum(0)
 

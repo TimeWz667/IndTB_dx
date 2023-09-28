@@ -39,6 +39,8 @@ class Obj(DataModel):
             tars = pd.concat([tar_inc, tar_prev])
 
         tars = {f'{row.Index}_{row.Tag}_{row.Year:d}': dict(row) for i, row in tars.iterrows()}
+        tars['PrPub|Treated'] = {'N': 307, 'M': 0.82}
+        tars['PrTreated'] = {'N': 1128, 'M': 0.1}
 
         for d in tars.values():
             d['m'] = d['M']
@@ -65,6 +67,9 @@ class Obj(DataModel):
             # ext[f'CNR_All_{t:d}'] = ms.CNR[t]
             ext[f'IncR_All_{t:d}'] = ms.IncR[t]
         ext['PrevUt_All_2019'] = ms.PrevUt[2020]
+
+        ext['PrPub|Treated'] = ms.IncTreatedPubR[2020] / ms.IncTreatedR[2020]
+        ext['PrTreated'] = ms.IncTreatedR[2020] / ms.IncR[2020]
 
         if 'IncR_25-34' in ms:
             for k in ['15-24', '25-34', '35-44', '45-54', '55-64', '65+']:
