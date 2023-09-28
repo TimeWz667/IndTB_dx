@@ -25,8 +25,8 @@ PCore dy {
         r_relapse_tc = 0.06  # relapse after treatment completion
 
         r_relapse_te = r_relapse_td * (1 - 0.8) + r_relapse_tc * 0.8
-        k_relapse_adj = 1
-        rr_relapse_pub ~ unif(2, 3)
+        k_relapse_adj ~ unif(1, 2)
+        rr_relapse_pub ~ unif(2, 3.5)
 
         // incidence rate ratio
         irr_25 ~ unif(0.8, 1.2)
