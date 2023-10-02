@@ -14,14 +14,14 @@ class LatentTB(Process):
 
         r_clear = pars['r_clear']
         r_act, r_react = pars['r_act'], pars['r_react']
-        # r_rel, r_rel_tc, r_rel_td = pars['r_relapse'], pars['r_relapse_tc'], pars['r_relapse_td']
+
         r_rel, r_rel_te = pars['r_relapse'] * pars['k_relapse_adj'], pars['r_relapse_te']
         r_lat = pars['r_lat']
 
         try:
             intv_vac = kwargs['intv'].Vac
             r_act, r_react = intv_vac.modify_prog(t, r_act, r_react)
-            r_rel_te = intv_vac.modify_rel(t, r_rel_te)
+            r_rel, r_rel_te = intv_vac.modify_rel(t, r_rel, r_rel_te)
         except AttributeError or KeyError:
             pass
 
@@ -30,15 +30,10 @@ class LatentTB(Process):
         rr_rel_pri = 1 / (0.3 + 0.7 * pars['rr_relapse_pub'])
 
         r_rel_teu, r_rel_tei = r_rel_te * rr_rel_pub, r_rel_te * rr_rel_pri
-        # r_rel_tcu, r_rel_tdu = r_rel_tc * rr_rel_pub, r_rel_td * rr_rel_pub
-        # r_rel_tci, r_rel_tdi = r_rel_tc * rr_rel_pri, r_rel_td * rr_rel_pri
-
-
 
         try:
             intv_tx = kwargs['intv'].Tx
             r_rel_teu, r_rel_tei = intv_tx.modify_rel(t, r_rel_teu, r_rel_tei)
-            # r_rel_tci, r_rel_tdi = intv_tx.modify_reli(t, r_rel_tci, r_rel_tdi)
         except AttributeError or KeyError:
             pass
 

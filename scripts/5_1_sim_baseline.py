@@ -1,10 +1,6 @@
 __author__ = 'Chu-Chang Ku'
 
 
-exo = {
-    'drt_act': 0,
-    'drt_trans': 0
-}
 year0 = 2000
 
 if __name__ == '__main__':
@@ -17,8 +13,7 @@ if __name__ == '__main__':
         folder_input=f'../pars',
         file_prior='../data/prior.txt',
         file_targets='../data/targets.csv',
-        year0=year0,
-        exo=exo
+        year0=year0
     )
 
     out_folder = '../out/post_dy'

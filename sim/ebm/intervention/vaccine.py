@@ -52,14 +52,14 @@ class IntvVac:
 
         return r_act * k, r_react * k
 
-    def modify_rel(self, t, r_rel, r_rel_tc, r_rel_td):
+    def modify_rel(self, t, r_rel, r_rel_te):
         wt = self.uptake(t)
         if wt <= 0:
-            return r_rel, r_rel_tc, r_rel_td
+            return r_rel, r_rel_te
 
         k = (1 - wt) + wt * (1 - self.ProtRel)
 
-        return r_rel * k, r_rel_tc * k, r_rel_td * k
+        return r_rel * k, r_rel_te * k
 
 
 def get_intv_vac(p, key):
