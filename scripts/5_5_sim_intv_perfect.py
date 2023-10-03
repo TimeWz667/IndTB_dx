@@ -1,3 +1,5 @@
+import numpy as np
+
 from sim.ebm.intervention import compose_intv
 
 __author__ = 'Chu-Chang Ku'
@@ -11,6 +13,9 @@ if __name__ == '__main__':
     from sim.ebm.obj import load_obj_age
     import pandas as pd
     from tqdm import tqdm
+    import json
+
+    folder = '../out/post_dyage'
 
     obj = load_obj_age(
         folder_input=f'../pars',
@@ -19,17 +24,17 @@ if __name__ == '__main__':
         year0=year0
     )
 
-    post = pd.read_csv('../out/post_dyage/Post.csv')
-    post = [dict(row) for i, row in post.iterrows()]
+    with open(f'{folder}/Sim_Baseline.json', 'r') as f:
+        y0s = json.load(f)
 
     mss = list()
 
-    for i, pars in tqdm(enumerate(post)):
+    for i, state in tqdm(enumerate(y0s)):
+        y0, pars = state['Y0'], state['Pars']
+        y0 = np.array(y0)
+
         p = obj.serve(pars)
         p = obj.Cas.prepare_pars(p)
-
-        ys, _, _ = obj.Model.simulate_to_baseline(p)
-        y0 = ys.y[:, -1]
 
         intvs = {
             'Baseline': compose_intv(p),
@@ -44,4 +49,4 @@ if __name__ == '__main__':
             mss.append(ms.assign(Key=i, Scenario=intv_key))
     mss = pd.concat(mss)
     print(mss)
-    mss.to_csv(f'../out/post_dyage/Sim_IntvPerfect.csv')
+    mss.to_csv(f'{folder}/Sim_IntvPerfect.csv')

@@ -103,7 +103,7 @@ def get_intv_tx(p, key):
         x = np.linspace(2024, 2040, 9)
         y_pub = [0, 0.5, 1.0] + [1.0] * 6
         y_eng = [0, 0.5, 1.0] + [1.0] * 6
-        return IntvTx(p, x, y_pub, y_eng, 0)
+        return IntvTx(p, x, y_pub, y_eng, 0, p_rel=0)
     elif key == 'NoPLTFU':
         x = np.linspace(2024, 2040, 9)
         y_pub = [0, 0.5, 1.0] + [1.0] * 6
