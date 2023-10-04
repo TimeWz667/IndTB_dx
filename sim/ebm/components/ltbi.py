@@ -38,30 +38,19 @@ class LatentTB(Process):
             pass
 
         calc['inc_act'] = irr * r_act * y[I.FLat]
-        # calc['inc_act_v'] = irr * r_act_vac * y[I.FLatVac]
         calc['inc_react'] = irr * r_react * y[I.SLat]
-        # calc['inc_react_v'] = irr * r_react * y[I.SLatVac]
-        # calc['inc_rel_rlu'] = irr * r_rel_tcu * y[I.RLowPub]
         calc['inc_rel_rhu'] = irr * r_rel_teu * y[I.RHighPub]
         calc['inc_rel_stu'] = irr * r_rel * y[I.RStPub]
-        # calc['inc_rel_rli'] = irr * r_rel_tci * y[I.RLowPri]
         calc['inc_rel_rhi'] = irr * r_rel_tei * y[I.RHighPri]
         calc['inc_rel_sti'] = irr * r_rel * y[I.RStPri]
 
         calc['clear_sl'] = r_clear * y[I.SLat]
-        # calc['clear_slv'] = r_clear * y[I.SLatVac]
         calc['clear_rstu'] = r_clear * y[I.RStPub]
         calc['clear_rsti'] = r_clear * y[I.RStPri]
 
         calc['stab_fl'] = r_lat * y[I.FLat]
-        # calc['stab_flv'] = r_lat * y[I.FLatVac]
-        # calc['stab_rlu'] = r_lat * y[I.RLowPub]
         calc['stab_rhu'] = r_lat * y[I.RHighPub]
-        # calc['stab_rli'] = r_lat * y[I.RLowPri]
         calc['stab_rhi'] = r_lat * y[I.RHighPri]
-
-        # calc['vac_fl'] = r_vac * y[I.FLat]
-        # calc['vac_sl'] = r_vac * y[I.SLat]
 
     def compose_dya(self, ya, calc: dict):
         I = self.Keys
@@ -69,26 +58,21 @@ class LatentTB(Process):
         y, aux = ya
         dy, da = np.zeros_like(y), np.zeros_like(aux)
 
-        inc_recent = calc['inc_act'] #+ calc['inc_act_v']
-        inc_remote = calc['inc_react'] #+ calc['inc_react_v']
+        inc_recent = calc['inc_act']
+        inc_remote = calc['inc_react']
         inc_retreated_u = calc['inc_rel_stu'] + calc['inc_rel_rhu']
         inc_retreated_i = calc['inc_rel_sti'] + calc['inc_rel_rhi']
         inc_remote += inc_retreated_u + inc_retreated_i
 
-        dy[I.FLat] = - calc['inc_act'] - calc['stab_fl'] #- calc['vac_fl']
-        dy[I.SLat] = calc['stab_fl'] - calc['inc_react'] - calc['clear_sl'] #- calc['vac_sl']
+        dy[I.FLat] = - calc['inc_act'] - calc['stab_fl']
+        dy[I.SLat] = calc['stab_fl'] - calc['inc_react'] - calc['clear_sl']
 
-        #dy[I.FLatVac] = calc['vac_fl'] - calc['inc_act_v'] - calc['stab_flv']
-        #dy[I.SLatVac] = calc['vac_sl'] + calc['stab_flv'] - calc['inc_react_v'] - calc['clear_slv']
-
-        # dy[I.RLowPub] = - calc['inc_rel_rlu'] - calc['stab_rlu']
         dy[I.RHighPub] = - calc['inc_rel_rhu'] - calc['stab_rhu']
         dy[I.RStPub] = calc['stab_rhu'] - calc['inc_rel_stu'] - calc['clear_rstu']
-        # dy[I.RLowPri] = - calc['inc_rel_rli'] - calc['stab_rli']
         dy[I.RHighPri] = - calc['inc_rel_rhi'] - calc['stab_rhi']
         dy[I.RStPri] = calc['stab_rhi'] - calc['inc_rel_sti'] - calc['clear_rsti']
         dy[I.Asym] = inc_recent + inc_remote
-        dy[I.U] = calc['clear_sl'] + calc['clear_rstu'] + calc['clear_rsti'] # + calc['clear_slv']
+        dy[I.U] = calc['clear_sl'] + calc['clear_rstu'] + calc['clear_rsti']
 
         da[I.A_IncRecent] = inc_recent.sum()
         da[I.A_IncRemote] = inc_remote.sum()

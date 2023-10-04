@@ -5,7 +5,7 @@ __all__ = ['IntvACF', 'get_intv_acf']
 
 
 class IntvACF:
-    def __init__(self, pp, cov, sens, year0=2025, preflight=2, **kwargs):
+    def __init__(self, pp, cov, sens, year0=2025, preflight=2):
         self.Coverage = cov
         self.Sensitivity = sens
         self.Year0 = year0

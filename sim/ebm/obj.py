@@ -62,9 +62,6 @@ class Obj(DataModel):
         ext = dict()
 
         for t in range(2015, 2022):
-            # ext[f'Det_Pub_{t:d}'] = ms.NotiPubR[t]
-            # ext[f'Det_Eng_{t:d}'] = ms.NotiPriR[t]
-            # ext[f'CNR_All_{t:d}'] = ms.CNR[t]
             ext[f'IncR_All_{t:d}'] = ms.IncR[t]
         ext['PrevUt_All_2019'] = ms.PrevUt[2020]
 
@@ -74,10 +71,6 @@ class Obj(DataModel):
         if 'IncR_25-34' in ms:
             for k in ['15-24', '25-34', '35-44', '45-54', '55-64', '65+']:
                 ext[f'IncR_{k}_2021'] = ms[f'IncR_{k}'][2021]
-
-        # ext['Prev_Asym_2020'] = ms.PrevA[2020]
-        # ext['Prev_Sym_2020'] = ms.PrevS[2020]
-        # ext['Prev_ExCS_2020'] = ms.PrevC[2020]
 
         return ext
 

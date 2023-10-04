@@ -30,19 +30,6 @@ class IntvTx:
         p_txi1[1] = 1 - (1 - p_txi1[1]) * (1 - wte * self.RelPLTFU)
         return p_txi1
 
-    # def modify_txo(self, t, r_txs, r_txl):
-    #     wtu, wte = self.UptakePub(t), self.UptakeEng(t)
-    #     if wtu <= 0 and wte <= 0:
-    #         return r_txs, r_txl
-    #     p0u, p0e = (r_txs / (r_txl + r_txs))[:2]
-    #     p1u, p1e = p0u + wtu * (self.PrTxs - p0u), p0e + wte * (self.PrTxs - p0e)
-    #     p1u, p1e = max(p1u, p0u), max(p1e, p0e)
-    #
-    #     r_txs1, r_txl1 = r_txs.copy(), r_txl.copy()
-    #     r_txs1[0], r_txl1[0] = p1u * (r_txs1[0] + r_txl1[0]), (1 - p1u) * (r_txs1[0] + r_txl1[0])
-    #     r_txs1[1], r_txl1[1] = p1e * (r_txs1[1] + r_txl1[1]), (1 - p1e) * (r_txs1[1] + r_txl1[1])
-    #     return r_txs1, r_txl1
-
     def modify_rel(self, t, r_rel_teu, r_rel_tei):
         wtu, wte = self.UptakePub(t), self.UptakeEng(t)
 
@@ -58,28 +45,6 @@ class IntvTx:
             r_rel_tei1 = r_rel_tei
 
         return r_rel_teu1, r_rel_tei1
-
-    # def modify_relu(self, t, r_rel_tcu, r_rel_tdu, r_rel_stu):
-    #     wt = self.UptakePub(t)
-    #     if wt <= 0 or self.RelRelapse >= 1:
-    #         return r_rel_tcu, r_rel_tdu, r_rel_stu
-    #
-    #     rel = (1 - wt) + wt * self.RelRelapse
-    #
-    #     r_rel_tcu, r_rel_tdu = r_rel_tcu * rel, r_rel_tdu * rel
-    #     r_rel_tcu, r_rel_tdu = max(r_rel_tcu, r_rel_stu), max(r_rel_tdu, r_rel_stu)
-    #     return r_rel_tcu, r_rel_tdu, r_rel_stu
-    #
-    # def modify_reli(self, t, r_rel_tci, r_rel_tdi, r_rel_sti):
-    #     wt = self.UptakeEng(t)
-    #     if wt <= 0 or self.RelRelapse >= 1:
-    #         return r_rel_tci, r_rel_tdi, r_rel_sti
-    #
-    #     rel = (1 - wt) + wt * self.RelRelapse
-    #
-    #     r_rel_tci, r_rel_tdi = r_rel_tci * rel, r_rel_tdi * rel
-    #     r_rel_tci, r_rel_tdi = max(r_rel_tci, r_rel_sti), max(r_rel_tdi, r_rel_sti)
-    #     return r_rel_tci, r_rel_tdi, r_rel_sti
 
 
 def get_intv_tx(p, key):

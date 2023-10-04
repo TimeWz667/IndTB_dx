@@ -20,12 +20,6 @@ class ActiveTB(Process):
 
         r_txs, r_txl = pars['r_txs'], pars['r_txl']
 
-        # try:
-        #     intv_tx = kwargs['intv'].Tx
-        #     r_txs, r_txl = intv_tx.modify_txo(t, r_txs, r_txl)
-        # except AttributeError or KeyError:
-        #     pass
-
         try:
             intv_acf = kwargs['intv'].ACF
             r_acf = intv_acf.modify_acf(t, 0)
@@ -67,8 +61,6 @@ class ActiveTB(Process):
 
         dy[I.TxPub] += acf_a + acf_s + acf_c
 
-        # dy[I.RLowPub] += txs[0]
-        # dy[I.RLowPri] += txs[1] + txs[2]
         dy[I.RHighPub] += txl[0] + txs[0]
         dy[I.RHighPri] += txl[1] + txl[2] + txs[1] + txs[2]
 

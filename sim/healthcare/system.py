@@ -153,7 +153,6 @@ if __name__ == '__main__':
         print('-- F_SSM: ', res1['N_test_SSM'] / 1000)
         print('-- F_Xpert: ', (res1['N_test_Xpert_ss-'] + res1['N_test_Xpert']) / 1000)
 
-
     print('---------------------------------------------')
     system = get_system(p0)
 

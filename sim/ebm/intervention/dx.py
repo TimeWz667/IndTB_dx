@@ -6,7 +6,7 @@ __all__ = ['IntvPPM', 'get_intv_ppm', 'IntvDx', 'get_intv_dx']
 
 
 class IntvPPM:
-    def __init__(self, pp, target, year0=2025, preflight=2, **kwargs):
+    def __init__(self, pp, target, year0=2025, preflight=2):
         self.Target = target
         self.Year0 = year0
         self.Preflight = preflight

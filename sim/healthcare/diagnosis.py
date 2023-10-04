@@ -158,15 +158,6 @@ class Algorithm:
         res.count('N_SampleFailed', fnl)
         res.count('N_SampleFailed', tnl)
 
-        # if self.MisBac > 0 and (self.Xpert is not None or self.SSM is not None):
-        #     fn, mis_bac = fn * (1 - self.MisBac), fn * self.MisBac
-        #     res.count('N_PreDxLTFU', mis_bac)
-        #     res.count('N_MisBacLTFU', mis_bac)
-        #
-        #     tn, mis_bac = tn * (1 - self.MisBac), tn * self.MisBac
-        #     res.count('N_PreDxLTFU', mis_bac)
-        #     res.count('N_MisBacLTFU', mis_bac)
-
         if self.CDx is not None:
             (tp1, fn), stats = self.CDx.test_tb(fn)
             tp += tp1
@@ -242,17 +233,6 @@ class Algorithm:
             fp += fp1
             res.count(stats[0], stats[1])
             res.count('N_Det_Xpert', tp1 + fp1)
-
-        # if self.MisBac > 0 and (self.Xpert is not None or self.SSM is not None):
-        #     mis_bac = rd.binomial(fn, self.MisBac)
-        #     fn -= mis_bac
-        #     res.count('N_PreDxLTFU', mis_bac)
-        #     res.count('N_MisBacLTFU', mis_bac)
-        #
-        #     mis_bac = rd.binomial(tn, self.MisBac)
-        #     tn -= mis_bac
-        #     res.count('N_PreDxLTFU', mis_bac)
-        #     res.count('N_MisBacLTFU', mis_bac)
 
         if self.CDx is not None:
             (tp1, fn), stats = self.CDx.test_tb_sto(fn)

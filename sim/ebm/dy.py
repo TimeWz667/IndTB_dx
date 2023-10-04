@@ -21,15 +21,10 @@ class ModelPlain(AbsModelODE):
         p['sus'] = sus = np.zeros((I.N_States, self.NDim))
         sus[I.U] = 1
         sus[I.SLat] = p['rr_sus_slat']
-        # sus[I.RLowPub] = p['rr_sus_slat']
         sus[I.RHighPub] = p['rr_sus_slat']
         sus[I.RStPub] = p['rr_sus_slat']
-        # sus[I.RLowPri] = p['rr_sus_slat']
         sus[I.RHighPri] = p['rr_sus_slat']
         sus[I.RStPri] = p['rr_sus_slat']
-
-        # for st in [I.SLatM72, I.SLatBcg, I.SLatBoth]:
-        #     sus[st] = p['rr_sus_slat']
 
         p['trans'] = trans = np.zeros((I.N_States, self.NDim))
         trans[I.Asym] = p['rr_inf_asym']
