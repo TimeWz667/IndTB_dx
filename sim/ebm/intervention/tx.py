@@ -74,6 +74,11 @@ def get_intv_tx(p, key):
         y_pub = [0, 0.5, 1.0] + [1.0] * 6
         y_eng = [0, 0.5, 1.0] + [1.0] * 6
         return IntvTx(p, x, y_pub, y_eng, 1)
+    elif key == 'HighPPM':
+        x = np.linspace(2024, 2040, 9)
+        y_pub = [0, 0.5, 1.0] + [1.0] * 6
+        y_eng = [0, 0.375, 0.75] + [0.75] * 6
+        return IntvTx(p, x, y_pub, y_eng, 0, p_rel=0.05)
 
     return None
 
