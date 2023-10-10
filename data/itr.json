@@ -1,0 +1,44 @@
+{
+  "Presumptive": {
+    "SSM": 13914911,
+    "CBNAAT": 1370649,
+    "Truenat": 2749903
+  },
+  "Notification": {
+    "Sector_Public": 1688427,
+    "Sector_Private": 733694,
+    "Type_New": 2131704,
+    "Type_Treated": 226960,
+    "Type_PMDT": 63457,
+    "Test_SSM": 513050,
+    "Test_Xpert": 548981,
+    "Test_CXR": 835930,
+    "Test_Other": 1037210
+  },
+  "Test_Truenat": {
+    "Tested": 3483130,
+    "Detected": 529196,
+    "TestRif": 490267,
+    "DetectedRif": 21659,
+    "Tested_Private": 215594,
+    "Detected_Private": 53067,
+    "DetectedRif_Private": 3735
+  },
+  "Test_CBNAAT": {
+    "Tested": 2365739,
+    "Detected": 525088,
+    "DetectedRif": 42026,
+    "Tested_Private": 262160,
+    "Detected_Private": 68556,
+    "DetectedRif_Private": 6531
+  },
+  "Test_LPA": {
+    "Tested": 309719,
+    "DetectedRif": 27180
+  },
+  "PMDT": {
+    ""
+  },
+  "Year": 2022,
+  "Location": "India"
+}

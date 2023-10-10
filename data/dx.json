@@ -1,0 +1,22 @@
+{
+  "sens_ssm": 0.64,
+  "spec_ssm": 0.98,
+  "sens_xpert": 0.85,
+  "sens_xpert_ss-": 0.64,
+  "spec_xpert": 0.98,
+  "p_ava_xpert_pub": 0.2,
+  "p_ava_ssm_pub": 0.8,
+  "p_ava_xpert_eng": 0.3,
+  "p_loss_sputum": 0.15,
+  "p_loss_swab": 0.02,
+  "sens_cdx": 0.7,
+  "spec_cdx": 0.95,
+  "p_csi_pub": 0.483,
+  "p_csi_ppm": 0.6,
+  "dur_pri": 0.7,
+  "dur_pub": 0.5,
+  "p_txi_pub": 0.9,
+  "p_txi_eng": 0.8,
+  "p_txi_pri": 0.8,
+  "p_refer_i2u": 0.3
+}
