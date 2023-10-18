@@ -159,12 +159,12 @@ transformed parameters {
   
 
   // Map to notification data
-  r_test_ssm_pub =   r_tb_pub * p_test_tb_ssm_pub   + r_nontb_pub * p_test_nontb_ssm_pub;
-  r_test_xpert_pub = r_tb_pub * p_test_tb_xpert_pub + r_nontb_pub * p_test_nontb_xpert_pub;
+  r_test_ssm_pub =   (r_tb_pub + r_nontb_pub) * (alg_pub[1] + alg_pub[2]);
+  r_test_xpert_pub = (r_tb_pub + r_nontb_pub) * alg_pub[3];
   r_det_bac_pub =    r_tb_pub * p_tp_bac_pub        + r_nontb_pub * p_fp_bac_pub;
   r_det_cdx_pub =    r_tb_pub * p_tp_cdx_pub        + r_nontb_pub * p_fp_cdx_pub;
   
-  r_test_xpert_eng = r_tb_eng * p_test_tb_xpert_eng + r_nontb_eng * p_test_nontb_xpert_eng;
+  r_test_xpert_eng = (r_tb_eng + r_nontb_eng) * alg_eng[1];
   r_det_bac_eng =    r_tb_eng * p_tp_bac_eng        + r_nontb_eng * p_fp_bac_eng;
   r_det_cdx_eng =    r_tb_eng * p_tp_cdx_eng        + r_nontb_eng * p_fp_cdx_eng;
   

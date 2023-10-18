@@ -2,16 +2,9 @@ library(tidyverse)
 
 
 
-## From review
-delay_sys <- c(31.0 + 2.5, 24.5 + 1.9, 35.4 + 3.6)
+# ## From review
+# delay_sys <- c(31.0 + 2.5, 24.5 + 1.9, 35.4 + 3.6)
 n_vis <- c(2.7, 1.9, 12.3)
-
-opt_ds <- nlminb(c(0.1, 0.1), function(x) {
-  qs <- qlnorm(c(0.5, 0.25, 0.75), x[1], x[2])
-  sum((qs / delay_sys - 1) ** 2)
-}, lower = 0, upper = 10)
-opt_ds
-
 
 opt_vis <- nlminb(c(1, 1), function(x) {
   qs <- qlnorm(c(0.5, 0.25, 0.75), x[1], x[2])
@@ -20,12 +13,7 @@ opt_vis <- nlminb(c(1, 1), function(x) {
 opt_vis
 
 
-### Bootstrap
 
-tar <- (rpois(10000, 1.7) + 1) * rlnorm(10000, opt_ds$par[1], opt_ds$par[2])
-#tar <- 2.7 * rlnorm(10000, opt_ds$par[1], opt_ds$par[2])
-tar <- quantile(tar, c(0.25, 0.75))
-tar
 
 
 ## Load data
@@ -51,19 +39,13 @@ for (folder in c("bac_cdx_sector_2021", "bac_cdx_sector_2022")) {
       r_txi_pub = r_tb_pub * p_dx_pub * p_txi_pub,
       r_txi_eng = r_tb_eng * p_dx_eng * p_txi_eng,
       r_txi_pri = r_tb_pri * p_dx_pri * p_txi_pri,
-      r_txi = r_txi_pub + r_txi_eng + r_txi_pri
-    ) %>% 
-    #select(starts_with(c("p_ent", "p_itt", "p_txi", "p_dx", "r_txi", "alg")), r_tb, sens_cdx, spec_cdx) %>% 
-    mutate(
+      r_txi = r_txi_pub + r_txi_eng + r_txi_pri,
       cas_itt = p_ent_pub * p_itt_pub + p_ent_eng * p_itt_eng + p_ent_pri * p_itt_pri,
       cas_dx = p_ent_pub * p_itt_pub * p_dx_pub + p_ent_eng * p_itt_eng * p_dx_eng + p_ent_pri * p_itt_pri * p_dx_pri,
       cas_txi = p_ent_pub * p_itt_pub * p_dx_pub * p_txi_pub + 
         p_ent_eng * p_itt_eng * p_dx_eng * p_txi_eng + 
         p_ent_pri * p_itt_pri * p_dx_pri * p_txi_pri,
       cas_txi_full = r_txi / r_tb,
-    ) %>% 
-    #select(starts_with("cas"), r_tb, r_txi) %>% 
-    mutate(
       prev_a = prev$PrevAsym,
       prev_s = prev$PrevSym,
       prev_c = prev$PrevExCS,
@@ -76,12 +58,15 @@ for (folder in c("bac_cdx_sector_2021", "bac_cdx_sector_2022")) {
       inc = (r_onset + r_sc + r_die_a) * prev_a
     )
   
+  cas_txi <- red %>% summarise(N = mean(cas_txi_full)) %>% unlist() %>% c
+  k_itt <- 1 / unname(cas_txi * n_vis[1])
+  
   
   reformed <- red %>% 
     mutate(
       max_rat0 = r_txi / (prev_s * r_csi * cas_txi),
       rat0 = pmin(max_rat0, 1),
-      k_itt = rbinom(n(), prob = 0.21, size = 250) / 250 / rp_ent,
+      # k_itt = rbinom(n(), prob = 0.21, size = 250) / 250 / rp_ent,
       # k_itt = rbinom(n(), prob = 0.74, size = 88) / 88,
       p_itt0_pub = p_itt_pub * rat0 * k_itt,
       p_itt0_eng = p_itt_eng * rat0 * k_itt,
