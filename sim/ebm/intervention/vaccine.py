@@ -58,7 +58,6 @@ class IntvVac:
             return r_rel, r_rel_te
 
         k = (1 - wt) + wt * (1 - self.ProtRel)
-
         return r_rel * k, r_rel_te * k
 
 

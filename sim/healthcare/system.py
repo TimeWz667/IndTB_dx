@@ -56,71 +56,68 @@ class System:
         }
 
 
-def get_system(p, has_cdx=True):
-    sputum = Specimen('Sputum', p['p_loss_sputum'])
-    ssm = Test('SSM', p['sens_ssm'], p['spec_ssm'], sputum)
-    xpert = Test('Xpert', p['sens_xpert'], p['spec_xpert'], sputum)
-    xpert_ssm = Test('Xpert_ss-', p['sens_xpert_ss-'], p['spec_xpert'], sputum)
-    if has_cdx:
-        cdx = Test('CDx', p['sens_cdx'], p['spec_cdx'])
-    else:
-        cdx = None
+def get_system(p, pt):
+    sputum = Specimen('Sputum', p['p_scanty'])
+    ssm = Test('SSM', p['sens_s'], p['spec_s'], sputum)
+    xpert = Test('Xpert', p['sens_x'], p['spec_x'], sputum)
+    xpert_sn = Test('Xpert_ss-', p['sens_x_sn'], p['spec_x_sn'], sputum)
+    cdx_bn = Test('CDx', p['sens_cdx_bn'], p['spec_cdx_bn'])
 
-    alg1 = Algorithm('SSM > Xpert > CDx', ssm=ssm, xpert=xpert_ssm, cdx=cdx)
-    alg2 = Algorithm('SSM > CDx', ssm=ssm, cdx=cdx)
-    alg3 = Algorithm('Xpert > CDx', xpert=xpert, cdx=cdx)
+    cdx = Test('CDx', p['sens_cdx'], p['spec_cdx'])
+
+    alg1 = Algorithm('SSM > Xpert > CDx', ssm=ssm, xpert=xpert_sn, cdx=cdx_bn)
+    alg2 = Algorithm('SSM > CDx', ssm=ssm, cdx=cdx_bn)
+    alg3 = Algorithm('Xpert > CDx', xpert=xpert, cdx=cdx_bn)
     alg4 = Algorithm('CDx', cdx=cdx)
 
     ent_pub = np.array([
-        p['p_ava_ssm_pub'] * p['p_ava_xpert_pub'],
-        p['p_ava_ssm_pub'] * (1 - p['p_ava_xpert_pub']),
-        (1 - p['p_ava_ssm_pub']) * p['p_ava_xpert_pub'],
-        (1 - p['p_ava_ssm_pub']) * (1 - p['p_ava_xpert_pub'])
+        p['p_path_ssm'] * p['p_xpert_sn'],
+        p['p_path_ssm'] * (1 - p['p_xpert_sn']),
+        (1 - p['p_path_ssm'])
     ])
 
     ent_eng = np.array([
-        p['p_ava_xpert_eng'],
-        (1 - p['p_ava_xpert_eng'])
+        p['p_xpert_eng'],
+        (1 - p['p_xpert_eng'])
     ])
 
-    ent = np.array([
-        p['p_csi_pub'],
-        (1 - p['p_csi_pub']) * p['p_csi_ppm'],
-        (1 - p['p_csi_pub']) * (1 - p['p_csi_ppm'])
-    ])
+    txi = np.array([pt['txi_pub'], pt['txi_eng'], pt['txi_pri']])
+    ptxi = np.array([0.95, 0.85, 0.85])
+    pdx = np.array([p['pdx_pub'], p['pdx_eng'], p['pdx_pri']])
+
+    p_ent = txi / (pdx * ptxi)
+    p_ent /= p_ent.sum()
 
     public = Sector(ent_pub, [alg1, alg2, alg3, alg4])
     engaged = Sector(ent_eng, [alg3, alg4])
     private = Sector(np.array([1]), [alg4])
 
-    return System(ent, public, engaged, private)
+    return System(p_ent, public, engaged, private)
 
 
 if __name__ == '__main__':
     p0 = {
-        'sens_ssm': 0.64,
-        'spec_ssm': 0.98,
-        'sens_xpert': 0.85,
-        'sens_xpert_ss-': 0.64,
-        'spec_xpert': 0.98,
-        'p_ava_xpert_pub': 0.2,
-        'p_ava_ssm_pub': 0.8,
-        'p_ava_xpert_eng': 0.3,
-        'p_loss_sputum': 0.15,
+        'sens_s': 0.64,
+        'spec_s': 0.98,
+        'sens_x': 0.85,
+        'sens_x_sn': 0.64,
+        'spec_x': 0.98,
+        'spec_x_sn': 0.64,
+        'p_scanty': 0.15,
         'p_loss_swab': 0.05,
         'sens_cdx': 0.7,
         'spec_cdx': 0.95,
-        'p_csi_pub': 0.483,
-        'p_csi_ppm': 0.6,
-        'dur_pri': 0.7,
-        'dur_pub': 0.5,
-        'p_txi_pub': 0.9,
-        'p_txi_eng': 0.8,
-        'p_txi_pri': 0.8,
-        'p_refer_i2u': 0.3,
+        'sens_cdx_bn': 0.7,
+        'spec_cdx_bn': 0.95,
+        'p_path_ssm': 0.8327,
+        'p_xpert_sn': 0.9447,
+        'p_xpert_eng': 0.1177,
+        'pdx_pub': 0.9359,
+        'pdx_eng': 0.7999,
+        'pdx_pri': 0.7821,
     }
 
-    system = get_system(p0)
+    system = get_system(p0, {'txi_pub': 1, 'txi_eng': 1, 'txi_pri': 1})
 
     system.Public.seek_care(1e4, 1e5).print()
     system.Public.seek_care_sto(1e4, 1e5).print()
@@ -136,9 +133,6 @@ if __name__ == '__main__':
         print(k)
         v.print()
 
-    system = get_system(p0, has_cdx=True)
-    res = system.seek_care(1000, 1000)
-
     print('---------------------------------------------')
     print('Public')
     for alg in system.Public.Algorithms:
@@ -152,9 +146,3 @@ if __name__ == '__main__':
         print('-- FP_Bac: ', res1.FalsePos / 1000)
         print('-- F_SSM: ', res1['N_test_SSM'] / 1000)
         print('-- F_Xpert: ', (res1['N_test_Xpert_ss-'] + res1['N_test_Xpert']) / 1000)
-
-    print('---------------------------------------------')
-    system = get_system(p0)
-
-    system.Public.seek_care(1e4, 1e5).print()
-    system.Public.seek_care_sto(1e4, 1e5).print()

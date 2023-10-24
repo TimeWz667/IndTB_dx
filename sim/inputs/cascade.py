@@ -4,19 +4,7 @@ import json
 from sim.healthcare.system import get_system
 
 __author__ = 'Chu-Chang Ku'
-__all__ = ['CasRepo', 'EXO']
-
-
-EXO = {
-    'sens_ssm': 0.64,
-    'spec_ssm': 0.98,
-    'sens_xpert': 0.85,
-    'sens_xpert_ss-': 0.64,
-    'spec_xpert': 0.98,
-    'dur_pub': 0.5,
-    'p_loss_sputum': 0.15,
-    'p_loss_swab': 0.02
-}
+__all__ = ['CasRepo']
 
 
 class CasRepo:
