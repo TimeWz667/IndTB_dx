@@ -31,3 +31,5 @@ out/
 
 .local/
 .config/
+
+stan/legacy/
