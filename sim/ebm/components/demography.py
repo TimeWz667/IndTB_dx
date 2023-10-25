@@ -16,14 +16,13 @@ class Demography(Process):
 
         dr_tb = np.zeros_like(y)
 
-        r_die_tx_pub, r_die_tx_pri_u, r_die_tx_pri_i = pars['r_txd']
-
         dr_tb[I.Asym] = pars['r_die_asym']
         dr_tb[I.Sym] = pars['r_die_sym']
         dr_tb[I.ExCS] = pars['r_die_sym']
-        dr_tb[I.TxPub] = r_die_tx_pub
-        dr_tb[I.TxPriOnPub] = r_die_tx_pri_u
-        dr_tb[I.TxPriOnPri] = r_die_tx_pri_i
+        dr_tb[I.ReCS] = pars['r_die_sym']
+        dr_tb[I.TxPub] = pars['r_die_tx']
+        dr_tb[I.TxPriOnPub] = pars['r_die_tx']
+        dr_tb[I.TxPriOnPri] = pars['r_die_tx']
 
         calc['die_tb'] = die_tb = dr_tb * y
 

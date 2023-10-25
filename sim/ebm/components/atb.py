@@ -15,10 +15,11 @@ class ActiveTB(Process):
         calc['sc_a'] = pars['r_sc'] * y[I.Asym]
         calc['sc_s'] = pars['r_sc'] * y[I.Sym]
         calc['sc_c'] = pars['r_sc'] * y[I.ExCS]
+        calc['sc_r'] = pars['r_sc'] * y[I.ReCS]
 
         calc['onset'] = pars['r_onset'] * y[I.Asym]
 
-        r_txs, r_txl = pars['r_txs'], pars['r_txl']
+        r_txo = 1 / pars['tx_dur']
 
         try:
             intv_acf = kwargs['intv'].ACF
@@ -29,9 +30,9 @@ class ActiveTB(Process):
         calc['acf_a'] = r_acf * y[I.Asym]
         calc['acf_s'] = r_acf * y[I.Sym]
         calc['acf_c'] = r_acf * y[I.ExCS]
+        calc['acf_r'] = r_acf * y[I.ReCS]
 
-        calc['txs'] = y[[I.TxPub, I.TxPriOnPub, I.TxPriOnPri]] * r_txs.reshape((-1, 1))
-        calc['txl'] = y[[I.TxPub, I.TxPriOnPub, I.TxPriOnPri]] * r_txl.reshape((-1, 1))
+        calc['txo'] = y[[I.TxPub, I.TxPriOnPub, I.TxPriOnPri]] * r_txo.reshape((-1, 1))
 
         return calc
 
@@ -42,30 +43,29 @@ class ActiveTB(Process):
         dy, da = np.zeros_like(y), np.zeros_like(aux)
 
         onset = calc['onset']
-        sc_a, sc_s, sc_c = calc['sc_a'], calc['sc_s'], calc['sc_c']
-
-        txs, txl = calc['txs'], calc['txl']
+        sc_a, sc_s, sc_c, sc_r = calc['sc_a'], calc['sc_s'], calc['sc_c'], calc['sc_r']
 
         dy[I.Asym] += - onset - sc_a
         dy[I.Sym] += onset - sc_s
         dy[I.ExCS] += - sc_c
+        dy[I.ReCS] += - sc_r
+        dy[I.SLat] += sc_a + sc_s + sc_c + sc_r
 
-        dy[I.TxPub] += - txs[0] - txl[0]
-        dy[I.TxPriOnPub] += - txs[1] - txl[1]
-        dy[I.TxPriOnPri] += - txs[2] - txl[2]
+        txo = calc['txo']
+        dy[I.TxPub] -= txo[0]
+        dy[I.TxPriOnPub] -= txo[1]
+        dy[I.TxPriOnPri] -= txo[2]
 
-        acf_a, acf_s, acf_c = calc['acf_a'], calc['acf_s'], calc['acf_c']
-        dy[I.Asym] += - acf_a
-        dy[I.Sym] += - acf_s
-        dy[I.ExCS] += - acf_c
+        dy[I.RHighPub] += txo[0]
+        dy[I.RHighPri] += txo[1] + txo[2]
 
-        dy[I.TxPub] += acf_a + acf_s + acf_c
+        acf_a, acf_s, acf_c, acf_r = calc['acf_a'], calc['acf_s'], calc['acf_c'], calc['acf_r']
+        dy[I.Asym] -= acf_a
+        dy[I.Sym] -= acf_s
+        dy[I.ExCS] -= acf_c
+        dy[I.ReCS] -= acf_r
+        dy[I.TxPub] += acf_a + acf_s + acf_c + acf_r
 
-        dy[I.RHighPub] += txl[0] + txs[0]
-        dy[I.RHighPri] += txl[1] + txl[2] + txs[1] + txs[2]
-
-        dy[I.SLat] += sc_a + sc_s + sc_c
-
-        da[I.A_ACF] += (acf_a + acf_s + acf_c).sum()
+        da[I.A_ACF] += (acf_a + acf_s + acf_c + acf_r).sum()
 
         return dy, da

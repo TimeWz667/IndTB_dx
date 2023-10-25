@@ -2,21 +2,22 @@ U = 0
 Asym = 1
 Sym = 2
 ExCS = 3
-TxPub = 4
-TxPriOnPub = 5
-TxPriOnPri = 6
+ReCS = 4
+TxPub = 5
+TxPriOnPub = 6
+TxPriOnPri = 7
 
-FLat = 7
-SLat = 8
-RHighPub = 9
-RStPub = 10
-RHighPri = 11
-RStPri = 12
+FLat = 8
+SLat = 9
+RHighPub = 10
+RStPub = 11
+RHighPri = 12
+RStPri = 13
 
-N_States = 13
+N_States = 14
 
-Infectious = [Asym, Sym, ExCS]
-PTB = [Asym, Sym, ExCS, TxPub, TxPriOnPub, TxPriOnPri]
+Infectious = [Asym, Sym, ExCS, ReCS]
+PTB = Infectious + [TxPub, TxPriOnPub, TxPriOnPri]
 UtTB = [Asym, Sym, ExCS]
 LTBI = [FLat, SLat, RHighPub, RStPub, RHighPri, RStPri]
 

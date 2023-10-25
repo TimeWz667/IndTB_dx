@@ -4,6 +4,8 @@ PCore dy {
         rr_die_asym = 1
         r_die_asym = r_die_sym * rr_die_asym
 
+        r_die_tx ~ unif(0.07, 0.09)
+
         // transmission
         beta ~ unif(3, 30)
 
@@ -27,6 +29,8 @@ PCore dy {
         r_relapse_te = r_relapse_td * (1 - 0.8) + r_relapse_tc * 0.8
         k_relapse_adj ~ unif(1, 2)
         rr_relapse_pub ~ unif(2, 3.5)
+
+        p_cure ~ triangle(0.8, 0.85, 0.9)
 
         // incidence rate ratio
         irr_25 ~ unif(0.8, 1.2)

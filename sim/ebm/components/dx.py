@@ -18,10 +18,7 @@ class Dx(Process):
         r_csi *= k
         r_recsi *= k
 
-        p_ent, p_txi = pars['p_ent'], pars['p_txi']
-
-        p_pdx = pars['p_dx']
-        p_itt0, p_itt1 = pars['p_itt0'], pars['p_itt1']
+        p_ent, p_itt, p_pdx, p_txi = pars['p_ent'], pars['p_itt'], pars['p_dx'], pars['p_txi']
 
         try:
             intv_dx = kwargs['intv'].Dx
@@ -41,19 +38,21 @@ class Dx(Process):
         except AttributeError or KeyError:
             pass
 
-        pdx0 = p_ent * p_itt0 * p_pdx * p_txi
-        pdx1 = p_ent * p_itt1 * p_pdx * p_txi
+        pdx = p_ent * p_itt * p_pdx * p_txi
 
-        calc['tp0'] = tp0 = r_csi * pdx0.reshape((-1, 1)) * y[I.Sym].reshape((1, -1))
-        calc['fn0'] = r_csi * (p_ent - pdx0).reshape((-1, 1)) * y[I.Sym].reshape((1, -1))
-        calc['tp1'] = tp1 = r_recsi * pdx1.reshape((-1, 1)) * y[I.ExCS].reshape((1, -1))
+        calc['tp0'] = tp0 = r_csi * pdx.reshape((-1, 1)) * y[I.Sym].reshape((1, -1))
+        calc['fn0'] = r_csi * (p_ent - pdx).reshape((-1, 1)) * y[I.Sym].reshape((1, -1))
+        calc['tp1'] = tp1 = r_recsi * pdx.reshape((-1, 1)) * y[I.ExCS].reshape((1, -1))
 
-        tp, alo = (tp0 + tp1).reshape((3, 1, -1)), pars['tx_alo']
+        calc['tpr'] = tpr = r_recsi * pdx.reshape((-1, 1)) * y[I.ReCS].reshape((1, -1))
 
-        calc['txi'] = (tp * alo.reshape((3, -1, 1))).sum(0)
+        tp, alo = (tp0 + tp1 + tpr).reshape((3, 1, -1)), pars['tx_alo']
+
+        calc['txi'] = (tp * alo.reshape((3, -1, 1))).sum(0) * pars['p_cure']
+        calc['txf'] = (tp * alo.reshape((3, -1, 1))).sum(0) * (1 - pars['p_cure'])
 
         ppv = pars['ppv'].reshape((-1, 1))
-        calc['fp'] = (tp0 + tp1) * (1 - ppv) / ppv
+        calc['fp'] = (tp0 + tp1 + tpr) * (1 - ppv) / ppv
 
         return calc
 
@@ -63,12 +62,13 @@ class Dx(Process):
         y, aux = ya
         dy, da = np.zeros_like(y), np.zeros_like(aux)
 
-        tp0, fn0, tp1 = calc['tp0'], calc['fn0'], calc['tp1']
+        tp0, fn0, tp1, tpr = calc['tp0'], calc['fn0'], calc['tp1'], calc['tpr']
 
-        txi = calc['txi']
+        txi, txf = calc['txi'], calc['txf']
 
         dy[I.Sym] += - tp0.sum(0) - fn0.sum(0)
         dy[I.ExCS] += fn0.sum(0) - tp1.sum(0)
+        dy[I.ReCS] += txf.sum(0) - tpr.sum(0)
         dy[I.TxPub] += txi[0]
         dy[I.TxPriOnPub] += txi[1]
         dy[I.TxPriOnPri] += txi[2]

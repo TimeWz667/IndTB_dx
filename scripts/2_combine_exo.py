@@ -42,6 +42,7 @@ if __name__ == '__main__':
             particle['p_ent'] = sys.Entry
             particle['p_itt'] = 1 / (n_vis * particle['p_dx'] * particle['p_txi'] * particle['p_ent']).sum()
             particle['txi'] = np.array([p_tx['txi_pub'], p_tx['txi_eng'], p_tx['txi_pri']]).sum()
+            particle['ppv'] = np.array([p_dx['ppv_pub'], p_dx['ppv_eng'], p_dx['ppv_pri']])
 
             res['Particles'].append(particle)
 
