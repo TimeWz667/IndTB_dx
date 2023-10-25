@@ -39,8 +39,8 @@ class Obj(DataModel):
             tars = pd.concat([tar_inc, tar_prev])
 
         tars = {f'{row.Index}_{row.Tag}_{row.Year:d}': dict(row) for i, row in tars.iterrows()}
-        tars['PrPub|Treated'] = {'N': 307, 'M': 0.82}
-        tars['PrTreated'] = {'N': 1128, 'M': 0.1}
+        # tars['PrPub|Treated'] = {'N': 307, 'M': 0.82}
+        # tars['PrTreated'] = {'N': 1128, 'M': 0.1}
 
         for d in tars.values():
             d['m'] = d['M']
@@ -65,8 +65,8 @@ class Obj(DataModel):
             ext[f'IncR_All_{t:d}'] = ms.IncR[t]
         ext['PrevUt_All_2019'] = ms.PrevUt[2020]
 
-        ext['PrPub|Treated'] = ms.IncTreatedPubR[2020] / ms.IncTreatedR[2020]
-        ext['PrTreated'] = ms.IncTreatedR[2020] / ms.IncR[2020]
+        # ext['PrPub|Treated'] = ms.IncTreatedPubR[2020] / ms.IncTreatedR[2020]
+        # ext['PrTreated'] = ms.IncTreatedR[2020] / ms.IncR[2020]
 
         if 'IncR_25-34' in ms:
             for k in ['15-24', '25-34', '35-44', '45-54', '55-64', '65+']:
@@ -81,7 +81,7 @@ class Obj(DataModel):
         return Particle(pars, ext)
 
 
-def load_obj_baseline(folder_input, file_prior, file_targets, year0=2000, exo=None, suffix='bac_cdx_sector_2022_re'):
+def load_obj_baseline(folder_input, file_prior, file_targets, year0=2000, exo=None, suffix='cas_cdx'):
     inp = load_inputs(folder_input, cs_suffix=suffix)
     inp.Demography.set_year0(year0)
     model = ModelBaseline(inp)
@@ -89,7 +89,7 @@ def load_obj_baseline(folder_input, file_prior, file_targets, year0=2000, exo=No
     return Obj(model, file_prior, tars=targets, exo=exo)
 
 
-def load_obj_age(folder_input, file_prior, file_targets, year0=2000, exo=None, suffix='bac_cdx_sector_2022_re'):
+def load_obj_age(folder_input, file_prior, file_targets, year0=2000, exo=None, suffix='cas_cdx'):
     inp = load_inputs(folder_input, cs_suffix=suffix, agp='who')
     inp.Demography.set_year0(year0)
     model = ModelAgeGrp(inp)

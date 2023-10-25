@@ -30,6 +30,7 @@ class ModelPlain(AbsModelODE):
         trans[I.Asym] = p['rr_inf_asym']
         trans[I.Sym] = 1
         trans[I.ExCS] = p['rr_inf_cs']
+        trans[I.ReCS] = p['rr_inf_cs']
         p['irr'] = np.ones(self.NDim)
 
         return p
@@ -89,7 +90,7 @@ class ModelPlain(AbsModelODE):
         n = y.sum()
 
         mea = dict(Year=t, N=n, PrevUt=(y[I.Asym] + y[I.Sym] + y[I.ExCS]).sum() / n, PrevA=y[I.Asym].sum() / n,
-                   PrevS=y[I.Sym].sum() / n, PrevC=y[I.ExCS].sum() / n, PrevTxPub=y[I.TxPub].sum() / n,
+                   PrevS=y[I.Sym].sum() / n, PrevC=y[I.ExCS].sum() / n, PrevR=y[I.ReCS].sum() / n, PrevTxPub=y[I.TxPub].sum() / n,
                    PrevTxPri=(y[I.TxPriOnPub].sum() + y[I.TxPriOnPri].sum()) / n, LTBI=(y[I.LTBI].sum()) / n)
 
         mea['PrA'] = mea['PrevA'] / mea['PrevUt']
@@ -125,11 +126,12 @@ if __name__ == '__main__':
     rd.seed(1166)
 
     exo0 = {
-        'beta': 25,
+        'beta': 15,
         'rr_inf_asym': 0.8,
-        'drt_trans': 0.02,
-        'rr_relapse_pub': 3,
-        'k_relapse_adj': 6
+        'drt_trans': 0,
+        'drt_act': 0,
+        'rr_relapse_pub': 1,
+        'k_relapse_adj': 1
     }
 
     with open('../../data/prior.txt', 'r') as f:
