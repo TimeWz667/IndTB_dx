@@ -1,8 +1,8 @@
 
 
-n_iter = 500
+n_iter = 300
 n_round = 35
-n_collect = 500
+n_collect = 300
 seed = 1167
 
 year0 = 2000
@@ -28,7 +28,8 @@ if __name__ == '__main__':
         file_prior='../data/prior.txt',
         file_targets='../data/targets.csv',
         year0=year0,
-        exo=exo
+        exo=exo,
+        suffix='cas_cdx_alt'
     )
 
     # Fitting
@@ -39,7 +40,7 @@ if __name__ == '__main__':
     post = alg.sample_posteriors(n_collect)
 
     # Output
-    out_path = '../out/post_dy'
+    out_path = '../out/post_dy_ca'
     os.makedirs(out_path, exist_ok=True)
 
     post.Notes['Trace'].to_csv(f'{out_path}/Trace.csv')
