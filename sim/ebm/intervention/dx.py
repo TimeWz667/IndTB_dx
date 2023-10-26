@@ -47,7 +47,7 @@ def get_intv_ppm(p, target):
 
 class IntvDx:
     def __init__(self, pp, constructor, year0=2025, preflight=2, **kwargs):
-        ss = constructor(pp['src'], **kwargs)
+        ss = constructor(pp, **kwargs)
         self.System = ss['sys']
         self.PrTxi = ss['p_txi']
         self.Stats = self.System.seek_care(1, 0)

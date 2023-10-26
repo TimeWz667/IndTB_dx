@@ -82,13 +82,13 @@ def get_system(p, pt):
     ])
 
     txi = np.array([pt['txi_pub'], pt['txi_eng'], pt['txi_pri']])
-    ptxi = np.array([0.95, 0.85, 0.85])
+    ptxi = np.array([0.9, 0.85, 0.85])
     pdx = np.array([p['pdx_pub'], p['pdx_eng'], p['pdx_pri']])
 
     p_ent = txi / (pdx * ptxi)
     p_ent /= p_ent.sum()
 
-    public = Sector(ent_pub, [alg1, alg2, alg3, alg4])
+    public = Sector(ent_pub, [alg1, alg2, alg3])
     engaged = Sector(ent_eng, [alg3, alg4])
     private = Sector(np.array([1]), [alg4])
 

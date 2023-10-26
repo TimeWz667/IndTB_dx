@@ -116,7 +116,7 @@ gs_dx <- fn_plot(tab_avt, tab_epi, c(
   Baseline = "Baseline",
   Dx_TSwab = "Swab with current tests",
   Dx_POC = "Swab with PoC test",
-  Dx_POC_Hi = "Swab with\nhigh-throughput CB-NAAT"
+  Dx_POC_Hi = "Swab with\nhigh-throughput NAAT"
 ))
 
 gs_tx <- fn_plot(tab_avt, tab_epi, c(
