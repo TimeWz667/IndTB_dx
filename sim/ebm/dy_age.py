@@ -68,7 +68,7 @@ if __name__ == '__main__':
         scr = f.read()
     bn = bayes_net_from_script(scr)
 
-    inp = load_inputs('../../pars', cs_suffix='bac_cdx_sector_2022_re', agp='who')
+    inp = load_inputs('../../pars', cs_suffix='cas_cdx', agp='who')
     inp.Demography.HasMigration = False
     inp.Demography.set_year0(2000)
     model0 = ModelAgeGrp(inp)
