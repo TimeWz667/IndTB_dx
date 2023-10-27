@@ -157,7 +157,7 @@ if __name__ == '__main__':
         'k_relapse_adj': 1,
         'rr_beta_dr': 0.95,
         'rr_beta_fr': 0,
-        'r_acquire_dr': 0.03
+        'r_acquire_dr': 0.02
     }
 
     with open('../../data/prior.txt', 'r') as f:

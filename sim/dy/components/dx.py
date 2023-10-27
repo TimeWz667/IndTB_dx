@@ -19,6 +19,7 @@ class Dx(Process):
         r_recsi *= k
 
         p_ent, p_itt, p_pdx, p_txi = pars['p_ent'], pars['p_itt'], pars['p_dx'], pars['p_txi']
+        p_dx_xpert = pars['p_dx_xpert']
 
         try:
             intv_dx = kwargs['intv'].Dx
@@ -40,7 +41,7 @@ class Dx(Process):
 
         pdx = p_ent * p_itt * p_pdx * p_txi
         ppv, alo = pars['ppv'], pars['tx_alo']
-        p_cure = pars['p_cure']
+        p_cure0 = pars['p_cure']
         calc['fp'] = fps = np.zeros_like(ppv)
 
         calc['dx_pub'] = dx = {
@@ -50,6 +51,8 @@ class Dx(Process):
             'tpr': r_recsi * pdx[0] * y[I.ReCS]
         }
         dx['tp'] = tp = dx['tp0'] + dx['tp1'] + dx['tpr']
+
+        p_cure = p_cure0 * np.array([1, p_dx_xpert[0], p_dx_xpert[0]]).reshape((1, 1, 3))
         dx['txi'] = tp.reshape((-1, *tp.shape)) * alo[0].reshape((-1, 1, 1)) * p_cure
         dx['txf'] = tp.reshape((-1, *tp.shape)) * alo[0].reshape((-1, 1, 1)) * (1 - p_cure)
 
@@ -62,6 +65,8 @@ class Dx(Process):
             'tpr': r_recsi * pdx[1] * y[I.ReCS]
         }
         dx['tp'] = tp = dx['tp0'] + dx['tp1'] + dx['tpr']
+
+        p_cure = p_cure0 * np.array([1, p_dx_xpert[1], p_dx_xpert[1]]).reshape((1, 1, 3))
         dx['txi'] = tp.reshape((-1, *tp.shape)) * alo[1].reshape((-1, 1, 1)) * p_cure
         dx['txf'] = tp.reshape((-1, *tp.shape)) * alo[1].reshape((-1, 1, 1)) * (1 - p_cure)
 
@@ -74,6 +79,8 @@ class Dx(Process):
             'tpr': r_recsi * pdx[2] * y[I.ReCS]
         }
         dx['tp'] = tp = dx['tp0'] + dx['tp1'] + dx['tpr']
+
+        p_cure = p_cure0 * np.array([1, p_dx_xpert[2], p_dx_xpert[2]]).reshape((1, 1, 3))
         dx['txi'] = tp.reshape((-1, *tp.shape)) * alo[2].reshape((-1, 1, 1)) * p_cure
         dx['txf'] = tp.reshape((-1, *tp.shape)) * alo[2].reshape((-1, 1, 1)) * (1 - p_cure)
 

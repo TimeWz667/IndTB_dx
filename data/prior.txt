@@ -8,6 +8,8 @@ PCore dy {
 
         // transmission
         beta ~ unif(3, 30)
+        rr_beta_dr = 0.9
+        rr_beta_fr = 0.9
 
         rr_inf_asym ~ unif(0, 1)
         rr_inf_cs = 1

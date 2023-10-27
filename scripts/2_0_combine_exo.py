@@ -36,8 +36,11 @@ if __name__ == '__main__':
             particle['p_pri_on_pub'] = p_tx['p_pri_on_pub']
             particle['system'] = sys = get_system(pars_dx[0], pars_tx[0])
 
-            particle['p_dx'] = np.array([sys.Public.seek_care(1, 0).TruePos, sys.Engaged.seek_care(1, 0).TruePos,
-                                         sys.Private.seek_care(1, 0).TruePos])
+            rss = [sys.Public.seek_care(1, 0), sys.Engaged.seek_care(1, 0), sys.Private.seek_care(1, 0)]
+
+            particle['p_dx'] = np.array([rs.TruePos for rs in rss])
+            particle['p_dx_xpert'] = np.array([rs['N_Det_Xpert'] for rs in rss]) / particle['p_dx']
+
             particle['p_txi'] = np.array([0.9, 0.85, 0.85])
             particle['p_ent'] = sys.Entry
             particle['p_itt'] = 1 / (n_vis * particle['p_dx'] * particle['p_txi'] * particle['p_ent']).sum()

@@ -3,7 +3,7 @@ from sims_pars import bayes_net_from_script
 from sims_pars.fit.targets import read_targets
 from sims_pars.fit.base import DataModel, Particle
 from sim.inputs import load_inputs
-from sim.ebm import ModelBaseline, ModelAgeGrp
+from sim.dy import ModelBaseline #, ModelAgeGrp
 import numpy as np
 from scipy.stats import binom
 
@@ -119,7 +119,7 @@ if __name__ == '__main__':
     print(obj.calc_distance(tofit))
 
     print('---------' + 'Age Group' + '_' * 10)
-    #
+
     # obj = load_obj_age(
     #     folder_input=f'../../pars',
     #     file_prior='../../data/prior.txt',
