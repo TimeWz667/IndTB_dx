@@ -8,7 +8,7 @@ year0 = 2000
 
 if __name__ == '__main__':
     import numpy as np
-    from sim.ebm.intervention import compose_intv
+    from dy.intervention import compose_intv
     from sim.ebm.obj import load_obj_age
     import pandas as pd
     from tqdm import tqdm

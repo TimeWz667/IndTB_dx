@@ -4,7 +4,7 @@ __author__ = 'Chu-Chang Ku'
 year0 = 2000
 
 if __name__ == '__main__':
-    from sim.ebm.obj import load_obj_baseline
+    from sim.dy.obj import load_obj_baseline
     import pandas as pd
     import numpy as np
     import json
@@ -28,7 +28,12 @@ if __name__ == '__main__':
     particles = list()
 
     for i, pars in tqdm(enumerate(post)):
+        pars['r_relapse_te'] = 0.185875
+        pars['r_acquire_dr'] = 0.04
+        pars['rr_beta_dr'] = 0.35
+
         p = obj.serve(pars)
+
         p = obj.Cas.prepare_pars(p)
         _, ms, _ = obj.Model.simulate_to_fit(p, t_eval=np.linspace(2015, 2040, 2040 - 2015 + 1))
         mss.append(ms.assign(Key=i))

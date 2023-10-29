@@ -1,4 +1,4 @@
-from sim.ebm.intervention import compose_intv
+from dy.intervention import compose_intv
 
 __author__ = 'Chu-Chang Ku'
 

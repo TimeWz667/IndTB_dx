@@ -41,7 +41,23 @@ class Dx(Process):
 
         pdx = p_ent * p_itt * p_pdx * p_txi
         ppv, alo = pars['ppv'], pars['tx_alo']
-        p_cure0 = pars['p_cure']
+        p_cure0, p_cure0_dr = pars['p_cure'], pars['p_cure_dr']
+        p_cure0_u, p_cure0_e, p_cure0_i = p_cure0, p_cure0, p_cure0
+        p_cure0_dr_u, p_cure0_dr_e, p_cure0_dr_i = p_cure0_dr, p_cure0_dr, p_cure0_dr
+
+        try:
+            intv_tx = kwargs['intv'].Tx
+            p_cure0_u, p_cure0_e, p_cure0_dr_u, p_cure0_dr_e = intv_tx.modify_cure(t, p_cure0_u, p_cure0_e,
+                                                                                   p_cure0_dr_u, p_cure0_dr_e)
+        except AttributeError or KeyError:
+            pass
+
+        pcs = [
+            np.array([p_cure0_u, p_cure0_dr_u, p_cure0_dr_u]).reshape((1, 1, 3)),
+            np.array([p_cure0_e, p_cure0_dr_e, p_cure0_dr_e]).reshape((1, 1, 3)),
+            np.array([p_cure0_i, p_cure0_dr_i, p_cure0_dr_i]).reshape((1, 1, 3))
+        ]
+
         calc['fp'] = fps = np.zeros_like(ppv)
 
         calc['dx_pub'] = dx = {
@@ -52,7 +68,7 @@ class Dx(Process):
         }
         dx['tp'] = tp = dx['tp0'] + dx['tp1'] + dx['tpr']
 
-        p_cure = p_cure0 * np.array([1, p_dx_xpert[0], p_dx_xpert[0]]).reshape((1, 1, 3))
+        p_cure = pcs[0] * np.array([1, p_dx_xpert[0], p_dx_xpert[0]]).reshape((1, 1, 3))
         dx['txi'] = tp.reshape((-1, *tp.shape)) * alo[0].reshape((-1, 1, 1)) * p_cure
         dx['txf'] = tp.reshape((-1, *tp.shape)) * alo[0].reshape((-1, 1, 1)) * (1 - p_cure)
 
@@ -66,7 +82,7 @@ class Dx(Process):
         }
         dx['tp'] = tp = dx['tp0'] + dx['tp1'] + dx['tpr']
 
-        p_cure = p_cure0 * np.array([1, p_dx_xpert[1], p_dx_xpert[1]]).reshape((1, 1, 3))
+        p_cure = pcs[0] * np.array([1, p_dx_xpert[1], p_dx_xpert[1]]).reshape((1, 1, 3))
         dx['txi'] = tp.reshape((-1, *tp.shape)) * alo[1].reshape((-1, 1, 1)) * p_cure
         dx['txf'] = tp.reshape((-1, *tp.shape)) * alo[1].reshape((-1, 1, 1)) * (1 - p_cure)
 
@@ -80,7 +96,7 @@ class Dx(Process):
         }
         dx['tp'] = tp = dx['tp0'] + dx['tp1'] + dx['tpr']
 
-        p_cure = p_cure0 * np.array([1, p_dx_xpert[2], p_dx_xpert[2]]).reshape((1, 1, 3))
+        p_cure = pcs[0] * np.array([1, p_dx_xpert[2], p_dx_xpert[2]]).reshape((1, 1, 3))
         dx['txi'] = tp.reshape((-1, *tp.shape)) * alo[2].reshape((-1, 1, 1)) * p_cure
         dx['txf'] = tp.reshape((-1, *tp.shape)) * alo[2].reshape((-1, 1, 1)) * (1 - p_cure)
 
