@@ -5,10 +5,10 @@ theme_set(theme_bw())
 
 
 
-sims <- read_csv(here::here("out", "post_dy", "Sim.csv"))
+sims <- read_csv(here::here("out", "dy", "Sim.csv"))
 
 
-post <- read_csv(here::here("out", "post_dy", "Post.csv"))
+post <- read_csv(here::here("out", "dy", "Post.csv"))
 mean(post$r_relapse_te * post$k_relapse_adj)
 
 targets <- read_csv(here::here("data", "targets.csv"))
@@ -31,6 +31,16 @@ g_inc
 
 ggsave(g_inc, filename = here::here("docs", "figs", "g_baseline_inc.png"), width = 7, height = 5)
 
+
+
+g_dr <- sims %>%
+  ggplot(aes(x = Year, y = PrevDR)) +
+  stat_lineribbon(aes(y = PrevDR), .width = c(.99, .95, .8, .5), color = "#08519C") +
+  expand_limits(y = 0) +
+  scale_y_continuous("DR %", labels = scales::percent) +
+  scale_fill_brewer() 
+
+g_dr
 
 
 g_treated_pub <- sims %>% 
