@@ -36,7 +36,7 @@ if __name__ == '__main__':
         p = obj.Cas.prepare_pars(p)
 
         intvs = {
-            'RelRed_1': compose_intv(p),
+            'Baseline': compose_intv(p),
         }
 
         r0 = pars['r_relapse_te']

@@ -87,12 +87,12 @@ def get_intv_tx(p, key):
         x = np.linspace(2024, 2040, 9)
         y_pub = [0] * 3 + [.10, .30, .90, .90, .90, .90]
         y_eng = [0] * 4 + [.20, .60, .90, .90, .90]
-        return IntvTx(x, y_pub, y_eng, 0.9, 0, rel_pltfu=0.5, p_rel=0.1)
+        return IntvTx(x, y_pub, y_eng, 0.92, 0, rel_pltfu=0.5, p_rel=0.12)
     elif key == 'LA-INJ':
         x = np.linspace(2024, 2040, 9)
         y_pub = [0] * 4 + [.10, .30, .60, .90, .90]
         y_eng = [0] * 5 + [.20, .40, .60, .60]
-        return IntvTx(x, y_pub, y_eng, 0.9, 0, rel_pltfu=0.75, p_rel=0.1)
+        return IntvTx(x, y_pub, y_eng, 0.98, 0, rel_pltfu=1, p_rel=0.05)
     elif key == 'NoRelapse':
         x = np.linspace(2024, 2040, 9)
         y_pub = [0, 0.5, 1.0] + [1.0] * 6
