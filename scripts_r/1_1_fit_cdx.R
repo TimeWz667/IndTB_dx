@@ -1,7 +1,7 @@
 library(jsonlite)
 library(rstan)
 
-model <- rstan::stan_model(here::here("stan", "cdx.stan"))
+model <- rstan::stan_model(here::here("model", "cdx.stan"))
 
 folder <- "pars_cdx"
 dir.create(here::here("out", folder), showWarnings = F)
@@ -33,13 +33,16 @@ save(dat, file = here::here("out", folder, "data_src.rdata"))
 
 ## Model fitting -----
 post <- rstan::sampling(model, data=dat, iter=1e4, warmup=1e4 - 1000)
-
 post
+
+save(post, file = here::here("out", folder, "post.rdata"))
 
 pars <- extract(post) %>% data.frame() %>% as.tibble()
 
 write_csv(pars, file = here::here("pars", "pars_cdx.csv"))
-
 write_json(pars, path = here::here("pars", "pars_cdx.json"))
+
+write_csv(pars, file = here::here("out", folder, "pars_cdx.csv"))
+
 
 
