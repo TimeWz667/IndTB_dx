@@ -1,11 +1,11 @@
+__author__ = 'Chu-Chang Ku'
 
-
-n_iter = 300
-n_round = 35
-n_collect = 300
 seed = 1167
 
 year0 = 2000
+n_iter = 300
+n_round = 35
+n_collect = 300
 
 exo = {
     'drt_act': 0,
@@ -21,17 +21,18 @@ if __name__ == '__main__':
     from sims_pars.fit import ApproxBayesComSMC
     import numpy.random as rd
     import os
-    from sim.dy.obj import load_obj_baseline
+    from sim.dy.obj import load_obj
 
     rd.seed(seed)
 
-    obj = load_obj_baseline(
-        folder_input=f'../pars',
+    obj = load_obj(
+        folder_input='../pars',
         file_prior='../data/prior.txt',
         file_targets='../data/targets.csv',
         year0=year0,
         exo=exo,
-        suffix='cas_cdx_alt'
+        suffix='cas_cdx',
+        agp=True
     )
 
     # Fitting
@@ -42,7 +43,7 @@ if __name__ == '__main__':
     post = alg.sample_posteriors(n_collect)
 
     # Output
-    out_path = '../out/dy'
+    out_path = '../out/dyage'
     os.makedirs(out_path, exist_ok=True)
 
     post.Notes['Trace'].to_csv(f'{out_path}/Trace.csv')

@@ -7,7 +7,7 @@ from sim.dy.model import Model
 import numpy as np
 from scipy.stats import binom
 
-__all__ = ['load_obj_baseline', 'load_obj_age']
+__all__ = ['load_obj']
 
 
 class Obj(DataModel):

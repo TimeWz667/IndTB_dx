@@ -2,7 +2,7 @@ from scipy.interpolate import interp1d
 import numpy as np
 
 __author__ = 'Chu-Chang Ku'
-__all__ = ['get_intv_tx']
+__all__ = ['get_intv_tx', 'IntvTx']
 
 
 class IntvTx:
@@ -77,7 +77,7 @@ class IntvTx:
         return r_rel_teu1, r_rel_tei1
 
 
-def get_intv_tx(p, key):
+def get_intv_tx(key):
     if key == 'BPaLM':
         x = np.linspace(2024, 2040, 9)
         y_pub = [20 / 100, 80 / 100] + [1] * 7
@@ -97,17 +97,17 @@ def get_intv_tx(p, key):
         x = np.linspace(2024, 2040, 9)
         y_pub = [0, 0.5, 1.0] + [1.0] * 6
         y_eng = [0, 0.5, 1.0] + [1.0] * 6
-        return IntvTx(p, x, y_pub, y_eng, 0, p_rel=0)
+        return IntvTx(x, y_pub, y_eng, 0, p_rel=0)
     elif key == 'NoPLTFU':
         x = np.linspace(2024, 2040, 9)
         y_pub = [0, 0.5, 1.0] + [1.0] * 6
         y_eng = [0, 0.5, 1.0] + [1.0] * 6
-        return IntvTx(p, x, y_pub, y_eng, 1)
+        return IntvTx(x, y_pub, y_eng, 1)
     elif key == 'HighPPM':
         x = np.linspace(2024, 2040, 9)
         y_pub = [0, 0.5, 1.0] + [1.0] * 6
         y_eng = [0, 0.375, 0.75] + [0.75] * 6
-        return IntvTx(p, x, y_pub, y_eng, 0, p_rel=0.05)
+        return IntvTx(x, y_pub, y_eng, 0, p_rel=0.05)
 
     elif key.startswith('RelRed_'):
         s = float(key.replace("RelRed_", ""))

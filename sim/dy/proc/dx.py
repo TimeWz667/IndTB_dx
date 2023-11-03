@@ -1,5 +1,6 @@
 from sim.dy.proc.base import Process
 import numpy as np
+from sim.dy.intervention import get_intv_tx
 
 __author__ = 'Chu-Chang Ku'
 __all__ = ['Dx']
@@ -8,6 +9,7 @@ __all__ = ['Dx']
 class Dx(Process):
     def __init__(self, keys):
         Process.__init__(self, 'dx', keys)
+        self.BPalM = get_intv_tx('BPaLM')
 
     def find_dya(self, t, y, da, pars, calc, intv=None):
         I = self.Keys
@@ -31,6 +33,7 @@ class Dx(Process):
         except AttributeError or KeyError:
             pass
 
+        p_txi = self.BPalM.modify_txi(t, p_txi)
         try:
             p_txi = intv.Tx.modify_txi(t, p_txi)
         except AttributeError or KeyError:
@@ -44,12 +47,15 @@ class Dx(Process):
         p_cure0_u, p_cure0_e, p_cure0_i = p_cure0, p_cure0, p_cure0
         p_cure0_dr_u, p_cure0_dr_e, p_cure0_dr_i = p_cure0_dr, p_cure0_dr, p_cure0_dr
 
+        p_cure0_u, p_cure0_e, p_cure0_dr_u, p_cure0_dr_e = self.BPalM.modify_cure(t, p_cure0_u, p_cure0_e,
+                                                                                     p_cure0_dr_u, p_cure0_dr_e)
         try:
             intv_tx = intv.Tx
-            p_cure0_u, p_cure0_e, p_cure0_dr_u, p_cure0_dr_e = intv_tx.modify_cure(t, p_cure0_u, p_cure0_e,
+            p_cure0_u, p_cure0_e, p_cure0_dr_u, p_cure0_dr_e = intv.Tx.modify_cure(t, p_cure0_u, p_cure0_e,
                                                                                    p_cure0_dr_u, p_cure0_dr_e)
         except AttributeError or KeyError:
             pass
+
 
         pcs = [
             np.array([[p_cure0_u, p_cure0_dr_u, 0]]).T,

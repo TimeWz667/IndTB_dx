@@ -1,5 +1,6 @@
 import numpy as np
 from sim.dy.proc.base import Process
+from sim.dy.intervention import get_intv_tx
 
 __author__ = 'Chu-Chang Ku'
 __all__ = ['LatentTB']
@@ -8,6 +9,7 @@ __all__ = ['LatentTB']
 class LatentTB(Process):
     def __init__(self, keys):
         Process.__init__(self, 'ltbi', keys)
+        self.BPaLM = get_intv_tx('BPaLM')
 
     def find_dya(self, t, y, da, pars, calc, intv=None):
         I = self.Keys
@@ -35,6 +37,8 @@ class LatentTB(Process):
             r_rel_teu, r_rel_tei = intv_tx.modify_rel(t, r_rel_teu, r_rel_tei)
         except AttributeError or KeyError:
             pass
+
+        r_rel_teu, r_rel_tei = self.BPaLM.modify_rel(t, r_rel_teu, r_rel_tei)
 
         inc_act = irr * r_act * y[I.FLat]
         inc_react = irr * r_react * y[I.SLat]

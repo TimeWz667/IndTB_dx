@@ -1,2 +1,2 @@
 from sim.inputs import load_inputs
-from sim.ebm import ModelBaseline
+from sim.dy import Model
