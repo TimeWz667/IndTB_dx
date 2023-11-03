@@ -1,6 +1,6 @@
 from sim.dy.proc.base import Process
 import numpy as np
-from sim.dy.intervention import get_intv_tx
+from sim.dy.intervention.tx import get_intv_tx
 
 __author__ = 'Chu-Chang Ku'
 __all__ = ['Dx']

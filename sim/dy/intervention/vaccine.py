@@ -1,5 +1,5 @@
 import numpy as np
-import sim.ebm.keys as I
+import sim.dy.keys as I
 
 __author__ = 'Chu-Chang Ku'
 __all__ = ['get_intv_vac']

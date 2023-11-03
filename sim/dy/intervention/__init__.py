@@ -1,8 +1,8 @@
 from collections import namedtuple
-from dy.intervention.dx import *
-from dy.intervention.tx import *
-from dy.intervention.vaccine import *
-from dy.intervention.acf import *
+from sim.dy.intervention.dx import *
+from sim.dy.intervention.tx import *
+from sim.dy.intervention.vaccine import *
+from sim.dy.intervention.acf import *
 
 
 Interventions = namedtuple('Interventions', ('Dx', 'Tx', 'Txs', 'Vac', 'ACF', 'PPM'))
