@@ -71,7 +71,6 @@ class ActiveTB(Process):
         dy[I.RHighPub] += txo[0]
         dy[I.RHighPri] += txo[1]
 
-
         acquire_dr = calc['acquire_dr']
         y[[I.TxPub, I.TxPriOnPub, I.TxPriOnPri], :, I.DS] -= acquire_dr
         y[[I.TxPub, I.TxPriOnPub, I.TxPriOnPri], :, I.DR] += acquire_dr

@@ -1,7 +1,6 @@
 from collections import namedtuple
 from sim.inputs.cascade import *
 from sim.inputs.demography import *
-import pandas as pd
 import pickle as pkl
 
 __author__ = 'Chu-Chang Ku'

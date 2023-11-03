@@ -35,9 +35,12 @@ class Demography:
 
     def calc_mig(self, t, y):
         n = self.N(t)
-        return 50 * (n - y) / n
+        mr = 50 * (n - y) / n
+        return mr
 
     def __call__(self, t, y=None):
+        t = max(t, self.Year0)
+
         pars = {
             'N': self.N(t),
             'r_birth': self.RateBirth(t),
@@ -57,7 +60,7 @@ class Demography:
 if __name__ == '__main__':
     import pickle as pkl
 
-    with open('../../data/ind_who_70to35.pkl', 'rb') as f:
+    with open('../../pars/ind_who_70to35.pkl', 'rb') as f:
         src = pkl.load(f)
 
     demo = Demography(src)
@@ -65,10 +68,9 @@ if __name__ == '__main__':
         print(k, v)
 
     print('----------------------------------------------------')
-    with open('../../data/ind_all_70to35.pkl', 'rb') as f:
+    with open('../../pars/ind_all_70to35.pkl', 'rb') as f:
         src = pkl.load(f)
 
     demo = Demography(src)
     for k, v in demo(2020).items():
         print(k, v)
-

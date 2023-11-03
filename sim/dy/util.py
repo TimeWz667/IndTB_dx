@@ -24,13 +24,13 @@ def diff_mea(mss0, mss1, dt):
 
 class AbsModelODE(metaclass=ABCMeta):
     def __init__(self, n_dim, inputs, t0, t1, dt, t_warmup=0, dfe=None):
+        self.Inputs = inputs
         self.NDim = n_dim
         self.T0 = t0
         self.T1 = t1
         self.DT = dt
         self.TWarmup = t_warmup
         self.DFE = dfe
-        self.Inputs = inputs
 
     @abstractmethod
     def reform_parameters(self, p):

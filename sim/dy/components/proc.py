@@ -21,6 +21,3 @@ class Process(metaclass=ABCMeta):
     @abstractmethod
     def compose_dya(self, ya, calc: dict):
         pass
-
-    def measure(self, mea: dict, t, ya, pars, calc: dict, **kwargs):
-        pass

@@ -1,90 +1,65 @@
 import numpy as np
 import sim.dy.keys as I
 from sim.dy.util import AbsModelODE
-from sim.dy.components import Demography, ActiveTB, LatentTB, Dx, Transmission
+from sim.dy.proc import Demography, Transmission, ActiveTB, LatentTB, Dx
 
 __all__ = ['ModelBaseline']
 
 
 class ModelBaseline(AbsModelODE):
-    def __init__(self, n_dim, inputs):
-        AbsModelODE.__init__(self, n_dim, inputs, 2023, 2041, dt=1, t_warmup=300, dfe=None)
+    def __init__(self, inputs):
+        n_agp = len(inputs.Demography.N0)
+        AbsModelODE.__init__(self, (I.N_States, I.N_States_R, n_agp), inputs, 2023, 2041,
+                             dt=1, t_warmup=300, dfe=None)
         self.Year0 = inputs.Demography.Year0
+        self.N_Agp = n_agp
         self.YearBaseline = 2022
         self.ProcDemo = Demography(I, inputs.Demography)
-        self.ProcTransmission = Transmission(I)
+        self.ProcTrans = Transmission(I)
         self.ProcATB = ActiveTB(I)
-        self.ProcDx = Dx(I)
         self.ProcLTBI = LatentTB(I)
+        self.ProcDx = Dx(I)
 
     def reform_parameters(self, p):
         p = dict(p)
         p['sus'] = sus = np.zeros(self.NDim)
         sus[I.U] = 1
-        sus[I.SLat] = p['rr_sus_slat']
-        sus[I.RHighPub] = p['rr_sus_slat']
-        sus[I.RStPub] = p['rr_sus_slat']
-        sus[I.RHighPri] = p['rr_sus_slat']
-        sus[I.RStPri] = p['rr_sus_slat']
+        sus[[I.SLat, I.RHighPub, I.RStPub, I.RHighPri, I.RStPri]] = p['rr_sus_slat']
 
         p['trans_ds'] = trans = np.zeros(self.NDim)
-        trans[I.Asym, :, I.DS] = p['rr_inf_asym']
-        trans[I.Sym, :, I.DS] = 1
-        trans[I.ExCS, :, I.DS] = 1
-        trans[I.ReCS, :, I.DS] = 1
+        trans[I.Asym, I.DS] = p['rr_inf_asym']
+        trans[[I.Sym, I.ExCS, I.ReCS], I.DS] = 1
 
         p['trans_dr'] = trans = np.zeros(self.NDim)
-        trans[I.Asym, :, I.DR] = p['rr_inf_asym']
-        trans[I.Sym, :, I.DR] = 1
-        trans[I.ExCS, :, I.DR] = 1
-        trans[I.ReCS, :, I.DR] = 1
+        trans[I.Asym, I.DR] = p['rr_inf_asym']
+        trans[[I.Sym, I.ExCS, I.ReCS], I.DR] = 1
 
         p['trans_fr'] = trans = np.zeros(self.NDim)
-        trans[I.Asym, :, I.FR] = p['rr_inf_asym']
-        trans[I.Sym, :, I.FR] = 1
-        trans[I.ExCS, :, I.FR] = 1
-        trans[I.ReCS, :, I.FR] = 1
-        p['irr'] = np.ones(self.NDim[1:])
+        trans[I.Asym, I.FR] = p['rr_inf_asym']
+        trans[[I.Sym, I.ExCS, I.ReCS], I.FR] = 1
+
+        p['irr'] = np.ones(self.N_Agp)
+        if self.N_Agp > 1:
+            sus[:, 0] *= 0
+            sus[:, 1] *= 0
+            sus[:, 2] *= 1
+            sus[:, 3] *= p['irr_25']
+            sus[:, 4] *= p['irr_35']
+            sus[:, 5] *= p['irr_45']
+            sus[:, 6] *= p['irr_55']
+            sus[:, 7] *= p['irr_65']
 
         return p
 
     def get_y0(self, pars):
         y0 = np.zeros(self.NDim)
-        y0[I.Asym, :, 0], y0[I.Sym, :, 0], y0[I.ExCS, :, 0] = 0.0004, 0.001, 0.0001
-        y0[I.SLat, :, 0] = 0.1
-        y0[I.U, :, 0] = 1 - y0[:, :, 0].sum(0)
-        y0 /= y0.sum()
-        y0 *= self.Inputs.Demography.N0
+        y0[I.Asym, 0], y0[I.Sym, :, 0], y0[I.ExCS, :, 0] = 0.0004, 0.001, 0.0001
+        y0[I.SLat, 0] = 0.1
+        y0[I.U, 0] = 1 - y0[:, 0].sum(0)
+        y0 /= y0.sum((0, 1))
+        y0 *= self.Inputs.Demography.N(self.Year0)
         a0 = np.zeros(I.N_Aux)
         return np.concatenate([y0.reshape(-1), a0])
-
-    def calc_dy_transmission(self, t, y, pars, intv=None):
-        foi_s = pars['beta'] * (y * pars['trans_ds']).sum() / y.sum()
-        foi_r = pars['beta'] * pars['rr_beta_dr'] * (y * pars['trans_dr']).sum() / y.sum()
-        foi_f = pars['beta'] * pars['rr_beta_fr'] * (y * pars['trans_fr']).sum() / y.sum()
-
-        if t > pars['t0_decline']:
-            dt = max(self.Year0, max(t, pars['t0_decline'])) - self.Year0
-            foi_s *= np.exp(- pars['drt_trans'] * dt)
-            foi_r *= np.exp(- pars['drt_trans'] * dt)
-            foi_f *= np.exp(- pars['drt_trans'] * dt)
-
-        sus = pars['sus']
-        if intv is not None:
-            try:
-                intv_vac = intv.Vac
-                sus = intv_vac.modify_sus(t, sus)
-            except AttributeError or KeyError:
-                pass
-
-        infection_s = sus * foi_s * y
-        infection_r = sus * foi_r * y
-        infection_f = sus * foi_f * y
-        dy = - infection_s - infection_r - infection_f
-        dy[I.FLat, :, I.DS] += infection_s.sum((0, 2))
-        dy[I.FLat, :, I.DR] += infection_r.sum((0, 2))
-        dy[I.FLat, :, I.FR] += infection_f.sum((0, 2))
-        return dy
 
     def __call__(self, t, ya, pars, intv=None):
         t = max(t, self.Year0)
@@ -94,13 +69,10 @@ class ModelBaseline(AbsModelODE):
 
         dy, da = np.zeros_like(y), np.zeros_like(aux)
 
-        dy += self.calc_dy_transmission(t, y, pars, intv=intv)
-
         calc = dict()
-        for proc in [self.ProcATB, self.ProcDx, self.ProcLTBI, self.ProcDemo]:
-            (dy0, da0), calc = proc.find_dya(t, (y, aux), pars, calc=calc, intv=intv)
+        for proc in [self.ProcDemo, self.ProcTrans, self.ProcATB, self.ProcLTBI]:
+            dy0 = proc.find_dya(t, y, da, pars, calc=calc, intv=intv)
             dy += dy0
-            da += da0
 
         if t <= self.Year0:
             dy -= dy.sum((0, 1), keepdims=True) * y / y.sum((0, 1), keepdims=True)
@@ -111,7 +83,10 @@ class ModelBaseline(AbsModelODE):
         y = y.reshape(self.NDim)
         n = y.sum()
 
-        mea = dict(Year=t, N=n, PrevUt=(y[I.Asym] + y[I.Sym] + y[I.ExCS]).sum() / n, PrevA=y[I.Asym].sum() / n,
+        demo = self.Inputs.Demography(t)
+
+        mea = dict(Year=t, N=n, N0=demo['N'].sum(),
+                   PrevUt=(y[I.Asym] + y[I.Sym] + y[I.ExCS]).sum() / n, PrevA=y[I.Asym].sum() / n,
                    PrevS=y[I.Sym].sum() / n, PrevC=y[I.ExCS].sum() / n, PrevR=y[I.ReCS].sum() / n,
                    PrevTxPub=y[I.TxPub].sum() / n,
                    PrevTxPri=(y[I.TxPriOnPub].sum() + y[I.TxPriOnPri].sum()) / n, LTBI=(y[I.LTBI].sum()) / n)
@@ -119,7 +94,7 @@ class ModelBaseline(AbsModelODE):
         mea['PrA'] = mea['PrevA'] / mea['PrevUt']
         mea['PrS'] = mea['PrevS'] / mea['PrevUt']
         mea['PrC'] = mea['PrevC'] / mea['PrevUt']
-        mea['PrevDR'] = y[I.UtTB, :, I.DR].sum() / y[I.UtTB].sum()
+        mea['PrevDR'] = y[I.UtTB, I.DR].sum() / y[I.UtTB].sum()
 
         mea['CumIncRecent'] = aux[I.A_IncRecent]
         mea['CumIncRemote'] = aux[I.A_IncRemote]
@@ -134,11 +109,6 @@ class ModelBaseline(AbsModelODE):
         mea['CumACF'] = aux[I.A_ACF]
 
         return mea
-
-
-class ModelBaseline(ModelPlain):
-    def __init__(self, inputs):
-        ModelPlain.__init__(self, (I.N_States, 1, I.N_States_R), inputs)
 
 
 if __name__ == '__main__':
@@ -165,8 +135,7 @@ if __name__ == '__main__':
         scr = f.read()
     bn = bayes_net_from_script(scr)
 
-    inp = load_inputs('../../pars', cs_suffix='cas_cdx')
-    inp.Demography.HasMigration = False
+    inp = load_inputs('../../pars', cs_suffix='cas_cdx', agp='who')
     inp.Demography.set_year0(2000)
     model0 = ModelBaseline(inp)
 
@@ -174,10 +143,10 @@ if __name__ == '__main__':
     ps = sample(bn, cond=exo0)
     ps = cr.prepare_pars(ps)
 
-    _, ms0, _ = model0.simulate_to_fit(ps, np.linspace(2000, 2030, 31))
+    _, ms0, _ = model0.simulate_to_fit(ps, np.linspace(2005, 2030, 31))
 
-    print((ms0.IncTreatedPubR / ms0.IncTreatedR).tail(10))
-    print((ms0.IncTreatedR / ms0.IncR).tail(10))
+    # print((ms0.IncTreatedPubR / ms0.IncTreatedR).tail(10))
+    # print((ms0.IncTreatedR / ms0.IncR).tail(10))
 
     fig, axes = plt.subplots(2, 3)
 
