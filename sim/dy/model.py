@@ -40,14 +40,14 @@ class ModelBaseline(AbsModelODE):
 
         p['irr'] = np.ones(self.N_Agp)
         if self.N_Agp > 1:
-            sus[:, 0] *= 0
-            sus[:, 1] *= 0
-            sus[:, 2] *= 1
-            sus[:, 3] *= p['irr_25']
-            sus[:, 4] *= p['irr_35']
-            sus[:, 5] *= p['irr_45']
-            sus[:, 6] *= p['irr_55']
-            sus[:, 7] *= p['irr_65']
+            sus[:, :, 0] *= 0
+            sus[:, :, 1] *= 0
+            sus[:, :, 2] *= 1
+            sus[:, :, 3] *= p['irr_25']
+            sus[:, :, 4] *= p['irr_35']
+            sus[:, :, 5] *= p['irr_45']
+            sus[:, :, 6] *= p['irr_55']
+            sus[:, :, 7] *= p['irr_65']
 
         return p
 
@@ -70,7 +70,7 @@ class ModelBaseline(AbsModelODE):
         dy, da = np.zeros_like(y), np.zeros_like(aux)
 
         calc = dict()
-        for proc in [self.ProcDemo, self.ProcTrans, self.ProcATB, self.ProcLTBI]:
+        for proc in [self.ProcDemo, self.ProcTrans, self.ProcATB, self.ProcLTBI, self.ProcDx]:
             dy0 = proc.find_dya(t, y, da, pars, calc=calc, intv=intv)
             dy += dy0
 
@@ -120,15 +120,21 @@ if __name__ == '__main__':
     rd.seed(1166)
 
     exo0 = {
-        'beta': 15,
+        'beta': 20,
         'rr_inf_asym': 0.8,
         'drt_trans': 0,
         'drt_act': 0,
+        'rt_cs': 0.05,
         'rr_relapse_pub': 1,
         'k_relapse_adj': 1,
         'rr_beta_dr': 0.95,
         'rr_beta_fr': 0,
-        'r_acquire_dr': 0.02
+        'r_acquire_dr': 0.02,
+        'irr_25': 1,
+        'irr_35': 1,
+        'irr_45': 1,
+        'irr_55': 1,
+        'irr_65': 1
     }
 
     with open('../../data/prior.txt', 'r') as f:

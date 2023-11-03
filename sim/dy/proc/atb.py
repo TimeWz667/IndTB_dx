@@ -28,7 +28,6 @@ class ActiveTB(Process):
         # Tx outcome
         r_txo = 1 / pars['tx_dur']
         txo = y[[I.TxPub, I.TxPriOnPub, I.TxPriOnPri]] * r_txo.reshape((-1, 1, 1))
-        txso = y[[I.TxsPub, I.TxsPriOnPub]] * r_txo[:2].reshape((-1, 1, 1))
 
         dy[I.TxPub] -= txo[0]
         dy[I.TxPriOnPub] -= txo[1]
@@ -36,12 +35,6 @@ class ActiveTB(Process):
 
         dy[I.RHighPub] += txo[0]
         dy[I.RHighPri] += txo[1] + txo[2]
-
-        dy[I.TxsPub] -= txso[0]
-        dy[I.TxsPriOnPub] -= txso[1]
-
-        dy[I.RHighPub] += txso[0]
-        dy[I.RHighPri] += txso[1]
 
         # ACF
         try:
