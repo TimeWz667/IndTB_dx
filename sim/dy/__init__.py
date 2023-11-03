@@ -1,1 +1,1 @@
-from sim.dy.model import ModelBaseline
+from sim.dy.model import Model

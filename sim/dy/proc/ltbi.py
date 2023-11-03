@@ -47,6 +47,7 @@ class LatentTB(Process):
         calc['inc_retreated_u'] = inc_retreated_u = inc_rel_rhu + inc_rel_stu
         calc['inc_retreated_i'] = inc_retreated_i = inc_rel_rhi + inc_rel_sti
         calc['inc_remote'] = inc_remote = inc_react + inc_retreated_u + inc_retreated_i
+        calc['inc'] = calc['inc_recent'] + calc['inc_remote']
 
         dy[I.FLat] -= inc_act
         dy[I.SLat] -= inc_react

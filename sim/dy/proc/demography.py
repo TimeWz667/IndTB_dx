@@ -10,7 +10,10 @@ class Demography(Process):
         Process.__init__(self, 'demo', keys=keys)
         self.Inputs = inp
         self.Year0 = inp.Year0
-        self.N_Agp = len(inp.N0)
+        try:
+            self.N_Agp = len(inp.N0)
+        except TypeError:
+            self.N_Agp = 1
 
     def find_dya(self, t, y, da, pars, calc, intv=None):
         I = self.Keys

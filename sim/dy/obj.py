@@ -3,7 +3,7 @@ from sims_pars import bayes_net_from_script
 from sims_pars.fit.targets import read_targets
 from sims_pars.fit.base import DataModel, Particle
 from sim.inputs import load_inputs
-from sim.dy import ModelBaseline #, ModelAgeGrp
+from sim.dy.model import Model
 import numpy as np
 from scipy.stats import binom
 
@@ -33,7 +33,8 @@ class Obj(DataModel):
 
         if agp:
             tar_inc_age = tars[tars.Index == 'IncR']
-            tar_inc_age = tar_inc_age[tar_inc_age.Tag in ['15-24', '25-34', '35-44', '45-54', '55-64', '65+']]
+            tar_inc_age = tar_inc_age[tar_inc_age.Tag != 'All']
+            tar_inc_age = tar_inc_age[tar_inc_age.Tag != '0-14']
             tars = pd.concat([tar_inc, tar_prev, tar_inc_age])
         else:
             tars = pd.concat([tar_inc, tar_prev])
@@ -81,20 +82,15 @@ class Obj(DataModel):
         return Particle(pars, ext)
 
 
-def load_obj_baseline(folder_input, file_prior, file_targets, year0=2000, exo=None, suffix='cas_cdx'):
-    inp = load_inputs(folder_input, cs_suffix=suffix)
+def load_obj(folder_input, file_prior, file_targets, year0=2000, exo=None, suffix='cas_cdx', agp=False):
+    if not agp:
+        inp = load_inputs(folder_input, cs_suffix=suffix, agp='all')
+    else:
+        inp = load_inputs(folder_input, cs_suffix=suffix, agp='who')
     inp.Demography.set_year0(year0)
-    model = ModelBaseline(inp)
+    model = Model(inp)
     targets = pd.read_csv(file_targets)
-    return Obj(model, file_prior, tars=targets, exo=exo)
-
-
-def load_obj_age(folder_input, file_prior, file_targets, year0=2000, exo=None, suffix='cas_cdx'):
-    inp = load_inputs(folder_input, cs_suffix=suffix, agp='who')
-    inp.Demography.set_year0(year0)
-    model = ModelAgeGrp(inp)
-    targets = pd.read_csv(file_targets)
-    return Obj(model, file_prior, tars=targets, exo=exo)
+    return Obj(model, file_prior, tars=targets, exo=exo, agp=agp)
 
 
 if __name__ == '__main__':
@@ -103,12 +99,13 @@ if __name__ == '__main__':
         'drt_trans': 0
     }
 
-    obj = load_obj_baseline(
+    obj = load_obj(
         folder_input=f'../../pars',
         file_prior='../../data/prior.txt',
         file_targets='../../data/targets.csv',
         year0=2000,
-        exo=exo
+        exo=exo,
+        agp=False
     )
 
     # Test Objectives
@@ -120,17 +117,18 @@ if __name__ == '__main__':
 
     print('---------' + 'Age Group' + '_' * 10)
 
-    # obj = load_obj_age(
-    #     folder_input=f'../../pars',
-    #     file_prior='../../data/prior.txt',
-    #     file_targets='../../data/targets.csv',
-    #     year0=2000,
-    #     exo=exo
-    # )
-    #
-    # # Test Objectives
-    # p1 = obj.sample_prior()
-    # p1['beta'] = 15
-    # tofit = obj.simulate(p1)
-    # print(tofit.Sims)
-    # print(obj.calc_distance(tofit))
+    obj = load_obj(
+        folder_input=f'../../pars',
+        file_prior='../../data/prior.txt',
+        file_targets='../../data/targets.csv',
+        year0=2000,
+        exo=exo,
+        agp=True
+    )
+
+    # Test Objectives
+    p1 = obj.sample_prior()
+    p1['beta'] = 15
+    tofit = obj.simulate(p1)
+    print(tofit.Sims)
+    print(obj.calc_distance(tofit))

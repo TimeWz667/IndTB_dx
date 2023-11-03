@@ -3,12 +3,16 @@ import sim.dy.keys as I
 from sim.dy.util import AbsModelODE
 from sim.dy.proc import Demography, Transmission, ActiveTB, LatentTB, Dx
 
-__all__ = ['ModelBaseline']
+__all__ = ['Model']
 
 
-class ModelBaseline(AbsModelODE):
+class Model(AbsModelODE):
     def __init__(self, inputs):
-        n_agp = len(inputs.Demography.N0)
+        try:
+            n_agp = len(inputs.Demography.N0)
+        except TypeError:
+            n_agp = 1
+
         AbsModelODE.__init__(self, (I.N_States, I.N_States_R, n_agp), inputs, 2023, 2041,
                              dt=1, t_warmup=300, dfe=None)
         self.Year0 = inputs.Demography.Year0
@@ -71,8 +75,7 @@ class ModelBaseline(AbsModelODE):
 
         calc = dict()
         for proc in [self.ProcDemo, self.ProcTrans, self.ProcATB, self.ProcLTBI, self.ProcDx]:
-            dy0 = proc.find_dya(t, y, da, pars, calc=calc, intv=intv)
-            dy += dy0
+            dy += proc.find_dya(t, y, da, pars, calc=calc, intv=intv)
 
         if t <= self.Year0:
             dy -= dy.sum((0, 1), keepdims=True) * y / y.sum((0, 1), keepdims=True)
@@ -85,16 +88,30 @@ class ModelBaseline(AbsModelODE):
 
         demo = self.Inputs.Demography(t)
 
+        calc = dict()
+        self.ProcLTBI.find_dya(t, y, np.zeros_like(aux), pars, calc=calc, intv=intv)
+
         mea = dict(Year=t, N=n, N0=demo['N'].sum(),
                    PrevUt=(y[I.Asym] + y[I.Sym] + y[I.ExCS]).sum() / n, PrevA=y[I.Asym].sum() / n,
                    PrevS=y[I.Sym].sum() / n, PrevC=y[I.ExCS].sum() / n, PrevR=y[I.ReCS].sum() / n,
                    PrevTxPub=y[I.TxPub].sum() / n,
                    PrevTxPri=(y[I.TxPriOnPub].sum() + y[I.TxPriOnPri].sum()) / n, LTBI=(y[I.LTBI].sum()) / n)
 
+        inc = calc['inc']
+
+        mea['IncR0'] = inc.sum() / n
+
+        if self.N_Agp > 1:
+            inc = inc.sum(0)
+            ns = y.sum((0, 1))
+
+            for i, ag in enumerate(self.Inputs.Demography.DimNames['Age']):
+                mea[f'IncR_{ag}'] = inc[i] / ns[i]
+
         mea['PrA'] = mea['PrevA'] / mea['PrevUt']
         mea['PrS'] = mea['PrevS'] / mea['PrevUt']
         mea['PrC'] = mea['PrevC'] / mea['PrevUt']
-        mea['PrevDR'] = y[I.UtTB, I.DR].sum() / y[I.UtTB].sum()
+        mea['PrevDR'] = y[I.UtTB, I.DR:].sum() / y[I.UtTB].sum()
 
         mea['CumIncRecent'] = aux[I.A_IncRecent]
         mea['CumIncRemote'] = aux[I.A_IncRemote]
@@ -143,7 +160,7 @@ if __name__ == '__main__':
 
     inp = load_inputs('../../pars', cs_suffix='cas_cdx', agp='who')
     inp.Demography.set_year0(2000)
-    model0 = ModelBaseline(inp)
+    model0 = Model(inp)
 
     cr = model0.Inputs.Cascade
     ps = sample(bn, cond=exo0)
