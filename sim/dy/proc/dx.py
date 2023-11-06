@@ -24,7 +24,7 @@ class Dx(Process):
         p_dx_xpert = pars['p_dx_xpert']
 
         try:
-            p_ent, p_pdx, p_txi = intv.Dx.modify_dx(t, p_ent, p_pdx, p_txi)
+            p_itt, p_ent, p_pdx, p_txi = intv.Dx.modify_dx(t, p_itt, p_ent, p_pdx, p_txi)
         except AttributeError or KeyError:
             pass
 
