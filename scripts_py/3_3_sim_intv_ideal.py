@@ -9,18 +9,19 @@ year0 = 2000
 if __name__ == '__main__':
     import numpy as np
     from dy.intervention import compose_intv
-    from sim.ebm.obj import load_obj_age
+    from sim.dy.obj import load_obj
     import pandas as pd
     from tqdm import tqdm
     import json
 
-    folder = '../out/post_dyage'
+    folder = '../out/dyage'
 
-    obj = load_obj_age(
+    obj = load_obj(
         folder_input=f'../pars',
         file_prior='../data/prior.txt',
         file_targets='../data/targets.csv',
-        year0=year0
+        year0=year0,
+        agp=True
     )
 
     with open(f'{folder}/Sim_Baseline.json', 'r') as f:

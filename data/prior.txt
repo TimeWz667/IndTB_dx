@@ -50,5 +50,5 @@ PCore dy {
         t0_decline = 2005
 
         //dr
-        r_acquire_dr ~ unif(0.02, 0.03)
+        r_acquire_dr ~ unif(0.02, 0.05)
 }

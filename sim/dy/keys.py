@@ -7,16 +7,20 @@ TxPub = 5
 TxPriOnPub = 6
 TxPriOnPri = 7
 
-FLat = 8
-SLat = 9
-RHighPub = 10
-RStPub = 11
-RHighPri = 12
-RStPri = 13
+TxNewPub = 8
+TxNewPriOnPub = 9
+TxNewPriOnPri = 10
 
-N_States = 14
+FLat = 11
+SLat = 12
+RHighPub = 13
+RStPub = 14
+RHighPri = 15
+RStPri = 16
 
-Infectious = [Asym, Sym, ExCS, ReCS]
+N_States = 17
+
+Infectious = [Asym, Sym, ExCS, ReCS, TxNewPub, TxNewPriOnPub, TxNewPriOnPri]
 PTB = Infectious + [TxPub, TxPriOnPub, TxPriOnPri]
 UtTB = [Asym, Sym, ExCS]
 LTBI = [FLat, SLat, RHighPub, RStPub, RHighPri, RStPri]
