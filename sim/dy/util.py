@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 __author__ = 'Chu-Chang Ku'
-__all__ = ['AbsModelODE']
+__all__ = ['AbsModelODE', 'scale_up']
 
 
 def diff_mea(mss0, mss1, dt):
@@ -130,3 +130,12 @@ class AbsModelODE(metaclass=ABCMeta):
             return ys, mss, msg
         else:
             return None, None, msg
+
+
+def scale_up(v0, v1, wt):
+    if wt <= 0:
+        return v0
+    elif wt >= 1:
+        return v1
+    else:
+        return v0 + (v1 - v0) * wt

@@ -15,11 +15,11 @@ class Transmission(Process):
         n = y.sum()
 
         sus = pars['sus']
-        if intv is not None:
-            try:
-                sus = intv.Vac.modify_sus(t, sus)
-            except AttributeError or KeyError:
-                pass
+
+        try:
+            sus = intv.Vac.modify_sus(t, sus)
+        except AttributeError or TypeError:
+            pass
 
         dt = max(t - pars['t0_decline'], 0)
         k = np.exp(- pars['drt_trans'] * dt)

@@ -25,37 +25,6 @@ class ActiveTB(Process):
         dy[I.ReCS] += - sc_r
         dy[I.SLat] += sc_a + sc_s + sc_c + sc_r
 
-        # Tx outcome
-        r_txo = 1 / pars['tx_dur']
-        txo = y[[I.TxPub, I.TxPriOnPub, I.TxPriOnPri]] * r_txo.reshape((-1, 1, 1))
-
-        dy[I.TxPub] -= txo[0]
-        dy[I.TxPriOnPub] -= txo[1]
-        dy[I.TxPriOnPri] -= txo[2]
-
-        dy[I.RHighPub] += txo[0]
-        dy[I.RHighPri] += txo[1] + txo[2]
-
-        # ACF
-        try:
-            intv_acf = intv.ACF
-            r_acf = intv_acf.modify_acf(t, 0)
-        except AttributeError or KeyError:
-            r_acf = 0
-
-        acf_a = r_acf * y[I.Asym]
-        acf_s = r_acf * y[I.Sym]
-        acf_c = r_acf * y[I.ExCS]
-        acf_r = r_acf * y[I.ReCS]
-        calc['acf'] = (acf_a + acf_s + acf_c + acf_r).sum()
-
-        dy[I.Asym] -= acf_a
-        dy[I.Sym] -= acf_s
-        dy[I.ExCS] -= acf_c
-        dy[I.ReCS] -= acf_r
-        dy[I.TxPub] += acf_a + acf_s + acf_c + acf_r
-        da[I.A_ACF] += calc['acf']
-
         # Resistance acquiring
         r_acquire_dr = pars['r_acquire_dr'] if t > 2010 else 0
 

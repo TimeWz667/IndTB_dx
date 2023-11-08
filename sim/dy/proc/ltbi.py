@@ -33,12 +33,18 @@ class LatentTB(Process):
         r_rel_teu, r_rel_tei = r_rel_te * rr_rel_pub, r_rel_te * rr_rel_pri
 
         try:
-            intv_tx = intv.Tx
-            r_rel_teu, r_rel_tei = intv_tx.modify_rel(t, r_rel_teu, r_rel_tei)
+            r_rel_teu_new, r_rel_tei_new = intv.Tx.get_r_rel_new(r_rel_teu, r_rel_tei)
+            p_soc = np.array([calc['Txo_soc'][:1].sum(), calc['Txo_soc'][1:].sum()]) + 0.001
+            p_new = np.array([calc['Txo_new'][:1].sum(), calc['Txo_new'][1:].sum()]) + 0.001
+            p_soc, p_new = p_soc / (p_soc + p_new), p_new / (p_soc + p_new)
+
+            r_rel_teu = r_rel_teu * p_soc[0] + r_rel_teu_new * p_new[0]
+            r_rel_tei = r_rel_tei * p_soc[1] + r_rel_tei_new * p_new[1]
         except AttributeError or KeyError:
             pass
 
-        r_rel_teu, r_rel_tei = self.BPaLM.modify_rel(t, r_rel_teu, r_rel_tei)
+        calc['r_rel_teu'] = r_rel_teu
+        calc['r_rel_tei'] = r_rel_tei
 
         inc_act = irr * r_act * y[I.FLat]
         inc_react = irr * r_react * y[I.SLat]

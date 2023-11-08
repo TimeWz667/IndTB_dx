@@ -30,7 +30,6 @@ DR = 1
 FR = 2
 N_States_R = 3
 
-N_States_A = 8
 
 A_Inc = 0
 A_IncRecent = 1

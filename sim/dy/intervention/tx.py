@@ -1,98 +1,76 @@
 from scipy.interpolate import interp1d
 import numpy as np
+from sim.dy.util import scale_up
 
 __author__ = 'Chu-Chang Ku'
-__all__ = ['get_intv_tx', 'IntvTx']
+__all__ = ['get_intv_tx', 'IntvTx', 'TxBPaLM']
 
 
-class IntvTx:
-    def __init__(self, uptake_time, uptake_pub, uptake_eng, p_cure=0.85, p_cure_sl=0.3, rel_pltfu=0.5, p_rel=0.9):
-        self.UptakePub = interp1d(
-            x=np.concatenate([[0, 2023], uptake_time]),
-            y=np.concatenate([[0, 0], uptake_pub]),
-            fill_value="extrapolate"
-        )
-        self.UptakeEng = interp1d(
-            x=np.concatenate([[0, 2023], uptake_time]),
-            y=np.concatenate([[0, 0], uptake_eng]),
-            fill_value="extrapolate"
-        )
-        self.PCure = p_cure
-        self.PCureSl = p_cure_sl
-        self.RelPLTFU = rel_pltfu
-        self.RateRelapse = p_rel / (1 - p_rel)
-
-    def modify_txi(self, t, p_txi):
-        wtu, wte = self.UptakePub(t), self.UptakeEng(t)
-        if wtu <= 0 and wte <= 0:
-            return p_txi
-
-        p_txi1 = p_txi.copy()
-        p_txi1[0] = p_txi1[0] + (1 - p_txi1[0]) * wtu * self.RelPLTFU
-        p_txi1[1] = p_txi1[1] + (1 - p_txi1[1]) * wte * self.RelPLTFU
-        return p_txi1
-
-    def modify_cure(self, t, p_cure_u, p_cure_e, p_cure_dr_u, p_cure_dr_e):
-        wtu, wte = self.UptakePub(t), self.UptakeEng(t)
-
-        if wtu > 0:
-            if self.PCure > p_cure_u:
-                p_cure_u1 = self.PCure * wtu + p_cure_u * (1 - wtu)
-            else:
-                p_cure_u1 = p_cure_u
-            if self.PCureSl > p_cure_dr_u:
-                p_cure_dr_u1 = self.PCureSl * wtu + p_cure_dr_u * (1 - wtu)
-            else:
-                p_cure_dr_u1 = p_cure_dr_u
-        else:
-            p_cure_u1, p_cure_dr_u1 = p_cure_u, p_cure_dr_u
-
-        if wte > 0:
-            if self.PCure > p_cure_e:
-                p_cure_e1 = self.PCure * wte + p_cure_e * (1 - wte)
-            else:
-                p_cure_e1 = p_cure_e
-            if self.PCureSl > p_cure_dr_e:
-                p_cure_dr_e1 = self.PCureSl * wte + p_cure_dr_e * (1 - wte)
-            else:
-                p_cure_dr_e1 = p_cure_dr_e
-        else:
-            p_cure_e1, p_cure_dr_e1 = p_cure_e, p_cure_dr_e
-
-        return p_cure_u1, p_cure_e1, p_cure_dr_u1, p_cure_dr_e1
-
-    def modify_rel(self, t, r_rel_teu, r_rel_tei):
-        wtu, wte = self.UptakePub(t), self.UptakeEng(t)
-
-        if wtu > 0 and r_rel_teu > self.RateRelapse:
-            r_rel_teu1 = (1 - wtu) * r_rel_teu + wtu * self.RateRelapse
-        else:
-            r_rel_teu1 = r_rel_teu
-
-        if wte > 0 and r_rel_tei > self.RateRelapse:
-            r_rel_tei1 = (1 - wte) * r_rel_tei + wte * self.RateRelapse
-        else:
-            r_rel_tei1 = r_rel_tei
-
-        return r_rel_teu1, r_rel_tei1
-
-
-def get_intv_tx(key):
-    if key == 'BPaLM':
+class TxBPaLM:
+    def __init__(self):
         x = np.linspace(2024, 2040, 9)
         y_pub = [20 / 100, 80 / 100] + [1] * 7
         y_eng = [10 / 100, 60 / 100] + [1] * 7
-        return IntvTx(x, y_pub, y_eng, 0, 0.85, rel_pltfu=0, p_rel=0.3)
-    elif key == 'PAN-TB':
+
+        self.UptakePub = interp1d(
+            x=np.concatenate([[0, 2023], x]), y=np.concatenate([[0, 0], y_pub]), fill_value="extrapolate")
+        self.UptakeEng = interp1d(
+            x=np.concatenate([[0, 2023], x]), y=np.concatenate([[0, 0], y_eng]), fill_value="extrapolate")
+        self.PCureSl = 0.85
+
+    def modify_cure_sl(self, t, p_cure_dr_u, p_cure_dr_e):
+        wtu, wte = self.UptakePub(t), self.UptakeEng(t)
+        p_cure_dr_u1 = scale_up(p_cure_dr_u, self.PCureSl, wtu)
+        p_cure_dr_e1 = scale_up(p_cure_dr_e, self.PCureSl, wte)
+        return p_cure_dr_u1, p_cure_dr_e1
+
+
+class IntvTx:
+    def __init__(self, uptake_time, uptake_pub, uptake_eng, p_cure=0.85, rel_pltfu=0.5, p_rel=0.9, dur=0.5):
+        self.UptakePub = interp1d(
+            x=np.concatenate([[0, 2023], uptake_time]), y=np.concatenate([[0, 0], uptake_pub]), fill_value="extrapolate")
+        self.UptakeEng = interp1d(
+            x=np.concatenate([[0, 2023], uptake_time]), y=np.concatenate([[0, 0], uptake_eng]), fill_value="extrapolate")
+        self.PCure = p_cure
+        self.RelPLTFU = rel_pltfu
+        self.RateRelapse = p_rel / (1 - p_rel)
+        self.DurTx = dur
+
+    def modify_uptake_new(self, t):
+        wtu, wte = self.UptakePub(t), self.UptakeEng(t)
+        p_up = np.array([wtu, wte, 0])
+        return 1 - p_up, p_up
+
+    def modify_cure(self, t, p_cure_u, p_cure_e):
+        wtu, wte = self.UptakePub(t), self.UptakeEng(t)
+        p_cure_u1 = scale_up(p_cure_u, self.PCure, wtu)
+        p_cure_e1 = scale_up(p_cure_e, self.PCure, wte)
+        return p_cure_u1, p_cure_e1
+
+    def get_p_cure_new(self, p_cure_u, p_cure_e):
+        return max(p_cure_u, self.PCure), max(p_cure_e, self.PCure)
+
+    def get_r_rel_new(self, r_rel_u, r_rel_i):
+        return min(r_rel_u, self.RateRelapse), min(r_rel_i, self.RateRelapse)
+
+    def get_p_txi_new(self, p_txi):
+        return 1 - (1 - p_txi) * self.RelPLTFU
+
+    def get_r_txo(self, r_txo):
+        return np.ones_like(r_txo) / self.DurTx
+
+
+def get_intv_tx(key):
+    if key == 'PAN-TB':
         x = np.linspace(2024, 2040, 9)
         y_pub = [0] * 3 + [.10, .30, .90, .90, .90, .90]
         y_eng = [0] * 4 + [.20, .60, .90, .90, .90]
-        return IntvTx(x, y_pub, y_eng, 0.92, 0, rel_pltfu=0.5, p_rel=0.12)
+        return IntvTx(x, y_pub, y_eng, 0.92, rel_pltfu=0.5, p_rel=0.12, dur=2 / 12)
     elif key == 'LA-INJ':
         x = np.linspace(2024, 2040, 9)
         y_pub = [0] * 4 + [.10, .30, .60, .90, .90]
         y_eng = [0] * 5 + [.20, .40, .60, .60]
-        return IntvTx(x, y_pub, y_eng, 0.98, 0, rel_pltfu=1, p_rel=0.05)
+        return IntvTx(x, y_pub, y_eng, 0.98, rel_pltfu=1, p_rel=0.05, dur=1 / 12)
     elif key == 'NoRelapse':
         x = np.linspace(2024, 2040, 9)
         y_pub = [0, 0.5, 1.0] + [1.0] * 6
@@ -114,6 +92,6 @@ def get_intv_tx(key):
         x = np.linspace(2024, 2040, 9)
         y_pub = [0] * 3 + [.10, .30, .90, .90, .90, .90]
         y_eng = [0] * 4 + [.20, .60, .90, .90, .90]
-        return IntvTx(x, y_pub, y_eng, p_cure=0.9, p_cure_sl=0, rel_pltfu=0.5, p_rel=s)
+        return IntvTx(x, y_pub, y_eng, p_cure=0.9, rel_pltfu=0.5, p_rel=s)
     return None
 

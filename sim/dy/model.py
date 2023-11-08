@@ -74,7 +74,7 @@ class Model(AbsModelODE):
         dy, da = np.zeros_like(y), np.zeros_like(aux)
 
         calc = dict()
-        for proc in [self.ProcDemo, self.ProcTrans, self.ProcATB, self.ProcLTBI, self.ProcDx]:
+        for proc in [self.ProcDemo, self.ProcTrans, self.ProcATB, self.ProcDx, self.ProcLTBI]:
             dy += proc.find_dya(t, y, da, pars, calc=calc, intv=intv)
 
         if t <= self.Year0:
@@ -89,6 +89,7 @@ class Model(AbsModelODE):
         demo = self.Inputs.Demography(t)
 
         calc = dict()
+        self.ProcDx.find_dya(t, y, np.zeros_like(aux), pars, calc=calc, intv=intv)
         self.ProcLTBI.find_dya(t, y, np.zeros_like(aux), pars, calc=calc, intv=intv)
 
         mea = dict(Year=t, N=n, N0=demo['N'].sum(),
@@ -100,6 +101,10 @@ class Model(AbsModelODE):
         inc = calc['inc']
 
         mea['IncR0'] = inc.sum() / n
+        mea['Txo_SOC'] = calc['Txo_soc'].sum() / n
+        mea['Txo_New'] = calc['Txo_new'].sum() / n
+        mea['R_Rel_Pub'] = calc['r_rel_teu']
+        mea['R_Rel_Pri'] = calc['r_rel_tei']
 
         if self.N_Agp > 1:
             inc = inc.sum(0)
@@ -133,6 +138,7 @@ if __name__ == '__main__':
     import numpy.random as rd
     from sim.inputs import load_inputs
     from sims_pars import bayes_net_from_script, sample
+    from sim.dy.intervention import compose_intv
 
     rd.seed(1166)
 
@@ -164,9 +170,12 @@ if __name__ == '__main__':
 
     cr = model0.Inputs.Cascade
     ps = sample(bn, cond=exo0)
+    intv = compose_intv(ps, tx='PAN-TB')
     ps = cr.prepare_pars(ps)
 
-    _, ms0, _ = model0.simulate_to_fit(ps, np.linspace(2005, 2030, 31))
+    ys0, ms0, _ = model0.simulate_to_fit(ps, np.linspace(2005, 2030, 31))
+
+    _, ms1, _ = model0.simulate(ps, intv)
 
     # print((ms0.IncTreatedPubR / ms0.IncTreatedR).tail(10))
     # print((ms0.IncTreatedR / ms0.IncR).tail(10))
