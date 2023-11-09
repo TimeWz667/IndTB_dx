@@ -71,6 +71,16 @@ def get_intv_tx(key):
         y_pub = [0] * 4 + [.10, .30, .60, .90, .90]
         y_eng = [0] * 5 + [.20, .40, .60, .60]
         return IntvTx(x, y_pub, y_eng, 0.98, rel_pltfu=1, p_rel=0.05, dur=1 / 12)
+    elif key == 'Null_PAN-TB':
+        x = np.linspace(2024, 2040, 9)
+        y_pub = [0] * 9
+        y_eng = [0] * 9
+        return IntvTx(x, y_pub, y_eng, 0.92, rel_pltfu=0.5, p_rel=0.12, dur=2 / 12)
+    elif key == 'Null_LA-INJ':
+        x = np.linspace(2024, 2040, 9)
+        y_pub = [0] * 9
+        y_eng = [0] * 9
+        return IntvTx(x, y_pub, y_eng, 0.98, rel_pltfu=1, p_rel=0.05, dur=1 / 12)
     elif key == 'NoRelapse':
         x = np.linspace(2024, 2040, 9)
         y_pub = [0, 0.5, 1.0] + [1.0] * 6

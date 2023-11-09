@@ -12,7 +12,7 @@ exo = {
     'drt_trans': 0,
     'k_relapse_adj': 1,
     'rr_relapse_pub': 1,
-    'r_acquire_dr': 0.03,
+    'r_acquire_dr': 0.04,
     # 'rr_beta_dr': 0.35,
 }
 

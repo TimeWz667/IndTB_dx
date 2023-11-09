@@ -26,7 +26,7 @@ class ActiveTB(Process):
         dy[I.SLat] += sc_a + sc_s + sc_c + sc_r
 
         # Resistance acquiring
-        r_acquire_dr = pars['r_acquire_dr'] if t > 2010 else 0
+        r_acquire_dr = pars['r_acquire_dr'] if t > 2000 else 0
 
         acquire_dr = r_acquire_dr * y[[I.TxPub, I.TxPriOnPub, I.TxPriOnPri], I.DS]
         dy[[I.TxPub, I.TxPriOnPub, I.TxPriOnPri], I.DS] -= acquire_dr
