@@ -109,11 +109,8 @@ def get_perfect_dx(p):
 
     alg4 = Algorithm('CDx', cdx=cdx)
 
-    ent = np.array([
-        p['p_csi_pub'],
-        (1 - p['p_csi_pub']) * p['p_csi_ppm'],
-        (1 - p['p_csi_pub']) * (1 - p['p_csi_ppm'])
-    ])
+    sys0 = p['system']
+    ent = sys0.Entry.copy()
 
     public = Sector(np.array([1]), [alg4])
     engaged = Sector(np.array([1]), [alg4])
@@ -121,19 +118,14 @@ def get_perfect_dx(p):
 
     sys = System(ent, public, engaged, private)
 
-    p_txi_pub = p['p_txi_pub']
-    p_txi_eng = p['p_txi_eng']
-
-    txi = np.array([p_txi_pub, p_txi_eng, p['p_txi_pri']])
-
     return {
         'sys': sys,
-        'p_txi': txi
+        'p_txi': p['p_txi']
     }
 
 
 def get_perfect_txi(p):
     return {
-        'sys': get_system(p),
+        'sys': p['system'],
         'p_txi': np.ones(3)
     }
