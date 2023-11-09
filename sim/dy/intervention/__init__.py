@@ -10,7 +10,7 @@ __all__ = ['compose_intv']
 Interventions = namedtuple('Interventions', ('Dx', 'Tx', 'Txs', 'Vac', 'ACF', 'PPM'))
 
 
-def compose_intv(pars, dx='None', tx='None', vac='None', acf='0_0', ppm=0):
+def compose_intv(pars, dx='None', tx='None', vac='None', acf='0_0_0', ppm=0):
     return Interventions(Dx=get_intv_dx(pars, dx),
                          Tx=get_intv_tx(tx),
                          Txs=TxBPaLM(),

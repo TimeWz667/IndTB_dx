@@ -1,13 +1,5 @@
 __author__ = 'Chu-Chang Ku'
 
-exo = {
-    'drt_act': 0,
-    'drt_trans': 0,
-    'k_relapse_adj': 1,
-    'rr_relapse_pub': 1,
-    'r_acquire_dr': 0.05,
-    # 'rr_beta_dr': 0.35,
-}
 
 year0 = 2000
 
@@ -23,7 +15,6 @@ if __name__ == '__main__':
         file_prior='../data/prior.txt',
         file_targets='../data/targets.csv',
         year0=year0,
-        exo=exo,
         suffix='cas_cdx',
         agp=True
     )
