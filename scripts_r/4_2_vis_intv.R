@@ -5,7 +5,7 @@ library(tidybayes)
 theme_set(theme_bw())
 
 
-qci <- 0.95
+qci <- 0.5
 
 ## Loading data -----
 sim <- read_csv(here::here("out", "dyage", "Sim_IntvAll.csv"))
@@ -146,8 +146,10 @@ gs_vac <- fn_plot(tab_avt, tab_epi, c(
 
 gs_mass <- fn_plot(tab_avt, tab_epi, c(
   Baseline = "Baseline",
-  Mass_NAAT_20 = "Mass screening 20% CB-NAAT",
-  Mass_Xray_10 = "Mass screening 10% CXR"
+  Mass_NAAT_20_HRZE = "Mass screening 20% CB-NAAT",
+  Mass_NAAT_20_PAN  = "Mass screening 20% CB-NAAT \nwith PAN-TB uptake",
+  Mass_Xray_10_HRZE = "Mass screening 10% CXR",
+  Mass_Xray_10_PAN = "Mass screening 10% CXR \nwith PAN-TB uptake"
 ))
 
 
