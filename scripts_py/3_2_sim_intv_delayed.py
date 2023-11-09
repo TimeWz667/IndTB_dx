@@ -1,4 +1,3 @@
-
 __author__ = 'Chu-Chang Ku'
 
 
@@ -21,6 +20,7 @@ if __name__ == '__main__':
         file_prior='../data/prior.txt',
         file_targets='../data/targets.csv',
         year0=year0,
+        suffix='cas_cdx',
         agp=True
     )
 
@@ -38,8 +38,8 @@ if __name__ == '__main__':
 
         intvs = {
             'Baseline': compose_intv(p),
-            'Combine_Lo': compose_intv(p, dx='TSwab', tx='BPaLM', acf='0.11_0.96', vac='BCG'),
-            'Combine_Hi': compose_intv(p, dx='TSwab', tx='LA-INJ', acf='0.22_0.86', vac='BCG-M72')
+            'Combine_Lo': compose_intv(p, dx='TSwab', acf='0.11_0.96_0', vac='BCG'),
+            'Combine_Hi': compose_intv(p, dx='TSwab', tx='LA-INJ', acf='0.22_0.86_0', vac='BCG-M72')
         }
         for k in ['Combine_Lo', 'Combine_Hi']:
             intv = intvs[k]

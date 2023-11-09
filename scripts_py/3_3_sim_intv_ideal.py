@@ -1,4 +1,3 @@
-
 __author__ = 'Chu-Chang Ku'
 
 
@@ -17,10 +16,11 @@ if __name__ == '__main__':
     folder = '../out/dyage'
 
     obj = load_obj(
-        folder_input=f'../pars',
+        folder_input='../pars',
         file_prior='../data/prior.txt',
         file_targets='../data/targets.csv',
         year0=year0,
+        suffix='cas_cdx',
         agp=True
     )
 
@@ -49,4 +49,4 @@ if __name__ == '__main__':
             mss.append(ms.assign(Key=i, Scenario=intv_key))
     mss = pd.concat(mss)
     print(mss)
-    mss.to_csv(f'{folder}/Sim_IntvPerfect.csv')
+    mss.to_csv(f'{folder}/Sim_IntvIdeal.csv')

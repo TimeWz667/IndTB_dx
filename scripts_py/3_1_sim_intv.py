@@ -59,9 +59,9 @@ if __name__ == '__main__':
             'Mass_NAAT_20_HRZE': compose_intv(p, acf='0.22_0.86_0'),
             'Mass_Xray_10_PAN': compose_intv(p, acf='0.11_0.96_1', tx='Null_PAN-TB'),
             'Mass_NAAT_20_PAN': compose_intv(p, acf='0.22_0.86_1', tx='Null_PAN-TB'),
-            # 'Combine_Lo': compose_intv(p, dx='TSwab', tx='BPaLM', acf='0.11_0.96', vac='BCG'),
+            'Combine_Lo': compose_intv(p, dx='TSwab', acf='0.11_0.96_0', vac='BCG'),
             'Combine_Hi': compose_intv(p, dx='TSwab', tx='LA-INJ', acf='0.22_0.86_0', vac='BCG-M72'),
-            # 'CombinePPM_Lo': compose_intv(p, dx='TSwab', tx='BPaLM', acf='0.11_0.96', vac='BCG', ppm=0.9),
+            'CombinePPM_Lo': compose_intv(p, dx='TSwab', acf='0.11_0.96_0', vac='BCG', ppm=0.9),
             'CombinePPM_Hi': compose_intv(p, dx='TSwab', tx='LA-INJ', acf='0.22_0.86_0', vac='BCG-M72', ppm=0.9),
         }
 
