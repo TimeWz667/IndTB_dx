@@ -145,22 +145,36 @@ class Dx(Process):
 
         # ACF
         try:
-            r_acf = intv.ACF.modify_acf(t, 0)
+            r_acf, r_acf_new = intv.ACF.modify_acf(t, 0)
         except (TypeError, AttributeError):
-            r_acf = 0
+            r_acf = r_acf_new = 0
 
         acf_a = r_acf * y[I.Asym]
         acf_s = r_acf * y[I.Sym]
         acf_c = r_acf * y[I.ExCS]
         acf_r = r_acf * y[I.ReCS]
-        calc['acf'] = (acf_a + acf_s + acf_c + acf_r).sum()
+        calc['acf'] = acf = (acf_a + acf_s + acf_c + acf_r).sum()
 
         dy[I.Asym] -= acf_a
         dy[I.Sym] -= acf_s
         dy[I.ExCS] -= acf_c
         dy[I.ReCS] -= acf_r
         dy[I.TxPub] += acf_a + acf_s + acf_c + acf_r
-        da[I.A_ACF] += calc['acf']
+        da[I.A_ACF] += acf
+
+        acf_a = r_acf_new * y[I.Asym]
+        acf_s = r_acf_new * y[I.Sym]
+        acf_c = r_acf_new * y[I.ExCS]
+        acf_r = r_acf_new * y[I.ReCS]
+        acf = (acf_a + acf_s + acf_c + acf_r).sum()
+        calc['acf'] += acf
+
+        dy[I.Asym] -= acf_a
+        dy[I.Sym] -= acf_s
+        dy[I.ExCS] -= acf_c
+        dy[I.ReCS] -= acf_r
+        dy[I.TxNewPub] += acf_a + acf_s + acf_c + acf_r
+        da[I.A_ACF] += acf
 
         fps = tps * (1 - ppv) / ppv
 

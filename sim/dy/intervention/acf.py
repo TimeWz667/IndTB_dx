@@ -5,9 +5,10 @@ __all__ = ['IntvACF', 'get_intv_acf']
 
 
 class IntvACF:
-    def __init__(self, pp, cov, sens, year0=2025, preflight=2):
+    def __init__(self, cov, sens, new_tx=False, year0=2025, preflight=2):
         self.Coverage = cov
         self.Sensitivity = sens
+        self.UseNewTx = new_tx
         self.Year0 = year0
         self.Preflight = preflight
 
@@ -22,18 +23,23 @@ class IntvACF:
         else:
             return (t - t0) / (t1 - t0)
 
-    def modify_acf(self, t, r_acf):
+    def modify_acf(self, t, r_acf, r_acf_new):
         wt = self.uptake(t)
         if wt <= 0:
-            return r_acf
+            return r_acf, r_acf_new
 
         r_acf = wt * self.Coverage * self.Sensitivity
-        return r_acf
+
+        if self.UseNewTx:
+            return 0, r_acf
+        else:
+            return r_acf, 0
 
 
-def get_intv_acf(p, key):
-    cov, sens = key.split("_")
+def get_intv_acf(key):
+    cov, sens, new = key.split("_")
     cov, sens = float(cov), float(sens)
+    new = new == '1'
     if cov <= 0:
         return None
-    return IntvACF(p, cov, sens)
+    return IntvACF(cov, sens, new)

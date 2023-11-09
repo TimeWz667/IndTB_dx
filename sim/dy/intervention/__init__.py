@@ -15,5 +15,5 @@ def compose_intv(pars, dx='None', tx='None', vac='None', acf='0_0', ppm=0):
                          Tx=get_intv_tx(tx),
                          Txs=TxBPaLM(),
                          Vac=get_intv_vac(pars, vac),
-                         ACF=get_intv_acf(pars, acf),
+                         ACF=get_intv_acf(acf),
                          PPM=get_intv_ppm(ppm))
