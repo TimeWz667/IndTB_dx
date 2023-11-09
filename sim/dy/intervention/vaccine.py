@@ -36,9 +36,9 @@ class IntvVac:
 
         if sus1.shape[1] > 1:
             k = (1 - wt) + wt * (1 - self.ProtInf)
-            sus1[I.FLat, 2] *= k
-            sus1[I.SLat, 2] *= k
-            sus1[I.U, 2] *= k
+            sus1[I.FLat, :, 2] *= k
+            sus1[I.SLat, :,  2] *= k
+            sus1[I.U, :, 2] *= k
 
         return sus1
 

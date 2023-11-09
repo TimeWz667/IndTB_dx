@@ -145,7 +145,7 @@ class Dx(Process):
 
         # ACF
         try:
-            r_acf, r_acf_new = intv.ACF.modify_acf(t, 0)
+            r_acf, r_acf_new = intv.ACF.modify_acf(t, 0, 0)
         except (TypeError, AttributeError):
             r_acf = r_acf_new = 0
 
