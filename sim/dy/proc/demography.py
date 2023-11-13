@@ -26,6 +26,7 @@ class Demography(Process):
         dr_tb[I.ReCS] = pars['r_die_sym']
 
         dr_tb[[I.TxPub, I.TxPriOnPub, I.TxPriOnPri]] = pars['r_die_tx']
+        dr_tb[[I.TxNewPub, I.TxNewPriOnPub, I.TxNewPriOnPri]] = pars['r_die_tx']
 
         calc['die_tb'] = die_tb = dr_tb * y
 

@@ -12,6 +12,11 @@ sim <- read_csv(here::here("out", "dyage", "Sim_IntvAll0.csv"))
 sim <- sim %>% filter(Year >= 2024 & Year <= 2040)
 
 
+sim %>% 
+  filter(Key == 0) %>% 
+  ggplot() +
+  geom_line(aes(x = Year, y = IncRecentR, colour = Scenario, group = paste(Scenario, Key)))
+
 avt <- sim %>% 
   select(Year, CumInc, CumMor, Scenario, Key) %>% 
   left_join(
@@ -37,6 +42,32 @@ avt <- sim %>%
   )
 
 
+avt_rr <- sim %>% 
+  select(Year, CumIncRecent, CumIncRemote, Scenario, Key) %>% 
+  left_join(
+    sim  %>% 
+      filter(Scenario == "Baseline") %>% 
+      select(Year, CumIncRecent0 = CumIncRecent, CumIncRemote0 = CumIncRemote, Key)
+  ) %>% 
+  group_by(Key, Scenario) %>% 
+  mutate(
+    CumIncRecent = CumIncRecent - CumIncRecent[1],
+    CumIncRemote = CumIncRemote - CumIncRemote[1],
+    CumIncRecent0 = CumIncRecent0 - CumIncRecent0[1],
+    CumIncRemote0 = CumIncRemote0 - CumIncRemote0[1]
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    DiffIncRc = CumIncRecent0 - CumIncRecent,
+    DiffIncRm = CumIncRemote0 - CumIncRemote,
+    AvtIncRc = DiffIncRc / CumIncRecent0,
+    AvtIncRm = DiffIncRm / CumIncRemote0,
+    AvtIncRc = ifelse(is.na(AvtIncRc), 0, AvtIncRc),
+    AvtIncRm = ifelse(is.na(AvtIncRm), 0, AvtIncRm)
+  )
+
+
+
 tab_epi <- sim %>% 
   select(Year, IncR, MorR, Scenario) %>% 
   pivot_longer(c(IncR, MorR)) %>% 
@@ -59,11 +90,33 @@ tab_avt <- avt %>%
   )
 
 
+tab_epi_rr <- sim %>% 
+  select(Year, IncRcR = IncRecentR, IncRmR = IncRemoteR, Scenario) %>% 
+  pivot_longer(c(IncRcR, IncRmR)) %>% 
+  group_by(Year, Scenario, name) %>% 
+  summarise(
+    M = median(value),
+    L = quantile(value, (1 - qci) / 2),
+    U = quantile(value, 1 - (1 - qci) / 2)
+  )
+
+tab_avt_rr <- avt_rr %>% 
+  select(Year, AvtIncRc, AvtIncRm, Scenario) %>% 
+  pivot_longer(c(AvtIncRc, AvtIncRm,)) %>% 
+  group_by(Year, Scenario, name) %>% 
+  summarise(
+    M = median(value),
+    L = quantile(value, (1 - qci) / 2),
+    U = quantile(value, 1 - (1 - qci) / 2)
+  )
+
+
+
 write_csv(tab_epi, here::here("docs", "tabs", "intv_epi.csv"))
 write_csv(tab_avt, here::here("docs", "tabs", "intv_avt.csv"))
 
 
-fn_plot <- function(tab_avt, tab_epi, scs) {
+fn_plot <- function(tab_avt, tab_epi, tab_avt_rr, tab_epi_rr, scs) {
   g_epi <- tab_epi %>%
     filter(Scenario %in% names(scs)) %>% 
     mutate(
@@ -82,8 +135,6 @@ fn_plot <- function(tab_avt, tab_epi, scs) {
     facet_wrap(.~name, scale = "free_y", 
                labeller = labeller(name = c("IncR" = "Incidence", "MorR" = "Mortality"))) +
     expand_limits(y = 0)
-  
-  g_epi
   
   
   g_avt <- tab_avt %>% 
@@ -104,22 +155,63 @@ fn_plot <- function(tab_avt, tab_epi, scs) {
     facet_wrap(.~name, labeller = labeller(name = c("AvtInc" = "Averted cases", "AvtMor" = "Averted deaths"))) +
     expand_limits(y = 0)
   
+  
+  g_epi_rr <- tab_epi_rr %>%
+    filter(Scenario %in% names(scs)) %>% 
+    mutate(
+      PPM = ifelse(str_detect(Scenario, "PPM"), "With PPM", "Without PPM"),
+      Scenario = gsub("PPM", "", Scenario)
+    ) %>% 
+    mutate(
+      Scenario = scs[Scenario],
+      Scenario = factor(Scenario, scs)
+    ) %>% 
+    ggplot() +
+    geom_ribbon(aes(x = Year, ymin=L, ymax=U, fill=Scenario), alpha = 0.1) +
+    geom_line(aes(x = Year, y = M, colour = Scenario)) +
+    scale_y_continuous("per 100k", labels = scales::number_format(scale = 1e5)) +
+    scale_x_continuous("Year", breaks = c(2024, seq(2030, 2040, 5))) + 
+    facet_wrap(.~name, scale = "free_y", 
+               labeller = labeller(name = c("IncRcR" = "Incidence, recent", "IncRmR" = "Incidence, remote"))) +
+    expand_limits(y = 0)
+  
+  
+  g_avt_rr <- tab_avt_rr %>% 
+    filter(Scenario %in% names(scs)) %>% 
+    mutate(
+      PPM = ifelse(str_detect(Scenario, "PPM"), "With PPM", "Without PPM"),
+      Scenario = gsub("PPM", "", Scenario)
+    ) %>% 
+    mutate(
+      Scenario = scs[Scenario],
+      Scenario = factor(Scenario, scs)
+    ) %>% 
+    ggplot() +
+    geom_ribbon(aes(x = Year, ymin=L, ymax=U, fill=Scenario), alpha = 0.1) +
+    geom_line(aes(x = Year, y = M, colour = Scenario)) +
+    scale_x_continuous("Year", breaks = c(2024, seq(2030, 2040, 5))) + 
+    scale_y_continuous("per cent", labels = scales::percent) +
+    facet_wrap(.~name, labeller = labeller(name = c("AvtIncRc" = "Averted recent cases", "AvtIncRm" = "Averted remote cases"))) +
+    expand_limits(y = 0)
+  
   list(
     g_epi = g_epi,
-    g_avt = g_avt
+    g_avt = g_avt,
+    g_epi_rr = g_epi_rr,
+    g_avt_rr = g_avt_rr
   )
 }
 
 
 
-gs_dx <- fn_plot(tab_avt, tab_epi, c(
+gs_dx <- fn_plot(tab_avt, tab_epi, tab_avt_rr, tab_epi_rr, c(
   Baseline = "Baseline",
   Dx_TSwab = "Swab with current tests",
   Dx_POC = "Swab with PoC test",
   Dx_POC_Hi = "Swab with\nhigh-throughput NAAT"
 ))
 
-gs_dx_itt <- fn_plot(tab_avt, tab_epi, c(
+gs_dx_itt <- fn_plot(tab_avt, tab_epi, tab_avt_rr, tab_epi_rr, c(
   Baseline = "Baseline",
   Dx_TSwab = "Swab with current tests",
   Dx_POC = "Swab with PoC test",
@@ -129,13 +221,13 @@ gs_dx_itt <- fn_plot(tab_avt, tab_epi, c(
   Dx_POC_Hi_ITT = "Swab with\nhigh-throughput NAAT \nhalf those without intention to test"
 ))
 
-gs_tx <- fn_plot(tab_avt, tab_epi, c(
+gs_tx <- fn_plot(tab_avt, tab_epi, tab_avt_rr, tab_epi_rr, c(
   Baseline = "Baseline",
   "Tx_PAN-TB" = "PAN-TB",
   "Tx_LA-INJ" = "LA-INJ"
 ))
 
-gs_vac <- fn_plot(tab_avt, tab_epi, c(
+gs_vac <- fn_plot(tab_avt, tab_epi, tab_avt_rr, tab_epi_rr, c(
   Baseline = "Baseline",
   "Vac_BCG" = "BCG revaccination",
   "Vac_M72" = "M72",
@@ -144,7 +236,7 @@ gs_vac <- fn_plot(tab_avt, tab_epi, c(
 ))
 
 
-gs_mass <- fn_plot(tab_avt, tab_epi, c(
+gs_mass <- fn_plot(tab_avt, tab_epi, tab_avt_rr, tab_epi_rr, c(
   Baseline = "Baseline",
   Mass_NAAT_20_HRZE = "Mass screening 20% CB-NAAT",
   Mass_NAAT_20_PAN  = "Mass screening 20% CB-NAAT \nwith PAN-TB uptake",
@@ -153,7 +245,7 @@ gs_mass <- fn_plot(tab_avt, tab_epi, c(
 ))
 
 
-gs_combine <- fn_plot(tab_avt, tab_epi, c(
+gs_combine <- fn_plot(tab_avt, tab_epi, tab_avt_rr, tab_epi_rr, c(
   Baseline = "Baseline",
   "Combine_Lo" = "Combination (conservative)",
   "Combine_Hi" = "Combination (ambitious)"

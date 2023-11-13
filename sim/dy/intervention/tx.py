@@ -71,6 +71,8 @@ def get_intv_tx(key):
         y_pub = [0] * 4 + [.10, .30, .60, .90, .90]
         # y_eng = [0] * 4 + [.10, .30, .60, .90, .90]
         y_eng = [0] * 5 + [.20, .40, .60, .60]
+        # y_pub = [0] * 3 + [.10, .30, .90, .90, .90, .90]
+        # y_eng = [0] * 4 + [.20, .60, .90, .90, .90]
         return IntvTx(x, y_pub, y_eng, 0.98, rel_pltfu=0.25, p_rel=0.05, dur=2 / 12)
     elif key == 'Null_PAN-TB':
         x = np.linspace(2024, 2040, 9)
