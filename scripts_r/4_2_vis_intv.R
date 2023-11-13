@@ -8,7 +8,7 @@ theme_set(theme_bw())
 qci <- 0.5
 
 ## Loading data -----
-sim <- read_csv(here::here("out", "dyage", "Sim_IntvAll.csv"))
+sim <- read_csv(here::here("out", "dyage", "Sim_IntvAll0.csv"))
 sim <- sim %>% filter(Year >= 2024 & Year <= 2040)
 
 
@@ -124,9 +124,9 @@ gs_dx_itt <- fn_plot(tab_avt, tab_epi, c(
   Dx_TSwab = "Swab with current tests",
   Dx_POC = "Swab with PoC test",
   Dx_POC_Hi = "Swab with\nhigh-throughput NAAT",
-  Dx_TSwab_ITT = "Swab with current tests i",
-  Dx_POC_ITT = "Swab with PoC test i",
-  Dx_POC_Hi_ITT = "Swab with\nhigh-throughput NAAT i"
+  Dx_TSwab_ITT = "Swab with current tests \nhalf those without intention to test",
+  Dx_POC_ITT = "Swab with PoC test \nhalf those without intention to test",
+  Dx_POC_Hi_ITT = "Swab with\nhigh-throughput NAAT \nhalf those without intention to test"
 ))
 
 gs_tx <- fn_plot(tab_avt, tab_epi, c(
@@ -191,6 +191,10 @@ gs_combine <- fn_plot(tab_avt, tab_epi, c(
 
 ggsave(gs_dx$g_epi, filename = here::here("docs", "figs", "g_intv_dx_epi.png"), width = 12, height = 5)
 ggsave(gs_dx$g_avt, filename = here::here("docs", "figs", "g_intv_dx_avt.png"), width = 12, height = 5)
+
+ggsave(gs_dx_itt$g_epi, filename = here::here("docs", "figs", "g_intv_dx_itt_epi.png"), width = 12, height = 5)
+ggsave(gs_dx_itt$g_avt, filename = here::here("docs", "figs", "g_intv_dx_itt_avt.png"), width = 12, height = 5)
+
 
 ggsave(gs_tx$g_epi, filename = here::here("docs", "figs", "g_intv_tx_epi.png"), width = 12, height = 5)
 ggsave(gs_tx$g_avt, filename = here::here("docs", "figs", "g_intv_tx_avt.png"), width = 12, height = 5)

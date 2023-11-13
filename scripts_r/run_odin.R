@@ -1,13 +1,14 @@
 library(odin)
 library(tidyverse)
 
+theme_set(theme_bw())
 
 pars_demo <- jsonlite::read_json(here::here("pars", "ind_who_70to35.json"), simplifyVector = T)
 
 dim(pars_demo$RateDeath)
 
 
-model <- odin::odin("R/tb.R", target = "c")
+model <- odin::odin("model/tb.R", target = "c")
 
 
 pars <- with(pars_demo,{
@@ -56,7 +57,8 @@ dat_ns <- data.frame(t = pars_demo$Year - 0.5, pars_demo$N) %>%
 
 
 
-ns %>% 
+g_pop <- ns %>% 
+  filter(t >= 2000) %>% 
   group_by(t) %>% 
   summarise(N = sum(N))%>% 
   left_join(dat_ns %>% 
@@ -65,22 +67,26 @@ ns %>%
               summarise(N_Data = sum(N_Data))) %>% 
   ggplot() +
   geom_line(aes(x = t, y = N)) +
-  geom_point(aes(x = t, y = N_Data)) +
-  scale_y_continuous("Population, M", labels = scales::number_format(scale = 1e-6)) +  
+  geom_point(aes(x = t, y = N_Data, colour = "Data")) +
+  scale_y_continuous("Population, Million", labels = scales::number_format(scale = 1e-6)) +  
   scale_x_continuous("Year") +
-  expand_limits(y = 0)
+  scale_color_discrete("") +
+  expand_limits(y = 0) +
+  theme(legend.position = c(1, 0), legend.justification = c(1.05, -0.05))
   
 
 
 
-ns %>% 
-  filter(t %in% seq(1970, 2040, 10)) %>% 
+g_agp <- ns %>% 
+  filter(t %in% seq(2000, 2040, 10)) %>% 
   left_join(dat_ns) %>% 
   ggplot() +
   geom_bar(aes(x = N, y = Agp), alpha = 0.3, stat = "identity") +
-  geom_point(aes(x = N_Data, y = Agp)) +
-  scale_x_continuous("Population, M", labels = scales::number_format(scale = 1e-6)) +  
+  geom_point(aes(x = N_Data, y = Agp, colour = "Data")) +
+  scale_x_continuous("Population, Million", labels = scales::number_format(scale = 1e-6)) +  
+  scale_color_discrete("") +
   facet_wrap(.~t)
-  
 
+ggsave(g_pop, filename = here::here("docs", "figs", "g_baseline_pop.png"), width = 7, height = 5)
+ggsave(g_agp, filename = here::here("docs", "figs", "g_baseline_popy.png"), width = 7, height = 5)
 

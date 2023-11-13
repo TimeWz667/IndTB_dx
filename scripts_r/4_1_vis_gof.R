@@ -136,8 +136,9 @@ g_inc_age <- sims %>%
   # geom_histogram(aes(x = m), alpha = 0.3, stat = "identity") +
   # geom_linerange(aes(xmin = l, xmax = u)) + 
   geom_pointinterval(data = tar_inca, aes(x = M, xmin = L, xmax = U), position = position_nudge(y = -0.2)) + 
-  scale_x_continuous("percent", labels = scales::percent) + 
-  facet_grid(.~Index, scales = "free_x") +
+  scale_x_continuous("Incidence per 100k", labels = scales::number_format(scale = 1e5)) +
+  #facet_grid(.~Index, scales = "free_x") +
+  scale_y_discrete("Age group") +
   scale_colour_brewer() +
   expand_limits(x = 0)
 

@@ -35,7 +35,7 @@ if __name__ == '__main__':
         particle['dur_pub'] = 0.5
         particle['dur_pri'] = p_tx['dur_pri']
         particle['p_pri_on_pub'] = p_tx['p_pri_on_pub']
-        particle['system'] = sys = get_system(pars_dx[0], pars_tx[0])
+        particle['system'] = sys = get_system(p_dx, p_tx)
 
         rss = [sys.Public.seek_care(1, 0), sys.Engaged.seek_care(1, 0), sys.Private.seek_care(1, 0)]
 

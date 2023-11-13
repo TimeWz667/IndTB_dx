@@ -77,6 +77,7 @@ class IntvDx:
             p_itt = p_itt * (1 - wt) + p_itt1 * wt
 
         p_ent1 = self.System.Entry
+
         p_dx1 = np.array([r.TruePos for r in test.values()]) / p_ent1
         p_ent = p_ent * (1 - wt) + p_ent1 * wt
         p_dx = p_dx * (1 - wt) + p_dx1 * wt
