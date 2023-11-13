@@ -1,0 +1,114 @@
+\subsection{Equations}
+
+\paragraph{Uninfected}
+
+\begin{align*}
+\frac{\mathrm{d}U^{a="0-14"}}{\mathrm{d}t} =& deaths_{Bg} + deaths_{TB} + r_{birth, t} N - \mu_{t, a} U^a & (Demography)\\
+  &- sus^{a}(\lambda_{DS} + \lambda_{DR})U^a & (Transmission) \\
+  &+ \nu_{c} \sum_{d} ( L_S^{d, a} + RSt_{Pu}^{d, a} + RSt_{Pr}^{d, a} ) & (Natural\,history) \\
+\frac{\mathrm{d}U^{a\neq"0-14"}}{\mathrm{d}t} =& r_{aging, t, a-1} U^{a-1} - \mu_{t, a} U^a +  & (Demography)\\
+  &- sus^{a}(\lambda_{DS} + \lambda_{DR})U^a & (Transmission) \\
+  &+ \nu_{c} \sum_{d} ( L_S^{d, a} + RSt_{Pu}^{d, a} + RSt_{Pr}^{d, a} ) & (Natural\,history)
+\end{align*}
+
+\paragraph{Latent TB infection and recovered}
+\begin{align*}
+% Latent
+\frac{\mathrm{d}L_F^{d, a}}{\mathrm{d}t} =& r_{aging, t, a-1} L_F^{d, a - 1} - \mu_{t, a} L_F^{d, a} & (Demography)\\
+  &+ \lambda_{d}(U + \sum_{d\in (DS, DR)}(1-\pi)(L_S^x + R_C^x + R_N^x +R_S^x)) & (Transmission) \\
+  &- \eta_L L_F^{d, a} - \gamma_{pri} L_F^{d, a} & (Natural\,history)\\
+\frac{\mathrm{d}L_S^{d, a}}{\mathrm{d}t} =& r_{aging, t, a-1} L_S^{d, a - 1} - \mu_{t, a} L_S^{d, a} & (Demography)\\
+  &- (1 - \pi)sus^{a}(\lambda_{DS}+\lambda_{DR}+\lambda_{DS})L_S^{d, a} & (Transmission) \\
+  &+ \eta_L L_F^{d, a} + \nu_{r} (I_A^{d, a} + I_S^{d, a} + I_E^{d, a} + I_R^{d, a}) - (\gamma_{re} + \nu_{c}) L_S^{d, a} & (Natural\,history)\\
+% Recovered
+\frac{\mathrm{d}R_{Pu}^{d, a}}{\mathrm{d}t} =& r_{aging, t, a-1} R_{Pu}^{d, a - 1} - \mu_{t, a} R_{Pu}^{d, a} & (Demography)\\
+  &- (1-\pi)sus^{a}(\lambda_{DS}+\lambda_{DR})R_{Pu}^{d, a} & (Transmission) \\
+  &- \eta_R R_{Pu}^{d, a} - \gamma_{tc} R_{Pu}^{d, a} & (Natural\,history)\\
+  &+ r_{txo, d}T_{Pu}^{d, a} & (Treatment\,outcome)\\
+\frac{\mathrm{d}R_{Pr}^{d, a}}{\mathrm{d}t} =& r_{aging, t, a-1} R_{Pr}^{d, a - 1} - \mu_{t, a} R_{Pr}^{d, a} & (Demography)\\
+  &- (1-\pi)sus^{a}(\lambda_{DS} + \lambda_{DR})R_{Pr}^{d, a} & (Transmission) \\
+  &- \eta_R R_{Pr}^{d, a} - \gamma_{tc} R_{Pr}^{d, a} & (Natural\,history)\\
+  &+ r_{txo, d}(T_{Px}^{d, a} + T_{Pr}^{d, a}) & (Treatment\,outcome)\\
+\frac{\mathrm{d}RSt_{Pu}^{d, a}}{\mathrm{d}t} =& r_{aging, t, a-1} RSt_{Pu}^{d, a - 1} - \mu_{t, a} RSt_{Pu}^{d, a} & (Demography)\\
+  &- (1-\pi)sus^{a}(\lambda_{DS}+\lambda_{DR})RSt_{Pu}^{d, a} & (Transmission) \\
+  &+ \eta_R R_{Pu}^{d, a} - (\gamma_{st} + \nu_{c}) R_{Pu}^{d, a} & (Natural\,history) \\
+\frac{\mathrm{d}RSt_{Pr}^{d, a}}{\mathrm{d}t} =& r_{aging, t, a-1} RSt_{Pr}^{d, a - 1} - \mu_{t, a} RSt_{Pr}^{d, a} & (Demography)\\
+  &- (1-\pi)sus^{a}(\lambda_{DS}+\lambda_{DR})RSt_{Pr}^{d, a} & (Transmission) \\
+  &+ \eta_R R_{Pr}^{d, a} - (\gamma_{st} + \nu_{c}) R_{Pr}^{d, a} & (Natural\,history)
+\end{align*}
+
+
+\paragraph{Active TB}
+\begin{align*}
+% Subclinical
+\frac{\mathrm{d}I_A^{d, a}}{\mathrm{d}t} =& r_{aging, t, a-1} I_A^{d, a - 1} - \mu_{t, a} I_A^{d, a} & (Demography)\\
+  &+ \gamma_{pri} L_F^{d, a} + \gamma_{re} L_S^{d, a} + \gamma_{tc} (R_{Pu}^{d, a} + R_{Pr}^{d, a}) + \gamma_{st} (RSt_{Pu}^{d, a} + RSt_{Pr}^{d, a}) - \sigma I_A^{d, a} - \nu_{r} I_A^{d, a} & (Natural\,history)\\
+% Symptomatic
+\frac{\mathrm{d}I_S^{d, a}}{\mathrm{d}t} =& r_{aging, t, a-1} I_S^{d, a - 1} - \mu_{t, a} I_S^{d, a} & (Demography)\\
+  &+ \sigma I_A^{d, a} - \nu_{r} I_S^{d, a} & (Natural\,history)\\
+  &- \delta_0 I_S^{d, a} & (Routine\,care)\\
+% Post-care seeking
+\frac{\mathrm{d}I_E^{d, a}}{\mathrm{d}t} =& r_{aging, t, a-1} I_E^{d, a - 1} - \mu_{t, a} I_E^{d, a} & (Demography)\\
+  &- \nu_{r} I_E^{d, a} & (Natural\,history)\\
+  &+ \delta_0 cas_{fn, d} I_S^{d, a} - \delta_1 (1 - cas_{fn, d}) I_E^{d, a} & (Routine\,care)\\
+% Recurrent care seeking
+\frac{\mathrm{d}I_R^{d, a}}{\mathrm{d}t} =& r_{aging, t, a-1} I_R^{d, a - 1} - \mu_{t, a} I_R^{d, a} & (Demography)\\
+  &- \nu_{r} I_R^{d, a} & (Natural\,history)\\
+  &+ TxL^{d, a} - \delta_1 (1 - cas_{fn, d}) I_R^{d, a} & (Routine\,care)\\
+% Treatment, DS
+\frac{\mathrm{d}T_{Pu}^{DS, a}}{\mathrm{d}t} =& r_{aging, t, a-1} T_{Pu}^{d, a - 1} - \mu_{t, a} T_{Pu}^{d, a} & (Demography)\\
+  &- \epsilon T_{Pu}^{d, a} & (Natural\,history)\\
+  &+ TxS_{Pu}^{d, a} & (Routine\,care)\\
+  &- r_{txo, d} T_{Pu}^{d, a} & (Treatment\,outcome)\\
+\frac{\mathrm{d}T_{Px}^{DS, a}}{\mathrm{d}t} =& r_{aging, t, a-1} T_{Px}^{d, a - 1} - \mu_{t, a} T_{Px}^{d, a} & (Demography)\\
+  &- \epsilon T_{Px}^{d, a} & (Natural\,history)\\
+  &+ TxS_{Px}^{d, a} & (Routine\,care)\\
+  &- r_{txo, d} T_{Px}^{d, a} & (Treatment\,outcome)\\
+\frac{\mathrm{d}T_{Pr}^{DS, a}}{\mathrm{d}t} =& r_{aging, t, a-1} T_{Pr}^{d, a - 1} - \mu_{t, a} T_{Pr}^{d, a} & (Demography)\\
+  &- \epsilon T_{Pr}^{d, a} & (Natural\,history)\\
+  &+ TxS_{Pr}^{d, a} & (Routine\,care)\\
+  &- r_{txo, d} T_{Pr}^{d, a} & (Treatment\,outcome)\\
+% Treatment, DR
+\frac{\mathrm{d}T_{Pu}^{DR, a}}{\mathrm{d}t} =& r_{aging, t, a-1} T_{Pu}^{d, a - 1} - \mu_{t, a} T_{Pu}^{d, a} & (Demography)\\
+  &+ \epsilon T_{Pu}^{DS, a} & (Natural\,history)\\
+  &+ TxS_{Pu}^{d, a} & (Routine\,care)\\
+  &- r_{txo, d} T_{Pu}^{d, a} & (Treatment\,outcome)\\
+\frac{\mathrm{d}T_{Px}^{DR, a}}{\mathrm{d}t} =& r_{aging, t, a-1} T_{Px}^{d, a - 1} - \mu_{t, a} T_{Px}^{d, a} & (Demography)\\
+  &+ \epsilon T_{Px}^{DS, a} & (Natural\,history)\\
+  &+ TxS_{Px}^{d, a} & (Routine\,care)\\
+  &- r_{txo, d} T_{Px}^{d, a} & (Treatment\,outcome)\\
+\frac{\mathrm{d}T_{Pr}^{DR, a}}{\mathrm{d}t} =& r_{aging, t, a-1} T_{Pr}^{d, a - 1} - \mu_{t, a} T_{Pr}^{d, a} & (Demography)\\
+  &+ \epsilon T_{Pr}^{DS, a} & (Natural\,history)\\
+  &+ TxS_{Pr}^{d, a} & (Routine\,care)\\
+  &- r_{txo, d} T_{Pr}^{d, a} & (Treatment\,outcome)\\
+\end{align*}
+
+
+\paragraph{Notes:}
+\begin{itemize}
+    \item $N$ is overall population size 
+    \item $d \in \big(DS, DR \big)$ for drug-susceptible and drug-resistant respectively.
+    \item $a \in (0-4, 5-14, 15-24, 25-34, 35-44, 45-54, 55-64, 65+)$ for age groups
+    \item Section~\ref{pars:demo} for the details of demography process.
+    \item Section~\ref{pars:prog} for the details of natural history of TB process.
+    \item Section~\ref{pars:trans} for details of transmission process.
+    \item Section~\ref{pars:care} for details of routine healthcare process.
+\end{itemize}
+
+\noindent Notes: $N$ is overall population size, $d \in \big(DS, DR \big)$ for drug-susceptible and drug-resistant respectively.
+
+
+cas_{Pu, d} = \sum_{s} p_{entry, s} p_{itt, s} p_{tp, s, d} p_{txi, s} alo_{s, Pu} p_{cure, Pu, d}
+cas_{Px, d} = \sum_{s} p_{entry, s} p_{itt, s} p_{tp, s, d} p_{txi, s} alo_{s, Px} p_{cure, Px, d}
+cas_{Pr, d} = \sum_{s} p_{entry, s} p_{itt, s} p_{tp, s, d} p_{txi, s} alo_{s, Pr} p_{cure, Pr, d}
+
+cas_{fn, d} = \sum_{s} p_{entry, s} p_{itt, s} (1 - p_{tp, s, d} p_{txi, s})
+cas_{loss, d} = 1 - cas_{Pu, d} - cas_{Px, d} - cas_{Pr, d} - cas_{fn, d}
+
+
+
+TxI_{Pu}^{d, a} = cas_{Pu, d} (\delta_0 I_S^{d, a} + \delta_1 I_E^{d, a} + \delta_1 I_R^{d, a})
+TxI_{Px}^{d, a} = cas_{Px, d} (\delta_0 I_S^{d, a} + \delta_1 I_E^{d, a} + \delta_1 I_R^{d, a})
+TxI_{Pr}^{d, a} = cas_{Pr, d} (\delta_0 I_S^{d, a} + \delta_1 I_E^{d, a} + \delta_1 I_R^{d, a})
+
+TxL^{d, a} = cas_{loss, d} (\delta_0 I_S^{d, a} + \delta_1 I_E^{d, a} + \delta_1 I_R^{d, a})

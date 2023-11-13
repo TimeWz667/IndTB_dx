@@ -29,7 +29,7 @@ if __name__ == '__main__':
 
     mss = list()
 
-    for i, state in tqdm(enumerate(y0s[:10])):
+    for i, state in tqdm(enumerate(y0s[:5])):
         y0, pars = state['Y0'], state['Pars']
         y0 = np.array(y0)
 
@@ -38,9 +38,9 @@ if __name__ == '__main__':
 
         intvs = {
             'Baseline': compose_intv(p),
-            'Dx_TSwab': compose_intv(p, dx='TSwab'),
-            'Dx_POC': compose_intv(p, dx='POC'),
-            'Dx_POC_Hi': compose_intv(p, dx='POC_Hi'),
+            # 'Dx_TSwab': compose_intv(p, dx='TSwab'),
+            # 'Dx_POC': compose_intv(p, dx='POC'),
+            # 'Dx_POC_Hi': compose_intv(p, dx='POC_Hi'),
             # 'Dx_TSwab_ITT': compose_intv(p, dx='TSwab_ITT'),
             # 'Dx_POC_ITT': compose_intv(p, dx='POC_ITT'),
             # 'Dx_POC_Hi_ITT': compose_intv(p, dx='POC_Hi_ITT'),

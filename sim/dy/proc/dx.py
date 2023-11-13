@@ -23,7 +23,7 @@ class Dx(Process):
         ppv, alo = pars['ppv'], pars['tx_alo']
 
         p_ent, p_itt, p_pdx, p_txi = pars['p_ent'], pars['p_itt'], pars['p_dx'], pars['p_txi']
-        p_txi_new = np.zeros_like(p_txi)
+
         p_dx_xpert = pars['p_dx_xpert']
 
         try:
@@ -37,7 +37,7 @@ class Dx(Process):
             pass
 
         try:
-            p_txi_new = intv.Tx.get_p_txi_new(t, p_txi)
+            p_txi_new = intv.Tx.get_p_txi_new(p_txi)
         except (AttributeError, TypeError):
             p_txi_new = p_txi.copy()
 

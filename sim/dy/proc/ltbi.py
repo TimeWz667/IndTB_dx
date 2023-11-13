@@ -34,8 +34,8 @@ class LatentTB(Process):
 
         try:
             r_rel_teu_new, r_rel_tei_new = intv.Tx.get_r_rel_new(r_rel_teu, r_rel_tei)
-            p_soc = np.array([calc['Txo_soc'][:1].sum(), calc['Txo_soc'][1:].sum()]) + 0.001
-            p_new = np.array([calc['Txo_new'][:1].sum(), calc['Txo_new'][1:].sum()]) + 0.001
+            p_soc = np.array([calc['Txo_soc'][:1].sum(), calc['Txo_soc'][1:].sum()])
+            p_new = np.array([calc['Txo_new'][:1].sum(), calc['Txo_new'][1:].sum()])
             p_soc, p_new = p_soc / (p_soc + p_new), p_new / (p_soc + p_new)
 
             r_rel_teu = r_rel_teu * p_soc[0] + r_rel_teu_new * p_new[0]
