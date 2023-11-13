@@ -8,7 +8,7 @@ theme_set(theme_bw())
 qci <- 0.5
 
 ## Loading data -----
-sim <- read_csv(here::here("out", "dyage", "Sim_IntvAll0.csv"))
+sim <- read_csv(here::here("out", "dyage", "Sim_IntvAllasassd.csv"))
 sim <- sim %>% filter(Year >= 2024 & Year <= 2040)
 
 

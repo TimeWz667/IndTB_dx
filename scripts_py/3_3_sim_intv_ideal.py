@@ -29,7 +29,7 @@ if __name__ == '__main__':
 
     mss = list()
 
-    for i, state in tqdm(enumerate(y0s)):
+    for i, state in tqdm(enumerate(y0s[:100])):
         y0, pars = state['Y0'], state['Pars']
         y0 = np.array(y0)
 
