@@ -110,7 +110,7 @@ I_RHighPri <- 15
 I_RStPri <- 16
 
 ## lengths -----
-n_agp <- user(8)
+n_agp <- user(7)
 n_tbp <- 16
 n_drp <- 3
 

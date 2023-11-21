@@ -8,7 +8,7 @@ theme_set(theme_bw())
 qci <- 0.5
 
 ## Loading data -----
-sim <- read_csv(here::here("out", "dyage", "Sim_IntvAllasassd.csv"))
+sim <- read_csv(here::here("out", "dyage", "Sim_IntvAll.csv"))
 sim <- sim %>% filter(Year >= 2024 & Year <= 2040)
 
 
@@ -229,10 +229,10 @@ gs_tx <- fn_plot(tab_avt, tab_epi, tab_avt_rr, tab_epi_rr, c(
 
 gs_vac <- fn_plot(tab_avt, tab_epi, tab_avt_rr, tab_epi_rr, c(
   Baseline = "Baseline",
-  "Vac_BCG" = "BCG revaccination",
-  "Vac_M72" = "M72",
-  "Vac_BCG-M72" = "Both",
-  "Vac_Recurrence" = "Prevent recurrence"
+  "Vac_BCG" = "Prevention of infection",
+  "Vac_M72" = "Prevention of disease",
+  "Vac_BCG-M72" = "Both infection and disease",
+  "Vac_Recurrence" = "Prevention of recurrence"
 ))
 
 

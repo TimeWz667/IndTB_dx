@@ -3,7 +3,7 @@ library(tidyverse)
 
 theme_set(theme_bw())
 
-pars_demo <- jsonlite::read_json(here::here("pars", "ind_who_70to35.json"), simplifyVector = T)
+pars_demo <- jsonlite::read_json(here::here("pars", "ind_who_90to45.json"), simplifyVector = T)
 
 dim(pars_demo$RateDeath)
 
@@ -15,19 +15,20 @@ pars <- with(pars_demo,{
   list(
     tt_demo = Year,
     n0 = N,
+    n_agp = dim(RateDeath)[2],
     r_death = RateDeath,
     r_aging = RateAgeing,
     r_birth = RateBirth
   )
 })
 
-pars$Y0 <- array(0, c(16, 3, 8))
+pars$Y0 <- array(0, c(16, 3, 7))
 pars$Y0[1, 1, ] <- pars$n0[1, ]
 
 
 cm <- model$new(user = pars)
 
-ys <- cm$run(seq(1970, 2035, 0.5))
+ys <- cm$run(seq(1990, 2041, 0.5))
 
 
 
@@ -86,6 +87,10 @@ g_agp <- ns %>%
   scale_x_continuous("Population, Million", labels = scales::number_format(scale = 1e-6)) +  
   scale_color_discrete("") +
   facet_wrap(.~t)
+
+g_pop
+g_agp
+
 
 ggsave(g_pop, filename = here::here("docs", "figs", "g_baseline_pop.png"), width = 7, height = 5)
 ggsave(g_agp, filename = here::here("docs", "figs", "g_baseline_popy.png"), width = 7, height = 5)
