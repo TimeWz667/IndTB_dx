@@ -3,10 +3,18 @@ import pickle as pkl
 from sim.healthcare import *
 import numpy as np
 import numpy.random as rd
-
+from json import JSONEncoder
 
 n_collect = 2000
 n_vis = 2.7
+
+
+class NumpyArrayEncoder(JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return JSONEncoder.default(self, obj)
+
 
 if __name__ == '__main__':
     pars_tx = json.load(open('../pars/pars_tx.json', 'r'))
@@ -31,7 +39,8 @@ if __name__ == '__main__':
         particle = dict()
 
         particle.update({k: v for k, v in p_dx.items() if k.startswith('sens_') or k.startswith('spec_')})
-        particle['p_scanty'] = p_dx['p_scanty']
+
+        particle['p_loss_sample'] = p_dx['p_loss_sample'] = p_dx['p_scanty']
         particle['dur_pub'] = 0.5
         particle['dur_pri'] = p_tx['dur_pri']
         particle['p_pri_on_pub'] = p_tx['p_pri_on_pub']
@@ -52,3 +61,9 @@ if __name__ == '__main__':
 
     with open(f'../pars/pars_cas_{cdx}.pkl', 'wb') as f:
         pkl.dump(res, f)
+
+    for particle in res['Particles']:
+        del particle['system']
+
+    with open(f'../pars/pars_cas_{cdx}.json', 'w') as f:
+        json.dump(res, f, cls=NumpyArrayEncoder)

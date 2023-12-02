@@ -57,7 +57,7 @@ class System:
 
 
 def get_system(p, pt):
-    sputum = Specimen('Sputum', p['p_scanty'])
+    sputum = Specimen('Sputum', p['p_loss_sample'])
     ssm = Test('SSM', p['sens_s'], p['spec_s'], sputum)
     xpert = Test('Xpert', p['sens_x'], p['spec_x'], sputum)
     xpert_sn = Test('Xpert_ss-', p['sens_x_sn'], p['spec_x_sn'], sputum)
