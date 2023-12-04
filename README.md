@@ -1,2 +1,37 @@
 # IndTB_dx
-Diagnostic/ treatment technology assessment for TB in India
+Portfolio modelling for TB epidemiology in India
+
+## Project structure
+- **/docs**: documentation for model equations and output figures/tables
+- **/data**: data inputs and calibration targets
+- **/pars**: parametrised inputs, including demography inputs and care-cascade
+- **/sim**: main dynamics model codes in python
+- **/model**: model for parametrisation and odin (R) version dynamic model
+- Scripts (initial number as the exec order):
+  - **/scripts_py**: simulation/scripts for python-version model
+  - **/scripts_r**: scripts for data processing/visualisation/output tables
+
+## Interventions included
+
+### Treatment regimen
+
+
+### Improving diagnosis
+
+### Vaccination
+
+### Mass-screening
+
+
+## Notes
+
+- Model for data processing are constructed using rstan. Please use the [Docker](docker-compose.yml) to rebuild the environment.
+- The main version of the simulation model is the python one. All analyses are generated with the version
+- A R version [model in Odin](model/tb.R) replicates the python version in the same functionality but less performance. 
+
+
+## License
+[License](LICENSE)
+
+
+
