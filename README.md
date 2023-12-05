@@ -4,6 +4,8 @@ Portfolio modelling for TB epidemiology in India
 ## Project structure
 - **/docs**: documentation for model equations and output figures/tables
 - **/data**: data inputs and calibration targets
+  - **/targets.csv**: all available calibration targets
+  - **/targets_sel.csv**: selected calibration targets
 - **/pars**: parametrised inputs, including demography inputs and care-cascade
 - **/sim**: main dynamics model codes in python
 - **/model**: model for parametrisation and odin (R) version dynamic model
@@ -15,8 +17,13 @@ Portfolio modelling for TB epidemiology in India
 
 ### Treatment regimen
 
+- Increasing treatment initiation
+- Increasing cure rate
+- Reducing relapse
 
 ### Improving diagnosis
+
+- 
 
 ### Vaccination
 
