@@ -23,12 +23,19 @@ Portfolio modelling for TB epidemiology in India
 
 ### Improving diagnosis
 
-- 
+- Reducing failing diagnosis due to sample collection
+- Increasing sensitivity/specificity
+- Strengthening the link between diagnosis and treatment
 
 ### Vaccination
 
+- Preventing from infection
+- Preventing from disease progression
+- Preventing form relapse
+
 ### Mass-screening
 
+- Annual screening at large scales
 
 ## Notes
 
