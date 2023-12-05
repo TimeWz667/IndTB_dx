@@ -8,10 +8,10 @@ Portfolio modelling for TB epidemiology in India
   - **/targets_sel.csv**: selected calibration targets
 - **/pars**: parametrised inputs, including demography inputs and care-cascade
 - **/sim**: main dynamics model codes in python
-- **/model**: model for parametrisation and odin (R) version dynamic model
 - Scripts (initial number as the exec order):
   - **/scripts_py**: simulation/scripts for python-version model
   - **/scripts_r**: scripts for data processing/visualisation/output tables
+- **/R_ver**: a standalone version for running the model in R
 
 ## Interventions included
 

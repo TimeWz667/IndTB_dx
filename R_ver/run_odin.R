@@ -3,8 +3,8 @@ library(tidyverse)
 
 theme_set(theme_bw())
 
-pars_demo <- jsonlite::read_json(here::here("pars", "ind_who_90to45.json"), simplifyVector = T)
-pars_cas <- jsonlite::read_json(here::here("pars", "pars_cas_cdx.json"), simplifyVector = T, simplifyDataFrame = F)
+pars_demo <- jsonlite::read_json("ind_who_90to45.json", simplifyVector = T)
+pars_cas <- jsonlite::read_json("pars.json", simplifyVector = T, simplifyDataFrame = F)
 
 
 pars <- with(pars_demo,{
@@ -22,56 +22,54 @@ pars$Y0 <- array(0, c(16, 3, 7))
 pars$Y0[1, 1, ] <- pars$n0[1, ] * 0.95
 pars$Y0[2, 1, ] <- pars$n0[1, ] * 0.05
 
-exo <- list(
-  r_sc = 0.2,
-  rr_die_asym = 1,
-  r_die_sym = 0.12
-)
 
-p1 <- with(c(exo, pars_cas$Prev, pars_cas$Particles[[1]]), {
-  r_die_asym <- r_die_sym * rr_die_asym
+# 
+# p1 <- with(c(exo, pars_cas$Prev, pars_cas$Particles[[1]]), {
+#   r_die_asym <- r_die_sym * rr_die_asym
+# 
+#   mu_c <- r_die_sym + r_sc
+#   mu_s <- r_die_sym + r_sc
+#   mu_a <- r_die_asym + r_sc
+#   
+#   p_det <- sum(p_ent * p_itt * p_dx * p_txi)
+#   
+#   r_det <- txi / PrevExCS
+#   r_csi <- (r_det + mu_c) * PrevExCS / PrevSym
+#   r_onset <- (r_csi + mu_s) * PrevSym / PrevAsym
+#   inc <- (r_onset + mu_a) * PrevAsym
+#   
+#   det0 <- PrevSym * r_csi * p_det
+#   r_recsi <- (txi - det0) / (PrevExCS * p_det)
+#   
+#   list(
+#     beta = 20,
+#     irr_25=1,
+#     irr_35=1,
+#     irr_45=1,
+#     irr_55=1,
+#     irr_65=1,
+#     r_sc = r_sc,
+#     rr_die_asym = rr_die_asym,
+#     r_die_sym = r_die_sym,
+#     r_onset = r_onset,
+#     r_csi0 = r_csi,
+#     r_recsi0 = r_recsi,
+#     p_ent = p_ent,
+#     p_itt = p_itt,
+#     p_dx = p_dx,
+#     p_txi = p_txi,
+#     p_pri_on_pub = p_pri_on_pub,
+#     tx_dur = c(Pu=dur_pub, Pe=dur_pri, Pr=dur_pri),
+#     p_cure = rbind(
+#       DS = c(Pu=0.9, Pe=0.85, Pr=0.85),
+#       DR = c(0.29, 0.29, 0.29),
+#       NR = c(0.29, 0.29, 0.29)
+#     )
+#   )
+# })
 
-  mu_c <- r_die_sym + r_sc
-  mu_s <- r_die_sym + r_sc
-  mu_a <- r_die_asym + r_sc
-  
-  p_det <- sum(p_ent * p_itt * p_dx * p_txi)
-  
-  r_det <- txi / PrevExCS
-  r_csi <- (r_det + mu_c) * PrevExCS / PrevSym
-  r_onset <- (r_csi + mu_s) * PrevSym / PrevAsym
-  inc <- (r_onset + mu_a) * PrevAsym
-  
-  det0 <- PrevSym * r_csi * p_det
-  r_recsi <- (txi - det0) / (PrevExCS * p_det)
-  
-  list(
-    beta = 20,
-    irr_25=1,
-    irr_35=1,
-    irr_45=1,
-    irr_55=1,
-    irr_65=1,
-    r_sc = r_sc,
-    rr_die_asym = rr_die_asym,
-    r_die_sym = r_die_sym,
-    r_onset = r_onset,
-    r_csi0 = r_csi,
-    r_recsi0 = r_recsi,
-    p_ent = p_ent,
-    p_itt = p_itt,
-    p_dx = p_dx,
-    p_txi = p_txi,
-    p_pri_on_pub = p_pri_on_pub,
-    tx_dur = c(Pu=dur_pub, Pe=dur_pri, Pr=dur_pri),
-    p_cure = rbind(
-      DS = c(Pu=0.9, Pe=0.85, Pr=0.85),
-      DR = c(0.29, 0.29, 0.29),
-      NR = c(0.29, 0.29, 0.29)
-    )
-  )
-})
-
+p1 <- pars_cas[[1]]$pars
+p1$p_cure
 
 pars_intv <- with(p1, {
   list(
@@ -90,21 +88,16 @@ pars_intv <- with(p1, {
   
 
 
-model <- odin::odin("model/tb.R", target = "c")
+model <- odin::odin("model.R", target = "c")
 
 
-cm <- model$new(user = c(pars, p1, pars_intv))
+cm <- model$new(user = c(pars,  p1, pars_intv))
 ys <- cm$run(seq(1800, 2041, 0.25))
 ys <- ys[ys[, "t"] >= 1980, ]
 
 y1 <- array(ys[nrow(ys), startsWith(colnames(ys), "Y[")], c(16, 3, 7))
 y1
 
-
-
-ys[, "Net_Care"]
-ys[, "Net_TB"]
-ys[, "Net_Pop"]
 
 plot(ys[, "t"], ys[, "Inc"], type = 'l')
 
